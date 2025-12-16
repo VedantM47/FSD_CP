@@ -14,7 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
+  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/IEEE-SB-VIT-Pune/Hackathon_Project_2025-26/issues"
   },

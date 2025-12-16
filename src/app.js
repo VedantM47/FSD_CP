@@ -8,4 +8,4 @@ app.use(express.json());
 // app.use('/api/users', require('./routes/user.routes'));
 // app.use('/api/teams', require('./routes/team.routes'));
 
-module.exports = app;policies
+module.exports = app;
