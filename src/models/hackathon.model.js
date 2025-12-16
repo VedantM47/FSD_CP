@@ -1,5 +1,4 @@
-// hackathon.model.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const hackathonSchema = new mongoose.Schema(
   {
@@ -32,4 +31,5 @@ const hackathonSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Hackathon', hackathonSchema);
+const Hackathon = mongoose.model('Hackathon', hackathonSchema);
+export default Hackathon;

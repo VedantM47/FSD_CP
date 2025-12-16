@@ -1,11 +1,24 @@
-const express = require('express');
+import express from 'express';
+import userRoutes from './routes/user.routes.js';
+import errorHandler from './middlewares/error.middleware.js';
 
 const app = express();
 
-// Middleware used to get JSON data from request body₹
+// Middleware to parse JSON requests
 app.use(express.json());
 
-// app.use('/api/users', require('./routes/user.routes'));
-// app.use('/api/teams', require('./routes/team.routes'));
 
-module.exports = app;
+// User Routes
+app.use('/api/users', userRoutes);
+
+
+// Test Route
+app.get('/test',(req, res) => {
+  res.send('API is working fine');
+});
+
+
+// Global Error Handling Middleware
+app.use(errorHandler);
+
+export default app;
