@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema(
     // System-level role
     systemRole: {
       type: String,
-      enum: ['user', 'admin', 'faculty'],
+      enum: ['user', 'admin',],
       default: 'user',
     },
 
@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema(
         },
         role: {
           type: String,
-          enum: ['participant', 'judge', 'organizer'],
+          enum: ['participant', 'judge', 'organizer', 'mentor'],
         },
       },
     ],

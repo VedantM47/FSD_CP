@@ -22,6 +22,23 @@ const policy = {
     );
   },
 
+    // Admin can view all users
+  VIEW_ALL_USERS: ({ user }) => {
+    return user?.systemRole === 'admin';
+  },
+
+    // Admin can view any user
+  VIEW_USER_BY_ID: ({ user }) => {
+    if (!user) return false;
+    return user.systemRole === 'admin';
+  },
+
+  // Admin can delete user
+  DELETE_USER: ({ user }) => {
+    if (!user) return false;
+    return user.systemRole === 'admin';
+  },
+
   // Only system admin has full access
   ADMIN_ALL: ({ user }) => {
     if (!user) return false;
@@ -52,6 +69,33 @@ const policy = {
 
     return true;
   },
+
+  VIEW_TEAM_DETAILS: ({ user, team, hackathon }) => {
+  if (!user || !team) return false;
+
+  // Admin can always view
+  if (user.systemRole === 'admin') return true;
+
+  // Leader
+  if (team.leader.equals(user._id)) return true;
+
+  // Accepted team member
+  const isMember = team.members.some(
+    (m) =>
+      m.userId.equals(user._id) &&
+      m.status === 'accepted'
+  );
+  if (isMember) return true;
+
+  // Organizer of this hackathon
+  const isOrganizer = user.hackathonRoles?.some(
+    (r) =>
+      r.hackathonId.equals(hackathon?._id) &&
+      r.role === 'organizer'
+  );
+
+  return Boolean(isOrganizer);
+},
 
   // Update team details (leader only)
   UPDATE_TEAM: ({ user, team }) => {
@@ -119,6 +163,13 @@ const policy = {
     );
   },
 
+  // Delete team (leader only)
+  DELETE_TEAM: ({ user, team }) => {
+  if (!user || !team) return false;
+  if (team.isLocked) return false;
+  return team.leader.equals(user._id);
+  },
+
   // Submit project (leader only, during ongoing hackathon)
   SUBMIT_PROJECT: ({ user, team, hackathon }) => {
     if (!user || !team || !hackathon) return false;
@@ -129,6 +180,55 @@ const policy = {
 
     return true;
   },
+
+  /* =====================================================
+   HACKATHON POLICIES
+   ===================================================== */
+
+  // Create hackathon
+  CREATE_HACKATHON: ({ user }) => {
+    if (!user) return false;
+
+    return (
+      user.systemRole === 'admin' ||
+      user.systemRole === 'faculty'
+    );
+  },
+
+  // Update hackathon
+  UPDATE_HACKATHON: ({ user, hackathon }) => {
+    if (!user || !hackathon) return false;
+
+    // Admin always allowed
+    if (user.systemRole === 'admin') return true;
+
+    // Faculty allowed
+    if (user.systemRole === 'faculty') return true;
+
+    // Organizer of this hackathon
+    const isOrganizer = user.hackathonRoles?.some(
+      (r) =>
+        r.hackathonId.equals(hackathon._id) &&
+        r.role === 'organizer'
+    );
+
+    return Boolean(isOrganizer);
+  },
+
+  // Delete hackathon
+  DELETE_HACKATHON: ({ user, hackathon }) => {
+    if (!user || !hackathon) return false;
+
+    // Admin only for delete (recommended)
+    if (user.systemRole === 'admin') return true;
+
+    // Optional: allow faculty
+    if (user.systemRole === 'faculty') return true;
+
+    return false;
+  },
 };
 
-module.exports = policy;
+
+
+export default policy;
