@@ -191,7 +191,7 @@ const policy = {
 
     return (
       user.systemRole === 'admin' ||
-      user.systemRole === 'faculty'
+      user.systemRole === 'mentor'
     );
   },
 
@@ -202,8 +202,8 @@ const policy = {
     // Admin always allowed
     if (user.systemRole === 'admin') return true;
 
-    // Faculty allowed
-    if (user.systemRole === 'faculty') return true;
+    // mentor allowed
+    if (user.systemRole === 'mentor') return true;
 
     // Organizer of this hackathon
     const isOrganizer = user.hackathonRoles?.some(
@@ -222,8 +222,8 @@ const policy = {
     // Admin only for delete (recommended)
     if (user.systemRole === 'admin') return true;
 
-    // Optional: allow faculty
-    if (user.systemRole === 'faculty') return true;
+    // Optional: allow mentor
+    if (user.systemRole === 'mentor') return true;
 
     return false;
   },
