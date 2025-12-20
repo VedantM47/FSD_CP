@@ -60,4 +60,16 @@ const teamSchema = new mongoose.Schema(
 );
 
 const Team = mongoose.model('Team', teamSchema);
+
+//  Custom validation to prevent duplicate userId in members array
+teamSchema.pre('save', function(next) {
+  const userIds = this.members.map(m => m.userId.toString());
+  const uniqueIds = new Set(userIds);
+  
+  if (userIds.length !== uniqueIds.size) {
+    return next(new Error('Duplicate user in team members'));
+  }
+  next();
+});
+
 export default Team;

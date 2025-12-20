@@ -60,6 +60,43 @@ export const requestJoinTeam = async (req, res, next) => {
   try {
     const team = await Team.findById(req.params.teamId);
 
+    if (!team) {
+      return next({
+        statusCode: 404,
+        message: 'Team not found',
+      });
+    }
+
+    //  Check if user already in team
+    const userExists = team.members.some(
+      (m) => m.userId.toString() === req.user._id.toString()
+    );
+    if (userExists) {
+      return next({
+        statusCode: 400,
+        message: 'User already in team or has pending request',
+      });
+    }
+
+    //  Check if team is open to join
+    if (!team.isOpenToJoin) {
+      return next({
+        statusCode: 400,
+        message: 'Team is not accepting join requests',
+      });
+    }
+
+    //  Check if team is full (only accepted members count)
+    const acceptedMembers = team.members.filter(
+      (m) => m.status === 'accepted'
+    );
+    if (acceptedMembers.length >= team.maxSize) {
+      return next({
+        statusCode: 400,
+        message: 'Team is full',
+      });
+    }
+
     team.members.push({
       userId: req.user._id,
       status: 'pending',

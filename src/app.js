@@ -18,9 +18,9 @@ app.use('/api/teams', teamRoutes);
 app.use('/api/hackathons', hackathonRoutes);
 
 // Test Route
-app.get('/test',(req, res) => {
-  res.send('API is working fine');
-});
+// app.get('/test',(req, res) => {
+//   res.send('API is working fine');
+// });
 
 
 // Global Error Handling Middleware

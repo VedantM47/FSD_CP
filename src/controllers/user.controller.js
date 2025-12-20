@@ -28,8 +28,8 @@ export const register = async (req, res, next) => {
 // ========================= Login User =========================
 export const login = async (req, res, next) => {
   try {
+    //  Validate user exists first
     const user = await User.findOne({ email: req.body.email }).select('+password');
-    const token = signToken({ id: user._id });
     if (!user) {
       return next({
         statusCode: 401,
@@ -37,6 +37,7 @@ export const login = async (req, res, next) => {
       });
     }
 
+    //  Validate password
     const isMatch = await bcrypt.compare(req.body.password, user.password);
     if (!isMatch) {
       return next({
@@ -44,6 +45,9 @@ export const login = async (req, res, next) => {
         message: 'Invalid credentials',
       });
     }
+
+    //  Generate token AFTER all validations pass
+    const token = signToken({ id: user._id });
 
     res.status(200).json({
       success: true,
