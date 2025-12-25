@@ -227,8 +227,88 @@ const policy = {
 
     return false;
   },
-};
+  /* =====================================================
+     SUBMISSION POLICIES
+     ===================================================== */
 
+  // Create a new submission
+  // Context needed: { user, team, hackathon, existingSubmission }
+  CREATE_SUBMISSION: ({ user, team, hackathon, existingSubmission }) => {
+    if (!user || !team || !hackathon) return false;
+
+    // 1. Only Team Leader can submit
+    if (!team.leader.equals(user._id)) return false;
+
+    // 2. Team must be registered for THIS hackathon
+    // (Assuming hackathonId is an ObjectId)
+    if (!team.hackathonId.equals(hackathon._id)) return false;
+
+    // 3. Hackathon must be 'ongoing'
+    // You cannot submit if the hackathon is 'closed' or just 'open' for registration
+    if (hackathon.status !== 'ongoing') return false;
+
+    // 4. Deadline Check (Strict)
+    // If current time > endDate, submission is blocked
+    if (new Date() > new Date(hackathon.endDate)) return false;
+
+    // 5. Prevent Duplicates
+    // If we passed an existing submission in context, deny creating a new one
+    if (existingSubmission) return false;
+
+    return true;
+  },
+
+  // Update an existing submission (e.g., fix a link)
+  // Context needed: { user, team, hackathon, submission }
+  UPDATE_SUBMISSION: ({ user, team, hackathon, submission }) => {
+    if (!user || !team || !hackathon || !submission) return false;
+
+    // 1. Only Team Leader can edit
+    if (!team.leader.equals(user._id)) return false;
+
+    // 2. Submission must belong to this team
+    if (!submission.teamId.equals(team._id)) return false;
+
+    // 3. Hackathon must still be ongoing (cannot edit after deadline)
+    if (hackathon.status !== 'ongoing') return false;
+    if (new Date() > new Date(hackathon.endDate)) return false;
+
+    return true;
+  },
+
+  // View a submission (PPT/Repo links)
+  // Context needed: { user, team, submission }
+  VIEW_SUBMISSION: ({ user, team, submission }) => {
+    if (!user || !submission) return false;
+
+    // 1. Admin always allowed
+    if (user.systemRole === 'admin') return true;
+
+    // 2. TEAM MEMBERS & LEADER
+    // If the user is in the team (leader or accepted member), they can view.
+    if (team) {
+      // Is Leader?
+      if (team.leader.equals(user._id)) return true;
+      
+      // Is Accepted Member?
+      const isMember = team.members.some(
+        (m) => m.userId.equals(user._id) && m.status === 'accepted'
+      );
+      if (isMember) return true;
+    }
+
+    // 3. JUDGES assigned to THIS specific Hackathon
+    // We check the user's 'hackathonRoles' array
+    const isJudge = user.hackathonRoles?.some(
+      (r) => 
+        r.hackathonId.equals(submission.hackathonId) && 
+        r.role === 'judge'
+    );
+    
+    return Boolean(isJudge);
+  },
+};
+  
 
 
 export default policy;

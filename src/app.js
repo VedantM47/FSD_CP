@@ -3,6 +3,7 @@ import errorHandler from './middlewares/error.middleware.js';
 import userRoutes from './routes/user.routes.js';
 import teamRoutes from './routes/team.routes.js';
 import hackathonRoutes from './routes/hackathon.routes.js';
+import sumbissionRoutes from './routes/submission.routes.js';
 
 const app = express();
 
@@ -16,6 +17,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
 // Hackathon Routes
 app.use('/api/hackathons', hackathonRoutes);
+//Submission Routes
+app.use('/api/submissions',sumbissionRoutes);
 
 // Test Route
 // app.get('/test',(req, res) => {
