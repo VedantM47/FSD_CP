@@ -60,5 +60,10 @@
 - [ABAC -> Attribute Based Accesses Control](https://youtu.be/rvZ35YW4t5k)
 
 
+## Role Explained
 
-
+- Admin : Super User
+- User : normal web user
+- Mentor : this role is assigned my admin which can create hackathon
+- Organizer : this role is assigned by the mentor who can manage the hackathon 
+- Judge : who can assess the hackathon
