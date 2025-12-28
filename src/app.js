@@ -8,9 +8,9 @@ import rateLimit from 'express-rate-limit';
 
 const app = express();
 const apilimiter = rateLimit({
-    window:1000,
-    max:5,
-    message:"Too many Request"
+    windowMs : 1000,
+    max : 5,
+    message:"Too many Request",
 });
 
 // Middleware to parse JSON requests

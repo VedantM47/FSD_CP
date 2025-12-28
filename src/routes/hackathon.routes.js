@@ -10,6 +10,8 @@ import {
   updateHackathonStatus,
   deleteHackathon,
   getTeamsByHackathon,
+  assignJudgeToHackathon,
+  removeJudgeFromHackathon,
 } from '../controllers/hackathon.controller.js';
 
 import Hackathon from '../models/hackathon.model.js';
@@ -63,6 +65,36 @@ router.patch(
   }),
   updateHackathonStatus
 );
+
+/* ================= ASSIGN JUDGE ================= */
+router.post(
+  '/:hackathonId/judges',
+  auth,
+  authorize('ASSIGN_JUDGE', async (req) => {
+    const hackathon = await Hackathon.findById(req.params.hackathonId);
+    return {
+      user: req.user,
+      hackathon,
+    };
+  }),
+  assignJudgeToHackathon
+);
+
+
+// * ================= REMOVE JUDGE ================= */
+router.delete(
+  '/:hackathonId/judges/:judgeUserId',
+  auth,
+  authorize('REMOVE_JUDGE', async (req) => {
+    const hackathon = await Hackathon.findById(req.params.hackathonId);
+    return {
+      user: req.user,
+      hackathon,
+    };
+  }),
+  removeJudgeFromHackathon
+);
+
 
 // Delete hackathon (admin / Mentor)
 router.delete(
