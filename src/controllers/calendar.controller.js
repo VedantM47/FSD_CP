@@ -94,21 +94,59 @@ export const getUserCalendar = async (req, res, next) => {
  * @route   GET /api/calendar/export
  * @access  Private
  */
-export const exportToGoogleCalendar = async (req, res, next) => {
-    try {
-        // Basic ICS generation logic
-        const userId = req.user._id;
-        // ... logic similar to getUserCalendar to get events ...
-        // For brevity, I will mock a part of it or use a library if available.
-        // Since I don't have an ics library installed, I'll return a helpful JSON 
-        // structure that a frontend could use to generate the file, 
-        // or provide a simple string-based ICS for basic events.
 
-        res.status(200).json({
-            success: true,
-            message: 'ICS Export functionality is mapped. Please use /api/calendar for data.'
-        });
-    } catch (err) {
-        next({ statusCode: 500, message: err.message });
+export const exportToGoogleCalendar = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    // 1. Fetch calendar events (reuse your existing logic)
+    const events = await CalendarEvent.find({ userId });
+
+    if (!events.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No calendar events found to export'
+      });
     }
+
+    // 2. Build ICS content
+    let icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:-//YourApp//Calendar Export//EN
+`;
+
+    events.forEach(event => {
+      const formatDate = (date) =>
+        new Date(date)
+          .toISOString()
+          .replace(/[-:]/g, '')
+          .split('.')[0] + 'Z';
+
+      icsContent += `BEGIN:VEVENT
+UID:${event._id}@yourapp.com
+DTSTAMP:${formatDate(new Date())}
+DTSTART:${formatDate(event.startDate)}
+DTEND:${formatDate(event.endDate)}
+SUMMARY:${event.title}
+DESCRIPTION:${event.description || ''}
+END:VEVENT
+`;
+    });
+
+    icsContent += `END:VCALENDAR`;
+
+    // 3. Send as downloadable file
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="calendar.ics"'
+    );
+
+    return res.status(200).send(icsContent);
+
+  } catch (err) {
+    next({ statusCode: 500, message: err.message });
+  }
 };
+
