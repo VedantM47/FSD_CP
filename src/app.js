@@ -4,7 +4,6 @@ import userRoutes from './routes/user.routes.js';
 import teamRoutes from './routes/team.routes.js';
 import hackathonRoutes from './routes/hackathon.routes.js';
 import calendarRoutes from './routes/calendar.routes.js';
-import notificationRoutes from './routes/notification.routes.js';
 
 const app = express();
 
@@ -20,8 +19,6 @@ app.use('/api/teams', teamRoutes);
 app.use('/api/hackathons', hackathonRoutes);
 // Calendar Routes
 app.use('/api/calendar', calendarRoutes);
-// Notification Routes
-app.use('/api/notifications', notificationRoutes);
 
 // Test Route
 app.get('/test', (req, res) => {

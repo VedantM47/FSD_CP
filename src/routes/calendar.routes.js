@@ -1,10 +1,10 @@
 import express from 'express';
-import { getUserCalendar, exportToGoogleCalendar } from '../controllers/calendar.controller.js';
-import auth from '../middlewares/auth.middleware.js';
+import { getPublicCalendar, exportToGoogleCalendar } from '../controllers/calendar.controller.js';
 
 const router = express.Router();
 
-router.get('/', auth, getUserCalendar);
-router.get('/export', auth, exportToGoogleCalendar);
+// Public routes - no auth required
+router.get('/', getPublicCalendar);
+router.get('/export', exportToGoogleCalendar);
 
 export default router;
