@@ -215,6 +215,46 @@ const policy = {
     return Boolean(isOrganizer);
   },
 
+  // Assign judge to hackathon
+  ASSIGN_JUDGE: ({ user, hackathon }) => {
+  if (!user || !hackathon) return false;
+
+  // Admin always allowed
+  if (user.systemRole === 'admin') return true;
+
+  // Mentor allowed
+  if (user.systemRole === 'Mentor') return true;
+
+  // Organizer of this hackathon allowed
+  const isOrganizer = user.hackathonRoles?.some(
+    (r) =>
+      r.hackathonId.equals(hackathon._id) &&
+      r.role === 'organizer'
+  );
+
+  return Boolean(isOrganizer);
+},
+
+// Remove judge from hackathon
+REMOVE_JUDGE: ({ user, hackathon }) => {
+  if (!user || !hackathon) return false;
+
+  // Admin
+  if (user.systemRole === 'admin') return true;
+
+  // Faculty / Mentor
+  if (user.systemRole === 'faculty') return true;
+
+  // Organizer of this hackathon
+  const isOrganizer = user.hackathonRoles?.some(
+    (r) =>
+      r.hackathonId.equals(hackathon._id) &&
+      r.role === 'organizer'
+  );
+
+  return Boolean(isOrganizer);
+},
+
   // Delete hackathon
   DELETE_HACKATHON: ({ user, hackathon }) => {
     if (!user || !hackathon) return false;

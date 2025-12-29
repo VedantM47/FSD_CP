@@ -1,21 +1,25 @@
 import Team from '../models/team.model.js';
+import Hackathon from '../models/hackathon.model.js';
 
 /* ================= CREATE TEAM ================= */
 export const createTeam = async (req, res, next) => {
   try {
-    const { name, hackathonId, maxSize } = req.body;
+    const { name, hackathonId } = req.body;
+    const hackathon = await Hackathon.findById(hackathonId);
+    const maxTeamSize = hackathon.maxTeamSize ?? hackathon.maxSize ?? 4;
 
     const team = await Team.create({
       name,
       hackathonId,
       leader: req.user._id,
-      maxSize,
+      maxSize: maxTeamSize,
       members: [
         {
           userId: req.user._id,
           status: 'accepted',
         },
       ],
+      isOpenToJoin: true,
     });
 
     res.status(201).json({
