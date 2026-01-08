@@ -242,8 +242,8 @@ REMOVE_JUDGE: ({ user, hackathon }) => {
   // Admin
   if (user.systemRole === 'admin') return true;
 
-  // Faculty / Mentor
-  if (user.systemRole === 'faculty') return true;
+  // mentor / Mentor
+  if (user.systemRole === 'mentor') return true;
 
   // Organizer of this hackathon
   const isOrganizer = user.hackathonRoles?.some(
@@ -347,6 +347,73 @@ REMOVE_JUDGE: ({ user, hackathon }) => {
     
     return Boolean(isJudge);
   },
+
+  /* ================= EVALUATION POLICIES ================= */
+
+  // Judge can evaluate team in hackathon
+  CREATE_EVALUATION: ({ user, hackathon, team }) => {
+    if (!user || !hackathon || !team) return false;
+
+    // Admin override
+    if (user.systemRole === 'admin') return true;
+
+    // Judge assigned to this hackathon
+    const isJudge = hackathon.judges?.some(
+      (j) => j.judgeUserId.toString() === user._id.toString()
+    );
+
+    return Boolean(isJudge);
+  },
+
+  // Judge can update own evaluation (if not locked)
+  UPDATE_EVALUATION: ({ user, evaluation }) => {
+    if (!user || !evaluation) return false;
+
+    if (evaluation.status === 'locked') return false;
+
+    // Admin override
+    if (user.systemRole === 'admin') return true;
+
+    return evaluation.judgeId.equals(user._id);
+  },
+
+  // Admin / mentor can lock evaluation
+  LOCK_EVALUATION: ({ user }) => {
+    if (!user) return false;
+    return user.systemRole === 'admin' || user.systemRole === 'mentor';
+  },
+
+  // View evaluation (restricted)
+  VIEW_EVALUATION: ({ user, hackathon, team }) => {
+    if (!user || !hackathon || !team) return false;
+
+    // Admin
+    if (user.systemRole === 'admin') return true;
+
+    // Judge of this hackathon
+    const isJudge = hackathon.judges?.some(
+      (j) => j.judgeUserId.toString() === user._id.toString()
+    );
+    if (isJudge) return true;
+
+    // Team leader or accepted member
+    if (team.leader.equals(user._id)) return true;
+
+    const isMember = team.members?.some(
+      (m) =>
+        m.userId.equals(user._id) &&
+        m.status === 'accepted'
+    );
+
+    return Boolean(isMember);
+  },
+
+  // Admin / mentor can delete evaluation
+  DELETE_EVALUATION: ({ user }) => {
+    if (!user) return false;
+    return user.systemRole === 'admin' || user.systemRole === 'mentor';
+  },
+ 
 };
   
 

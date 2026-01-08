@@ -5,7 +5,7 @@ import teamRoutes from './routes/team.routes.js';
 import hackathonRoutes from './routes/hackathon.routes.js';
 import sumbissionRoutes from './routes/submission.routes.js';
 import rateLimit from 'express-rate-limit';
-
+import evaluationRoutes from './routes/evaluation.routes.js';
 const app = express();
 const apilimiter = rateLimit({
     windowMs : 1000,
@@ -24,8 +24,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
 // Hackathon Routes
 app.use('/api/hackathons', hackathonRoutes);
-//Submission Routes
+// Submission Routes
 app.use('/api/submissions',sumbissionRoutes);
+// Evaluation Routes
+app.use('/api/evaluations',evaluationRoutes);
 // Test Route
 app.get('/test',(req, res) => {
   res.send('API is working fine');
