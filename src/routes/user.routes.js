@@ -5,6 +5,7 @@ import authorize from '../middlewares/authorize.js';
 import {
   register,
   login,
+  logout,
   getMe,
   updateMe,
   getAllUsers,
@@ -17,24 +18,20 @@ const router = express.Router();
 /* ============ PUBLIC ============ */
 router.post('/register', register);
 router.post('/login', login);
+router.post('/logout', auth, logout);
 
 /* ============ USER (SELF) ============ */
 router.get('/me', auth, getMe);
 router.put('/me', auth, updateMe);
 
 /* ============ ADMIN (ABAC) ============ */
-
-// Get all users
 router.get(
   '/',
   auth,
-  authorize('VIEW_ALL_USERS', async (req) => ({
-    user: req.user,
-  })),
+  authorize('VIEW_ALL_USERS', async (req) => ({ user: req.user })),
   getAllUsers
 );
 
-// Get user by ID
 router.get(
   '/:id',
   auth,
@@ -45,7 +42,6 @@ router.get(
   getUserById
 );
 
-// Delete user
 router.delete(
   '/:id',
   auth,
