@@ -27,8 +27,17 @@ export const createTeam = async (req, res, next) => {
       data: team,
     });
   } catch (err) {
-    next({ statusCode: 400, message: err.message });
-  }
+    if (err.code === 11000) {
+      return next({
+        statusCode: 400, ̰
+        message: 'Team name already exists in this hackathon',
+      });
+    }
+    next({
+      statusCode: 500,
+      message: err.message,
+  });
+}
 };
 
 /* ================= GET TEAM DETAILS ================= */

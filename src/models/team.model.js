@@ -72,4 +72,10 @@ teamSchema.pre('save', function(next) {
   next();
 });
 
+// unique team name
+teamSchema.index(
+  { name: 1, hackathonId: 1 },
+  { unique: true }
+);
+
 export default Team;
