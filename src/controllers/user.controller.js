@@ -61,6 +61,23 @@ export const login = async (req, res, next) => {
   }
 };
 
+/* ========================= Logout User ========================= */
+export const logout = async (req, res) => {
+  try {
+    // Optional: Add token to blacklist here (Redis / DB)
+    res.status(200).json({
+      success: true,
+      message: 'User logged out successfully',
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+
 /* ================= GET SELF ================= */
 export const getMe = async (req, res) => {
   res.status(200).json({
