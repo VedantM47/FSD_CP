@@ -45,6 +45,11 @@ const policy = {
     return user.systemRole === 'admin';
   },
 
+  // Any logged-in user can search users
+  SEARCH_USERS: ({ user }) => {
+  return Boolean(user);
+},
+
   /* =====================================================
      TEAM POLICIES
      ===================================================== */

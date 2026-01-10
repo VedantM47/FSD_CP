@@ -11,6 +11,7 @@ import {
   getAllUsers,
   getUserById,
   deleteUser,
+  searchUsers,
 } from '../controllers/user.controller.js';
 
 const router = express.Router();
@@ -23,6 +24,16 @@ router.post('/logout', auth, logout);
 /* ============ USER (SELF) ============ */
 router.get('/me', auth, getMe);
 router.put('/me', auth, updateMe);
+
+/* ================= SEARCH USERS ================= */
+router.get(
+  '/search',
+  auth,
+  authorize('SEARCH_USERS', async (req) => ({
+    user: req.user,
+  })),
+  searchUsers
+);
 
 /* ============ ADMIN (ABAC) ============ */
 router.get(

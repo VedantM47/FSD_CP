@@ -113,6 +113,8 @@ const userSchema = new mongoose.Schema(
   }
   
 );
+// indexing
+userSchema.index({ fullName: 'text', email: 'text' });
 
 const User = mongoose.model('User', userSchema);
 export default User;

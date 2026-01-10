@@ -106,6 +106,42 @@ export const updateMe = async (req, res, next) => {
   }
 };
 
+/* ================= SEARCH USERS ================= */
+export const searchUsers = async (req, res, next) => {
+  try {
+    const { q } = req.query;
+
+    if (!q) {
+      return next({
+        statusCode: 400,
+        message: 'Search query is required',
+      });
+    }
+
+    const users = await User.find(
+      {
+        $or: [
+          { fullName: { $regex: q, $options: 'i' } },
+          { email: { $regex: q, $options: 'i' } },
+        ],
+      },
+      'fullName email'
+    ).limit(20);
+
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      data: users,
+    });
+  } catch (err) {
+    next({
+      statusCode: 500,
+      message: err.message,
+    });
+  }
+};
+
+
 /* ================= ADMIN: GET ALL USERS ================= */
 export const getAllUsers = async (req, res, next) => {
   try {

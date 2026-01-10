@@ -29,7 +29,7 @@ export const createTeam = async (req, res, next) => {
   } catch (err) {
     if (err.code === 11000) {
       return next({
-        statusCode: 400, ̰
+        statusCode: 400, 
         message: 'Team name already exists in this hackathon',
       });
     }
