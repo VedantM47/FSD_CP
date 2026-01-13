@@ -1,0 +1,611 @@
+/* ============================================ */
+/* ADMIN CSS STYLES - FIXED SCROLLING */
+/* ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* CHANGE #1: Remove overflow: hidden, add height: 100% */
+html, body {
+  height: 100%;
+  overflow: hidden; /* Prevent body scroll */
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+/* ============================================ */
+/* NAVBAR */
+/* ============================================ */
+
+.admin-navbar {
+  background-color: #043873;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  flex-shrink: 0; /* Prevent navbar from shrinking */
+}
+
+.navbar-content {
+  height: 100%;
+  padding: 0 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-left,
+.navbar-center,
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-left {
+  flex: 1;
+}
+
+.navbar-center {
+  flex: 1;
+  justify-content: center;
+}
+
+.navbar-right {
+  flex: 1;
+  justify-content: flex-end;
+  gap: 28px;
+}
+
+/* Brand */
+.navbar-logo {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* Title */
+.navbar-title {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+/* Links */
+.nav-link {
+  color: #E2E8F0;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  padding-bottom: 4px;
+  transition: color 0.2s ease, border-bottom 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #ffffff;
+}
+
+.nav-link.active {
+  color: #ffffff;
+  border-bottom: 2px solid #4f9cf9;
+}
+
+/* Logout */
+.nav-link.logout {
+  color: #FFD6D6;
+}
+
+.nav-link.logout:hover {
+  color: #ffffff;
+}
+
+/* ============================================ */
+/* LAYOUT STYLES - CRITICAL CHANGES */
+/* ============================================ */
+
+/* CHANGE #2: Add height: 100% and keep flex column */
+.admin-layout {
+  height: 100%; /* Changed from min-height: 100vh */
+  display: flex;
+  flex-direction: column;
+}
+
+/* CHANGE #3: Add overflow-y: auto to enable scrolling */
+.admin-main {
+  flex: 1;
+  overflow-y: auto; /* THIS ENABLES SCROLLING */
+  overflow-x: hidden;
+  padding: 32px 0;
+}
+
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ============================================ */
+/* BUTTON STYLES */
+/* ============================================ */
+
+.create-hackathon-btn {
+  background-color: #4f9cf9;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.create-hackathon-btn:hover {
+  background-color: #3a87e0;
+}
+
+.btn-icon {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* ============================================ */
+/* OVERVIEW SECTION */
+/* ============================================ */
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #043873;
+  margin-bottom: 16px;
+}
+
+.overview-section {
+  margin-bottom: 32px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.stats-card {
+  background-color: #d9e7fa;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.stats-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #043873;
+  margin-bottom: 8px;
+}
+
+.stats-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #5a6c7d;
+}
+
+/* ============================================ */
+/* ALERTS SECTION */
+/* ============================================ */
+
+.alerts-section {
+  margin-bottom: 32px;
+}
+
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alert-banner {
+  background-color: #ffe492;
+  padding: 16px 20px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.alert-icon {
+  color: #9d7e1d;
+  flex-shrink: 0;
+}
+
+.alert-message {
+  font-size: 14px;
+  font-weight: 500;
+  color: #5a4a0f;
+}
+
+/* ============================================ */
+/* HACKATHONS SECTION */
+/* ============================================ */
+
+.hackathons-section {
+  margin-bottom: 32px;
+}
+
+.hackathons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hackathon-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hackathon-info {
+  flex: 1;
+}
+
+.hackathon-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.hackathon-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #043873;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-live {
+  background-color: #4f9cf9;
+  color: #ffffff;
+}
+
+.status-draft {
+  background-color: #ffe492;
+  color: #5a4a0f;
+}
+
+.status-closed {
+  background-color: #e0e0e0;
+  color: #5a6c7d;
+}
+
+.hackathon-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #5a6c7d;
+}
+
+.hackathon-divider {
+  color: #d0d0d0;
+}
+
+.hackathon-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #e0e0e0;
+  background-color: #ffffff;
+  color: #043873;
+}
+
+.action-btn:hover {
+  background-color: #f5f5f5;
+}
+
+/* ============================================ */
+/* FOOTER STYLES */
+/* ============================================ */
+
+.admin-footer {
+  background-color: #043873;
+  padding: 24px 0;
+  flex-shrink: 0; /* Prevent footer from shrinking */
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-brand {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.footer-right {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-link {
+  color: #ffffff;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}
+
+/* ============================================ */
+/* CREATE HACKATHON PAGE STYLES */
+/* ============================================ */
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #4f9cf9;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+.back-btn:hover {
+  text-decoration: underline;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #043873;
+}
+
+.info-banner {
+  background-color: #ffe492;
+  padding: 16px 20px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.info-icon {
+  color: #9d7e1d;
+  flex-shrink: 0;
+}
+
+.hackathon-form {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 32px;
+}
+
+.form-section {
+  margin-bottom: 40px;
+}
+
+.form-section:last-of-type {
+  margin-bottom: 32px;
+}
+
+.form-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #043873;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+}
+
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  outline: none;
+  border-color: #4f9cf9;
+}
+
+.form-textarea {
+  resize: vertical;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.round-card {
+  background-color: #f8f9fa;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 16px;
+}
+
+.add-round-btn, .add-judge-btn {
+  background-color: #4f9cf9;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.add-round-btn:hover, .add-judge-btn:hover {
+  background-color: #3a87e0;
+}
+
+.judge-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.judge-input {
+  margin-bottom: 0;
+}
+
+.problem-statement-group {
+  margin-top: 24px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-primary, .btn-secondary {
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background-color: #4f9cf9;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #3a87e0;
+}
+
+.btn-secondary {
+  background-color: #e0e0e0;
+  color: #043873;
+}
+
+.btn-secondary:hover {
+  background-color: #d0d0d0;
+}
+
+/* ============================================ */
+/* RESPONSIVE STYLES */
+/* ============================================ */
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hackathon-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .hackathon-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar-content {
+    padding: 0 16px;
+  }
+
+  .navbar-title {
+    display: none;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .footer-right {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .user-name {
+    display: none;
+  }
+}

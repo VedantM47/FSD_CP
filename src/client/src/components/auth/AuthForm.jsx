@@ -1,13 +1,28 @@
 import React from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import Input from '../common/Input';
 import Button from '../common/Button';
 import SocialButtons from './SocialButtons';
 
 const AuthForm = ({ type }) => {
   const isSignup = type === 'signup';
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Only check admin credentials on LOGIN
+    if (!isSignup) {
+      const email = e.target.email.value;
+      const password = e.target.password.value;
+
+      // 🔐 HARDCODED ADMIN LOGIN (UI ONLY)
+      if (email === 'admin@example.com' && password === '1234') {
+        navigate('/admin/dashboard');
+        return;
+      }
+    }
+
     console.log(`${type} form submitted (UI only)`);
   };
 
@@ -28,6 +43,7 @@ const AuthForm = ({ type }) => {
         {isSignup && (
           <Input
             label="Name"
+            name="name"
             type="text"
             placeholder="Enter your name"
             required
@@ -36,6 +52,7 @@ const AuthForm = ({ type }) => {
 
         <Input
           label="Email address"
+          name="email"
           type="email"
           placeholder="Enter your email"
           required
@@ -43,6 +60,7 @@ const AuthForm = ({ type }) => {
 
         <Input
           label="Password"
+          name="password"
           type="password"
           placeholder="Enter your password"
           required
@@ -50,9 +68,7 @@ const AuthForm = ({ type }) => {
 
         {!isSignup && (
           <div className="forgot-password-wrapper">
-            <a href="#" className="forgot-password" onClick={(e) => e.preventDefault()}>
-              Forgot your password?
-            </a>
+            <span className="forgot-password">Forgot your password?</span>
           </div>
         )}
 
@@ -78,20 +94,19 @@ const AuthForm = ({ type }) => {
         {isSignup ? (
           <>
             Already have an account?{' '}
-            <a href="/login" className="auth-link">
+            <Link to="/login" className="auth-link">
               Login
-            </a>
+            </Link>
           </>
         ) : (
           <>
             Don&apos;t have an account?{' '}
-            <a href="/signup" className="auth-link">
+            <Link to="/signup" className="auth-link">
               Signup
-            </a>
+            </Link>
           </>
         )}
       </p>
-
     </div>
   );
 };
