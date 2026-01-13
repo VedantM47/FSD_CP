@@ -199,6 +199,37 @@ export const removeJudgeFromHackathon = async (req, res, next) => {
   }
 };
 
+// ================= SEARCH HACKATHONS =================
+
+export const searchHackathons = async (req, res, next) => {
+  try {
+    const { q, status } = req.query;
+
+    const filter = {};
+
+    if (q) {
+      filter.title = { $regex: q, $options: 'i' };
+    }
+
+    if (status) {
+      filter.status = status; // open, ongoing, closed
+    }
+
+    const hackathons = await Hackathon.find(filter)
+      .select("title startDate endDate status maxTeamSize prizePool")
+      .sort({ startDate: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: hackathons.length,
+      data: hackathons
+    });
+
+  } catch (err) {
+    next({ statusCode: 500, message: err.message });
+  }
+};
+
 /* ================= UPDATE HACKATHON ================= */
 /* Admin / Mentor */
 export const updateHackathon = async (req, res, next) => {

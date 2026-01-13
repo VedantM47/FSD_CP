@@ -203,6 +203,46 @@ export const manageTeamMember = async (req, res, next) => {
   }
 };
 
+//* ================= SEARCH TEAMS ================= */
+export const searchTeams = async (req, res, next) => {
+  try {
+    const { q } = req.query;
+    const { hackathonId } = req.params;
+
+    if (!q) {
+      return next({ statusCode: 400, message: "Search query required" });
+    }
+
+    const teams = await Team.find({
+      hackathonId,
+      name: { $regex: q, $options: "i" }
+    })
+      .select("name leader members maxSize isOpenToJoin")
+      .populate("leader", "fullName email");
+
+    res.status(200).json({
+      success: true,
+      count: teams.length,
+      data: teams
+    });
+
+  } catch (err) {
+    next({ statusCode: 500, message: err.message });
+  }
+};
+
+
+
+export const publicTeamSearch = async (req, res) => {
+  const teams = await Team.find({
+    hackathonId: req.params.hackathonId,
+    name: { $regex: req.query.q, $options: 'i' },
+    isOpenToJoin: true
+  }).select("name maxSize members");
+
+  res.json({ success: true, data: teams });
+};
+
 // ================= GET PENDING JOIN REQUESTS ================= */
 export const getPendingJoinRequests = async (req, res, next) => {
   try {
