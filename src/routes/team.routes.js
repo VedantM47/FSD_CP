@@ -30,7 +30,7 @@ router.post(
       'members.userId': req.user._id,
       'members.status': 'accepted',
     });
-
+    console.log({ existingTeam }, 'existingTeam in team.routes', hackathon, req.user._id);
     return {
       user: req.user,
       hackathon,

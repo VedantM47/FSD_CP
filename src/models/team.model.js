@@ -78,4 +78,7 @@ teamSchema.index(
   { unique: true }
 );
 
+// text index for searching teams by name
+teamSchema.index({ name: 'text' });
+
 export default Team;

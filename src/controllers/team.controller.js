@@ -1,5 +1,5 @@
-import Team from '../models/team.model.js';
-import Hackathon from '../models/hackathon.model.js';
+import Team from "../models/team.model.js";
+import Hackathon from "../models/hackathon.model.js";
 
 /* ================= CREATE TEAM ================= */
 export const createTeam = async (req, res, next) => {
@@ -16,12 +16,17 @@ export const createTeam = async (req, res, next) => {
       members: [
         {
           userId: req.user._id,
-          status: 'accepted',
+          status: "accepted",
         },
       ],
       isOpenToJoin: true,
     });
 
+    req.user.hackathonRoles.push({
+      hackathonId,
+      role: "participant",
+    });
+    await req.user.save();
     res.status(201).json({
       success: true,
       data: team,
@@ -29,15 +34,15 @@ export const createTeam = async (req, res, next) => {
   } catch (err) {
     if (err.code === 11000) {
       return next({
-        statusCode: 400, 
-        message: 'Team name already exists in this hackathon',
+        statusCode: 400,
+        message: "Team name already exists in this hackathon",
       });
     }
     next({
       statusCode: 500,
       message: err.message,
-  });
-}
+    });
+  }
 };
 
 /* ================= GET TEAM DETAILS ================= */
@@ -46,13 +51,13 @@ export const getTeamDetails = async (req, res, next) => {
     const { teamId } = req.params;
 
     const team = await Team.findById(teamId)
-      .populate('leader', 'fullName email')
-      .populate('members.userId', 'fullName email');
+      .populate("leader", "fullName email")
+      .populate("members.userId", "fullName email");
 
     if (!team) {
       return next({
         statusCode: 404,
-        message: 'Team not found',
+        message: "Team not found",
       });
     }
 
@@ -76,7 +81,7 @@ export const requestJoinTeam = async (req, res, next) => {
     if (!team) {
       return next({
         statusCode: 404,
-        message: 'Team not found',
+        message: "Team not found",
       });
     }
 
@@ -87,7 +92,7 @@ export const requestJoinTeam = async (req, res, next) => {
     if (userExists) {
       return next({
         statusCode: 400,
-        message: 'User already in team or has pending request',
+        message: "User already in team or has pending request",
       });
     }
 
@@ -95,31 +100,29 @@ export const requestJoinTeam = async (req, res, next) => {
     if (!team.isOpenToJoin) {
       return next({
         statusCode: 400,
-        message: 'Team is not accepting join requests',
+        message: "Team is not accepting join requests",
       });
     }
 
     //  Check if team is full (only accepted members count)
-    const acceptedMembers = team.members.filter(
-      (m) => m.status === 'accepted'
-    );
+    const acceptedMembers = team.members.filter((m) => m.status === "accepted");
     if (acceptedMembers.length >= team.maxSize) {
       return next({
         statusCode: 400,
-        message: 'Team is full',
+        message: "Team is full",
       });
     }
 
     team.members.push({
       userId: req.user._id,
-      status: 'pending',
+      status: "pending",
     });
 
     await team.save();
 
     res.status(200).json({
       success: true,
-      message: 'Join request sent',
+      message: "Join request sent",
     });
   } catch (err) {
     next({ statusCode: 400, message: err.message });
@@ -133,12 +136,10 @@ export const manageTeamMember = async (req, res, next) => {
 
     const team = await Team.findById(req.params.teamId);
 
-    const member = team.members.find(
-      (m) => m.userId.toString() === memberId
-    );
+    const member = team.members.find((m) => m.userId.toString() === memberId);
 
     if (!member) {
-      return next({ statusCode: 404, message: 'Member not found' });
+      return next({ statusCode: 404, message: "Member not found" });
     }
 
     member.status = status;
@@ -153,24 +154,25 @@ export const manageTeamMember = async (req, res, next) => {
   }
 };
 
-
 // ================= GET PENDING JOIN REQUESTS ================= */
 export const getPendingJoinRequests = async (req, res, next) => {
   try {
     const { teamId } = req.params;
 
-    const team = await Team.findById(teamId)
-      .populate('members.userId', 'fullName email');
+    const team = await Team.findById(teamId).populate(
+      "members.userId",
+      "fullName email"
+    );
 
     if (!team) {
       return next({
         statusCode: 404,
-        message: 'Team not found',
+        message: "Team not found",
       });
     }
 
     const pendingMembers = team.members.filter(
-      (member) => member.status === 'pending'
+      (member) => member.status === "pending"
     );
 
     res.status(200).json({
@@ -217,7 +219,7 @@ export const leaveTeam = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'Left team successfully',
+      message: "Left team successfully",
     });
   } catch (err) {
     next({ statusCode: 400, message: err.message });
@@ -234,13 +236,13 @@ export const deleteTeam = async (req, res, next) => {
     if (!team) {
       return next({
         statusCode: 404,
-        message: 'Team not found',
+        message: "Team not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Team deleted successfully',
+      message: "Team deleted successfully",
     });
   } catch (err) {
     next({
