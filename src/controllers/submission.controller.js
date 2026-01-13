@@ -1,71 +1,54 @@
 import Submission from '../models/submission.model.js';
 import Team from '../models/team.model.js';
+import Hackathon from '../models/hackathon.model.js';
 
-export const createSubmission = async (req, res, next) => {
+/* ================= CREATE SUBMISSION ================= */
+
+export const createEvaluation = async (req, res, next) => {
   try {
-    const userId = req.user._id;
-    const { 
-      hackathonId, 
-      teamId, 
-      title, 
-      description, 
-      pptLink, 
-      repoLink, 
-      demoLink,
-      track 
-    } = req.body;
+    const { hackathonId, teamId, round, criteriaScores, remarks } = req.body;
 
-    // 1. Create the Submission Document
-    const newSubmission = new Submission({
+    // Prevent duplicate
+    const exists = await Evaluation.findOne({
       hackathonId,
       teamId,
-      submittedBy: userId,
-      track,
-      projectDetails: {
-        title,
-        description,
-        pptLink,    
-        repoLink,   
-        demoLink    
-      },
-      status: 'submitted',
-      round: 'Round 1' 
+      judgeId: req.user._id,
+      round
     });
 
-    await newSubmission.save();
-
-    // 2. SYNC: Update the 'Team' model
-   
-    await Team.findByIdAndUpdate(teamId, {
-      project: {
-        title: title,
-        description: description,
-        driveUrl: pptLink,   
-        repoUrl: repoLink,
-        demoUrl: demoLink,
-        submittedAt: new Date()
-      },
-      isLocked: true 
-    });
-
-    // 3. Success Response
-    res.status(201).json({ 
-      success: true,
-      message: "Project submitted successfully!", 
-      submission: newSubmission
-    });
-
-  } catch (error) {
-    // Handle Duplicate Key Error (Double Submission Race Condition)
-    if (error.code === 11000) {
-      return next({
-        statusCode: 400,
-        message: "A submission for this team already exists."
-      });
+    if (exists) {
+      return next({ statusCode: 400, message: "Already evaluated" });
     }
-    next(error); 
+
+    // Compute total score
+    let total = 0;
+    let weightSum = 0;
+
+    for (const key in criteriaScores) {
+      const { score, weight } = criteriaScores[key];
+      total += score * weight;
+      weightSum += weight;
+    }
+
+    const evaluation = await Evaluation.create({
+      hackathonId,
+      teamId,
+      judgeId: req.user._id,
+      round,
+      criteriaScores,
+      totalScore: total,
+      normalizedScore: total / weightSum,
+      remarks,
+      status: "submitted"
+    });
+
+    res.status(201).json({ success: true, data: evaluation });
+  } catch (err) {
+    next(err);
   }
 };
+
+// ================= GET SUBMISSION DETAILS =================
 export const getSubmission = async (req, res, next) => {
   try {
     const { submissionId } = req.params;
@@ -90,6 +73,8 @@ export const getSubmission = async (req, res, next) => {
     next(error);
   }
 };
+
+// ================= CONTEXT FOR UPDATING SUBMISSION =================
 const getUpdateContext = async (req) => {
   const { submissionId } = req.params;
   
@@ -106,6 +91,8 @@ const getUpdateContext = async (req) => {
     hackathon
   };
 };
+
+// ================= UPDATE SUBMISSION =================
 export const updateSubmission = async (req, res, next) => {
   try {
     const { submissionId } = req.params; 

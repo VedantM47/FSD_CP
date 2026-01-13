@@ -11,7 +11,7 @@ export const oauthCallback = async (req, res) => {
     user: {
       id: req.user._id,
       email: req.user.email,
-      name: req.user.name,
+      name: req.user.fullName,
     },
   });
 };

@@ -178,7 +178,8 @@ export const getUserById = async (req, res, next) => {
 /* ================= ADMIN: DELETE USER ================= */
 export const deleteUser = async (req, res, next) => {
   try {
-    await User.findByIdAndDelete(req.params.id);
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return next({ statusCode: 404, message: 'User not found' });
 
     res.status(200).json({
       success: true,

@@ -135,22 +135,71 @@ export const manageTeamMember = async (req, res, next) => {
     const { memberId, status } = req.body; // accepted | rejected
 
     const team = await Team.findById(req.params.teamId);
+    if (!team) {
+      return next({ statusCode: 404, message: "Team not found" });
+    }
 
-    const member = team.members.find((m) => m.userId.toString() === memberId);
-
+    const member = team.members.find(
+      m => m.userId.toString() === memberId
+    );
     if (!member) {
       return next({ statusCode: 404, message: "Member not found" });
+    }
+
+    // Prevent accepting if team is full
+    if (status === "accepted") {
+      const accepted = team.members.filter(m => m.status === "accepted");
+      if (accepted.length >= team.maxSize) {
+        return next({ statusCode: 400, message: "Team is full" });
+      }
     }
 
     member.status = status;
     await team.save();
 
+    const user = await User.findById(memberId);
+    if (!user) return next({ statusCode: 404, message: "User not found" });
+
+    if (status === "accepted") {
+      // Add participant role
+      const exists = user.hackathonRoles.some(
+        r =>
+          r.hackathonId.equals(team.hackathonId) &&
+          r.role === "participant"
+      );
+
+      if (!exists) {
+        user.hackathonRoles.push({
+          hackathonId: team.hackathonId,
+          role: "participant"
+        });
+      }
+    } else {
+      // Remove participant role if rejected and no other teams
+      const stillInTeam = await Team.exists({
+        hackathonId: team.hackathonId,
+        "members.userId": user._id,
+        "members.status": "accepted"
+      });
+
+      if (!stillInTeam) {
+        user.hackathonRoles = user.hackathonRoles.filter(
+          r =>
+            !(r.hackathonId.equals(team.hackathonId) &&
+              r.role === "participant")
+        );
+      }
+    }
+
+    await user.save();
+
     res.status(200).json({
       success: true,
-      message: `Member ${status}`,
+      message: `Member ${status}`
     });
+
   } catch (err) {
-    next({ statusCode: 400, message: err.message });
+    next({ statusCode: 500, message: err.message });
   }
 };
 

@@ -153,8 +153,13 @@ export const removeJudgeFromHackathon = async (req, res, next) => {
 
     // Check judge exists in hackathon
     const isJudgeAssigned = hackathon.judges.some(
-  (j) => j.judgeUserId.toString() === judgeUserId
-);
+      (j) => j.judgeUserId.toString() === judgeUserId
+    );
+
+    const judgeUserEXIT = await User.findById(judgeUserId);
+    if (!judgeUserEXIT) {
+      return next({ statusCode: 404, message: "Judge user not found" });
+    }
 
     if (!isJudgeAssigned) {
       return next({
