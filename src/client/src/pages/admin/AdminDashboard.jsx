@@ -3,37 +3,13 @@ import StatsCard from '../../components/admin/StatsCard';
 import AlertBanner from '../../components/admin/AlertBanner';
 import HackathonCard from '../../components/admin/HackathonCard';
 import { useNavigate } from 'react-router-dom';
+import mockHackathon from '../../data/mockHackathon';
 import '../../styles/admin.css';
 
 function AdminDashboard() {
   const navigate = useNavigate();
 
-  const hackathons = [
-    {
-      title: 'AI Innovation Challenge 2026',
-      status: 'Live',
-      dateRange: 'Jan 10, 2026 - Feb 15, 2026',
-      organizer: 'John Doe'
-    },
-    {
-      title: 'Web3 BuildFest',
-      status: 'Draft',
-      dateRange: 'Mar 1, 2026 - Mar 30, 2026',
-      organizer: 'Jane Smith'
-    },
-    {
-      title: 'Sustainability Hack 2025',
-      status: 'Closed',
-      dateRange: 'Nov 5, 2025 - Dec 20, 2025',
-      organizer: 'John Doe'
-    },
-    {
-      title: 'Mobile App Marathon',
-      status: 'Live',
-      dateRange: 'Jan 5, 2026 - Jan 25, 2026',
-      organizer: 'Alex Johnson'
-    }
-  ];
+  const hackathons = [mockHackathon];
 
   return (
     <div className="admin-layout">
@@ -43,7 +19,7 @@ function AdminDashboard() {
         <div className="admin-container">
           <button 
             className="create-hackathon-btn"
-            onClick={() => navigate('/admin/create-hackathon')}
+            onClick={() => navigate('/admin/hackathons/create')}
           >
             <span className="btn-icon">+</span>
             Create a Hackathon
@@ -70,17 +46,15 @@ function AdminDashboard() {
           <section className="hackathons-section">
             <h2 className="section-title">My Hackathons</h2>
             <div className="hackathons-list">
-              {hackathons.map((hackathon, index) => (
+              {hackathons.map((hackathon) => (
                 <HackathonCard
-                  key={index}
-                  title={hackathon.title}
-                  status={hackathon.status}
-                  dateRange={hackathon.dateRange}
-                  organizer={hackathon.organizer}
+                  key={hackathon.id}
+                  hackathon={hackathon}
                 />
               ))}
             </div>
           </section>
+
         </div>
       </main>
 
