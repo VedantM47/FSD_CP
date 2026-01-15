@@ -9,6 +9,10 @@ const hackathonSchema = new mongoose.Schema(
     endDate: Date,
 
     registrationDeadline: Date,
+    prototypeDeadline: Date,
+    finalDeadline: Date,
+    presentationDate: Date,
+    resultDate: Date,
 
     maxTeamSize: Number,
 

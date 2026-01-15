@@ -8,6 +8,7 @@ import errorHandler from './middlewares/error.middleware.js';
 import userRoutes from './routes/user.routes.js';
 import teamRoutes from './routes/team.routes.js';
 import hackathonRoutes from './routes/hackathon.routes.js';
+import calendarRoutes from './routes/calendar.routes.js';
 import oauthRoutes from './routes/oauth.routes.js';
 import sumbissionRoutes from './routes/submission.routes.js';
 import rateLimit from 'express-rate-limit';
@@ -42,6 +43,8 @@ app.use(apilimiter);
 app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/hackathons', hackathonRoutes);
+// Calendar Routes
+app.use('/api/calendar', calendarRoutes);
 app.use('/api/submissions', sumbissionRoutes);
 app.use('/api/evaluations', evaluationRoutes);
 app.use('/api/oauth', oauthRoutes);

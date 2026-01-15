@@ -55,6 +55,11 @@ const teamSchema = new mongoose.Schema(
       driveUrl: String,
       submittedAt: Date,
     },
+    presentationSlot: {
+      date: Date,
+      startTime: String,
+      endTime: String,
+    },
   },
   { timestamps: true }
 );
