@@ -1,5 +1,6 @@
 import React from "react";
 import authBg from "../../assets/auth-bg.jpeg";
+import '../../styles/auth.css';
 
 const AuthLayout = ({ children }) => {
   return (
