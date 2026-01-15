@@ -1,234 +1,220 @@
-
 const policy = {
 
-  // =====================================================
-  // USER POLICIES
-  // =====================================================
+/* =====================================================
+   USER POLICIES
+===================================================== */
 
-  // User can access (view/update) own profile
-  USER_SELF_ACCESS: ({ user, targetUserId }) => {
-    if (!user || !targetUserId) return false;
-    return user._id.equals(targetUserId);
-  },
+USER_SELF_ACCESS: ({ user, targetUserId }) => {
+  return Boolean(user && targetUserId && user._id.equals(targetUserId));
+},
 
-  // Judge or Admin can view all users
-  VIEW_USERS: ({ user }) => {
-    if (!user) return false;
+VIEW_ALL_USERS: ({ user }) => user?.systemRole === 'admin',
 
-    if (user.systemRole === 'admin') return true;
+VIEW_USER_BY_ID: ({ user }) => user?.systemRole === 'admin',
 
-    return user.hackathonRoles?.some(
-      (r) => r.role === 'judge'
-    );
-  },
+DELETE_USER: ({ user }) => user?.systemRole === 'admin',
 
-    // Admin can view all users
-  VIEW_ALL_USERS: ({ user }) => {
-    return user?.systemRole === 'admin';
-  },
+SEARCH_USERS: ({ user }) => Boolean(user),
 
-    // Admin can view any user
-  VIEW_USER_BY_ID: ({ user }) => {
-    if (!user) return false;
-    return user.systemRole === 'admin';
-  },
+/* =====================================================
+   TEAM POLICIES
+===================================================== */
 
-  // Admin can delete user
-  DELETE_USER: ({ user }) => {
-    if (!user) return false;
-    return user.systemRole === 'admin';
-  },
+/* 🔥 Team creation creates participation → no participant required */
+CREATE_TEAM: ({ user, hackathon, existingTeam }) => {
+  if (!user || !hackathon) return false;
+  if (hackathon.status !== 'open') return false;
+  if (existingTeam) return false;
 
-  // Only system admin has full access
-  ADMIN_ALL: ({ user }) => {
-    if (!user) return false;
-    return user.systemRole === 'admin';
-  },
+  // Judges cannot create teams
+  const isJudge = user.hackathonRoles?.some(
+    r => r.hackathonId.equals(hackathon._id) && r.role === 'judge'
+  );
+  if (isJudge) return false;
 
-  /* =====================================================
-     TEAM POLICIES
-     ===================================================== */
+  return true;
+},
 
-  // Create a team
-  CREATE_TEAM: ({ user, hackathon, existingTeam }) => {
-    if (!user || !hackathon) return false;
+REQUEST_JOIN_TEAM: ({ user, team, hackathon, isAlreadyInTeam }) => {
+  if (!user || !team || !hackathon) return false;
 
-    // Hackathon must be open
-    if (hackathon.status !== 'open') return false;
+  if (hackathon.status !== 'open') return false;
+  if (!team.isOpenToJoin || team.isLocked) return false;
+  if (isAlreadyInTeam) return false;
 
-    // Judges cannot create teams
-    const isJudge = user.hackathonRoles?.some(
-      (r) =>
-        r.hackathonId.equals(hackathon._id) &&
-        r.role === 'judge'
-    );
-    if (isJudge) return false;
+  const accepted = team.members.filter(m => m.status === 'accepted');
+  if (accepted.length >= team.maxSize) return false;
 
-    // User must not already be in a team for this hackathon
-    if (existingTeam) return false;
+  return true; // ❗ Do NOT require participant
+},
 
-    return true;
-  },
+MANAGE_TEAM_MEMBERS: ({ user, team }) => {
+  return Boolean(user && team && !team.isLocked && team.leader.equals(user._id));
+},
 
-  VIEW_TEAM_DETAILS: ({ user, team, hackathon }) => {
-  if (!user || !team) return false;
+UPDATE_TEAM: ({ user, team }) => {
+  return Boolean(user && team && !team.isLocked && team.leader.equals(user._id));
+},
 
-  // Admin can always view
+LEAVE_TEAM: ({ user, team }) => {
+  if (!user || !team || team.isLocked) return false;
+  if (team.leader.equals(user._id)) return false;
+
+  return team.members.some(
+    m => m.userId.equals(user._id) && m.status === 'accepted'
+  );
+},
+
+DELETE_TEAM: ({ user, team }) => {
+  return Boolean(user && team && !team.isLocked && team.leader.equals(user._id));
+},
+
+VIEW_TEAM_DETAILS: ({ user, team, hackathon }) => {
+  if (!user || !team || !hackathon) return false;
   if (user.systemRole === 'admin') return true;
-
-  // Leader
   if (team.leader.equals(user._id)) return true;
 
-  // Accepted team member
   const isMember = team.members.some(
-    (m) =>
-      m.userId.equals(user._id) &&
-      m.status === 'accepted'
+    m => m.userId.equals(user._id) && m.status === 'accepted'
   );
   if (isMember) return true;
 
-  // Organizer of this hackathon
-  const isOrganizer = user.hackathonRoles?.some(
-    (r) =>
-      r.hackathonId.equals(hackathon?._id) &&
-      r.role === 'organizer'
+  return user.hackathonRoles?.some(
+    r =>
+      r.hackathonId.equals(hackathon._id) &&
+      (r.role === 'organizer' || r.role === 'judge')
   );
-
-  return Boolean(isOrganizer);
 },
 
-  // Update team details (leader only)
-  UPDATE_TEAM: ({ user, team }) => {
-    if (!user || !team) return false;
-
-    if (team.isLocked) return false;
-
-    return team.leader.equals(user._id);
-  },
-
-  // Request to join an open team
-  REQUEST_JOIN_TEAM: ({ user, team, hackathon, isAlreadyInTeam }) => {
-    if (!user || !team || !hackathon) return false;
-
-    if (hackathon.status !== 'open') return false;
-    if (!team.isOpenToJoin) return false;
-    if (team.isLocked) return false;
-
-    // Team size check
-    const acceptedMembers = team.members.filter(
-      (m) => m.status === 'accepted'
-    );
-    if (acceptedMembers.length >= team.maxSize) return false;
-
-    // User must not already be in a team for this hackathon
-    if (isAlreadyInTeam) return false;
-
-    return true;
-  },
-
-  // Accept / Reject team join requests (leader only)
-  MANAGE_TEAM_MEMBERS: ({ user, team }) => {
-    if (!user || !team) return false;
-
-    if (team.isLocked) return false;
-
-    return team.leader.equals(user._id);
-  },
-
-  // View team details
-  VIEW_TEAM: ({ user, team }) => {
-    if (!user || !team) return false;
-
-    if (team.leader.equals(user._id)) return true;
-
-    return team.members.some(
-      (m) =>
-        m.userId.equals(user._id) &&
-        m.status === 'accepted'
-    );
-  },
-
-  // Leave team (members only, not leader)
-  LEAVE_TEAM: ({ user, team }) => {
-    if (!user || !team) return false;
-
-    if (team.isLocked) return false;
-
-    if (team.leader.equals(user._id)) return false;
-
-    return team.members.some(
-      (m) =>
-        m.userId.equals(user._id) &&
-        m.status === 'accepted'
-    );
-  },
-
-  // Delete team (leader only)
-  DELETE_TEAM: ({ user, team }) => {
-  if (!user || !team) return false;
-  if (team.isLocked) return false;
-  return team.leader.equals(user._id);
-  },
-
-  // Submit project (leader only, during ongoing hackathon)
-  SUBMIT_PROJECT: ({ user, team, hackathon }) => {
-    if (!user || !team || !hackathon) return false;
-
-    if (!team.leader.equals(user._id)) return false;
-
-    if (hackathon.status !== 'ongoing') return false;
-
-    return true;
-  },
-
-  /* =====================================================
+/* =====================================================
    HACKATHON POLICIES
-   ===================================================== */
+===================================================== */
 
-  // Create hackathon
-  CREATE_HACKATHON: ({ user }) => {
-    if (!user) return false;
+CREATE_HACKATHON: ({ user }) => {
+  return user?.systemRole === 'admin' || user?.systemRole === 'mentor';
+},
 
-    return (
-      user.systemRole === 'admin' ||
-      user.systemRole === 'mentor'
-    );
-  },
+UPDATE_HACKATHON: ({ user, hackathon }) => {
+  if (!user || !hackathon) return false;
+  if (user.systemRole === 'admin' || user.systemRole === 'mentor') return true;
 
-  // Update hackathon
-  UPDATE_HACKATHON: ({ user, hackathon }) => {
-    if (!user || !hackathon) return false;
+  return user.hackathonRoles?.some(
+    r => r.hackathonId.equals(hackathon._id) && r.role === 'organizer'
+  );
+},
 
-    // Admin always allowed
-    if (user.systemRole === 'admin') return true;
+DELETE_HACKATHON: ({ user }) => {
+  return user?.systemRole === 'admin' || user?.systemRole === 'mentor';
+},
 
-    // mentor allowed
-    if (user.systemRole === 'mentor') return true;
+ASSIGN_JUDGE: ({ user, hackathon }) => {
+  if (!user || !hackathon) return false;
+  if (user.systemRole === 'admin' || user.systemRole === 'mentor') return true;
 
-    // Organizer of this hackathon
-    const isOrganizer = user.hackathonRoles?.some(
-      (r) =>
-        r.hackathonId.equals(hackathon._id) &&
-        r.role === 'organizer'
-    );
+  return user.hackathonRoles?.some(
+    r => r.hackathonId.equals(hackathon._id) && r.role === 'organizer'
+  );
+},
 
-    return Boolean(isOrganizer);
-  },
+REMOVE_JUDGE: ({ user, hackathon }) => {
+  if (!user || !hackathon) return false;
+  if (user.systemRole === 'admin' || user.systemRole === 'mentor') return true;
 
-  // Delete hackathon
-  DELETE_HACKATHON: ({ user, hackathon }) => {
-    if (!user || !hackathon) return false;
+  return user.hackathonRoles?.some(
+    r => r.hackathonId.equals(hackathon._id) && r.role === 'organizer'
+  );
+},
 
-    // Admin only for delete (recommended)
-    if (user.systemRole === 'admin') return true;
+/* =====================================================
+   SUBMISSION POLICIES
+===================================================== */
 
-    // Optional: allow mentor
-    if (user.systemRole === 'mentor') return true;
+CREATE_SUBMISSION: ({ user, team, hackathon, existingSubmission }) => {
+  if (!user || !team || !hackathon) return false;
+  if (!team.leader.equals(user._id)) return false;
+  if (!team.hackathonId.equals(hackathon._id)) return false;
+  if (hackathon.status !== 'ongoing') return false;
+  if (new Date() > new Date(hackathon.endDate)) return false;
+  if (existingSubmission) return false;
 
-    return false;
-  },
+  return true;
+},
+
+UPDATE_SUBMISSION: ({ user, team, hackathon, submission }) => {
+  if (!user || !team || !hackathon || !submission) return false;
+  if (!team.leader.equals(user._id)) return false;
+  if (!submission.teamId.equals(team._id)) return false;
+  if (hackathon.status !== 'ongoing') return false;
+  if (new Date() > new Date(hackathon.endDate)) return false;
+
+  return true;
+},
+
+VIEW_SUBMISSION: ({ user, team, submission }) => {
+  if (!user || !submission) return false;
+  if (user.systemRole === 'admin') return true;
+
+  if (team) {
+    if (team.leader.equals(user._id)) return true;
+    if (team.members.some(m => m.userId.equals(user._id) && m.status === 'accepted')) return true;
+  }
+
+  return user.hackathonRoles?.some(
+    r => r.hackathonId.equals(submission.hackathonId) && r.role === 'judge'
+  );
+},
+
+/* =====================================================
+   EVALUATION POLICIES
+===================================================== */
+
+CREATE_EVALUATION: ({ user, hackathon }) => {
+  if (!user || !hackathon) return false;
+  if (user.systemRole === 'admin') return true;
+
+  return user.hackathonRoles?.some(
+    r => r.hackathonId.equals(hackathon._id) && r.role === 'judge'
+  );
+},
+
+UPDATE_EVALUATION: ({ user, evaluation }) => {
+  if (!user || !evaluation) return false;
+  if (evaluation.status === 'locked') return false;
+  if (user.systemRole === 'admin') return true;
+
+  return evaluation.judgeId.equals(user._id);
+},
+
+LOCK_EVALUATION: ({ user }) => {
+  return user?.systemRole === 'admin' || user?.systemRole === 'mentor';
+},
+
+VIEW_EVALUATION: ({ user, hackathon, team }) => {
+  if (!user || !hackathon || !team) return false;
+
+  if (user.systemRole === 'admin' || user.systemRole === 'mentor') return true;
+
+  const isJudge = user.hackathonRoles?.some(
+    r => r.hackathonId.equals(hackathon._id) && r.role === 'judge'
+  );
+  if (isJudge) return true;
+
+  const isOrganizer = user.hackathonRoles?.some(
+    r => r.hackathonId.equals(hackathon._id) && r.role === 'organizer'
+  );
+  if (isOrganizer) return true;
+
+  if (team.leader.equals(user._id)) return true;
+
+  return team.members.some(
+    m => m.userId.equals(user._id) && m.status === 'accepted'
+  );
+},
+
+DELETE_EVALUATION: ({ user }) => {
+  return user?.systemRole === 'admin' || user?.systemRole === 'mentor';
+}
+
 };
-
-
 
 export default policy;

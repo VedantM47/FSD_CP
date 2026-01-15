@@ -23,9 +23,11 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: true,
+      required: function () {
+       return this.authProvider === 'local';
+      },
       select: false, // never return password by default
-    }, // hashed password
+    }, 
 
     // System-level role
     systemRole: {
@@ -68,6 +70,23 @@ const userSchema = new mongoose.Schema(
       },
     ],
 
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    githubId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    authProvider: {
+      type: String,
+      enum: ['local', 'google', 'github'],
+      default: 'local',
+    },
+
+
     github: String,
     linkedin: String,
 
@@ -86,12 +105,16 @@ const userSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
       default: Date.now,
+      select: false,
     },
   },
   {
     timestamps: true,
   }
+  
 );
+// indexing
+userSchema.index({ fullName: 'text', email: 'text' });
 
 const User = mongoose.model('User', userSchema);
 export default User;

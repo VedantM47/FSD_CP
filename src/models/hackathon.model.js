@@ -27,6 +27,15 @@ const hackathonSchema = new mongoose.Schema(
       default: 'draft',
     },
 
+    judges: [
+      {judgeUserId : {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+      assignedAt: Date,
+    },
+    ],
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

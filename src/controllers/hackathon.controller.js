@@ -1,8 +1,12 @@
 import Hackathon from '../models/hackathon.model.js';
 import Team from '../models/team.model.js';
+import User from '../models/user.model.js';
+
+
+const MAX_JUDGES = 10;
 
 /* ================= CREATE HACKATHON ================= */
-/* Admin / Faculty */
+/* Admin / Mentor */
 export const createHackathon = async (req, res, next) => {
   try {
     const hackathon = await Hackathon.create({
@@ -66,8 +70,168 @@ export const getHackathonById = async (req, res, next) => {
   }
 };
 
+/* ================= ADD JUDGE TO HACKATHON ================= */
+/* Admin / Mentor / organizer */
+export const assignJudgeToHackathon = async (req, res, next) => {
+  try {
+    const { hackathonId } = req.params;
+    const { judgeUserId } = req.body;
+
+    
+    const hackathon = await Hackathon.findById(hackathonId);
+    if (!hackathon) {
+      return next({
+        statusCode: 404,
+        message: 'Hackathon not found',
+      });
+    }
+
+    if (hackathon.judges.length >= MAX_JUDGES) {
+      return next({
+        statusCode: 400,
+        message: `Maximum ${MAX_JUDGES} judges allowed for a hackathon`,
+      });
+    }
+    
+    const judgeUser = await User.findById(judgeUserId);
+    if (!judgeUser) {
+      return next({
+        statusCode: 404,
+        message: 'User not found',
+      });
+    }
+    
+    // Prevent duplicate assignment
+    const alreadyJudge = hackathon.judges.some(
+      (j) => j.judgeUserId.toString() === judgeUserId
+    );
+
+    if (alreadyJudge) {
+      return next({
+        statusCode: 400,
+        message: 'User already assigned as judge',
+      });
+    }
+
+    // Add judge to hackathon
+    hackathon.judges.push({judgeUserId: judgeUserId, assignedAt: new Date()});
+    await hackathon.save();
+
+    // Add hackathon role to user
+    judgeUser.hackathonRoles.push({
+      hackathonId: hackathon._id,
+      role: 'judge',
+    });
+    await judgeUser.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Judge assigned successfully',
+    });
+  } catch (err) {
+    next({
+      statusCode: 500,
+      message: err.message,
+    });
+  }
+};
+
+
+// ================= REMOVE JUDGE FROM HACKATHON =================
+// *//* Admin / Mentor / organizer */
+export const removeJudgeFromHackathon = async (req, res, next) => {
+  try {
+    const { hackathonId, judgeUserId } = req.params;
+
+    const hackathon = await Hackathon.findById(hackathonId);
+    if (!hackathon) {
+      return next({
+        statusCode: 404,
+        message: 'Hackathon not found',
+      });
+    }
+
+    // Check judge exists in hackathon
+    const isJudgeAssigned = hackathon.judges.some(
+      (j) => j.judgeUserId.toString() === judgeUserId
+    );
+
+    const judgeUserEXIT = await User.findById(judgeUserId);
+    if (!judgeUserEXIT) {
+      return next({ statusCode: 404, message: "Judge user not found" });
+    }
+
+    if (!isJudgeAssigned) {
+      return next({
+        statusCode: 400,
+        message: 'User is not a judge for this hackathon',
+      });
+    }
+
+    // Remove judge from hackathon
+    hackathon.judges = hackathon.judges.filter(
+      (j) => j.judgeUserId.toString() !== judgeUserId
+    );
+    await hackathon.save();
+
+    // Remove hackathonRole from user
+    const judgeUser = await User.findById(judgeUserId);
+    if (judgeUser) {
+      judgeUser.hackathonRoles = judgeUser.hackathonRoles.filter(
+        (role) =>
+          !(
+            role.hackathonId.toString() === hackathonId &&
+            role.role === 'judge'
+          )
+      );
+      await judgeUser.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Judge removed successfully',
+    });
+  } catch (err) {
+    next({
+      statusCode: 500,
+      message: err.message,
+    });
+  }
+};
+
+// ================= SEARCH HACKATHONS =================
+
+export const searchHackathons = async (req, res, next) => {
+  try {
+    const { q, status } = req.query;
+
+    const filter = {};
+
+    if (q) {
+      filter.title = { $regex: q, $options: 'i' };
+    }
+
+    if (status) {
+      filter.status = status; // open, ongoing, closed
+    }
+
+    const hackathons = await Hackathon.find(filter)
+      .select("title startDate endDate status maxTeamSize prizePool")
+      .sort({ startDate: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: hackathons.length,
+      data: hackathons
+    });
+
+  } catch (err) {
+    next({ statusCode: 500, message: err.message });
+  }
+};
+
 /* ================= UPDATE HACKATHON ================= */
-/* Admin / Faculty */
+/* Admin / Mentor */
 export const updateHackathon = async (req, res, next) => {
   try {
     const hackathon = await Hackathon.findByIdAndUpdate(
@@ -96,7 +260,7 @@ export const updateHackathon = async (req, res, next) => {
 };
 
 /* ================= UPDATE HACKATHON STATUS ================= */
-/* Admin / Faculty */
+/* Admin / Mentor */
 export const updateHackathonStatus = async (req, res, next) => {
   try {
     const { status } = req.body;

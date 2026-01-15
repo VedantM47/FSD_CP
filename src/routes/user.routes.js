@@ -5,11 +5,13 @@ import authorize from '../middlewares/authorize.js';
 import {
   register,
   login,
+  logout,
   getMe,
   updateMe,
   getAllUsers,
   getUserById,
   deleteUser,
+  searchUsers,
 } from '../controllers/user.controller.js';
 
 const router = express.Router();
@@ -17,24 +19,30 @@ const router = express.Router();
 /* ============ PUBLIC ============ */
 router.post('/register', register);
 router.post('/login', login);
+router.post('/logout', auth, logout);
 
 /* ============ USER (SELF) ============ */
 router.get('/me', auth, getMe);
 router.put('/me', auth, updateMe);
 
-/* ============ ADMIN (ABAC) ============ */
+/* ================= SEARCH USERS ================= */
+router.get(
+  '/search',
+  auth,
+  authorize('SEARCH_USERS', async (req) => ({
+    user: req.user,
+  })),
+  searchUsers
+);
 
-// Get all users
+/* ============ ADMIN (ABAC) ============ */
 router.get(
   '/',
   auth,
-  authorize('VIEW_ALL_USERS', async (req) => ({
-    user: req.user,
-  })),
+  authorize('VIEW_ALL_USERS', async (req) => ({ user: req.user })),
   getAllUsers
 );
 
-// Get user by ID
 router.get(
   '/:id',
   auth,
@@ -45,7 +53,6 @@ router.get(
   getUserById
 );
 
-// Delete user
 router.delete(
   '/:id',
   auth,

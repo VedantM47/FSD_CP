@@ -28,8 +28,8 @@ export const register = async (req, res, next) => {
 // ========================= Login User =========================
 export const login = async (req, res, next) => {
   try {
+    //  Validate user exists first
     const user = await User.findOne({ email: req.body.email }).select('+password');
-    const token = signToken({ id: user._id });
     if (!user) {
       return next({
         statusCode: 401,
@@ -37,6 +37,7 @@ export const login = async (req, res, next) => {
       });
     }
 
+    //  Validate password
     const isMatch = await bcrypt.compare(req.body.password, user.password);
     if (!isMatch) {
       return next({
@@ -44,6 +45,9 @@ export const login = async (req, res, next) => {
         message: 'Invalid credentials',
       });
     }
+
+    //  Generate token AFTER all validations pass
+    const token = signToken({ id: user._id });
 
     res.status(200).json({
       success: true,
@@ -56,6 +60,23 @@ export const login = async (req, res, next) => {
     });
   }
 };
+
+/* ========================= Logout User ========================= */
+export const logout = async (req, res) => {
+  try {
+    // Optional: Add token to blacklist here (Redis / DB)
+    res.status(200).json({
+      success: true,
+      message: 'User logged out successfully',
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
 
 /* ================= GET SELF ================= */
 export const getMe = async (req, res) => {
@@ -84,6 +105,42 @@ export const updateMe = async (req, res, next) => {
     next({ statusCode: 400, message: err.message });
   }
 };
+
+/* ================= SEARCH USERS ================= */
+export const searchUsers = async (req, res, next) => {
+  try {
+    const { q } = req.query;
+
+    if (!q) {
+      return next({
+        statusCode: 400,
+        message: 'Search query is required',
+      });
+    }
+
+    const users = await User.find(
+      {
+        $or: [
+          { fullName: { $regex: q, $options: 'i' } },
+          { email: { $regex: q, $options: 'i' } },
+        ],
+      },
+      'fullName email'
+    ).limit(20);
+
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      data: users,
+    });
+  } catch (err) {
+    next({
+      statusCode: 500,
+      message: err.message,
+    });
+  }
+};
+
 
 /* ================= ADMIN: GET ALL USERS ================= */
 export const getAllUsers = async (req, res, next) => {
@@ -121,7 +178,8 @@ export const getUserById = async (req, res, next) => {
 /* ================= ADMIN: DELETE USER ================= */
 export const deleteUser = async (req, res, next) => {
   try {
-    await User.findByIdAndDelete(req.params.id);
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return next({ statusCode: 404, message: 'User not found' });
 
     res.status(200).json({
       success: true,

@@ -6,11 +6,11 @@ const auth = async (req, res, next) => {
   try {
     let token;
     
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer')
-    ) {
-      token = req.headers.authorization.split(' ')[1];
+    //  Robust JWT extraction using regex
+    const authHeader = req.headers.authorization || '';
+    const match = authHeader.match(/^Bearer\s+(.+)$/);
+    if (match && match[1]) {
+      token = match[1];
     }
     
     if (!token) {
