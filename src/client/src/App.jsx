@@ -14,6 +14,9 @@ import CreateHackathon from "./pages/admin/CreateHackathon";
 import ViewHackathon from "./pages/admin/ViewHackathon";
 import HackathonDashboard from "./pages/admin/HackathonDashboard";
 
+/* User Pages */
+import Profile from "./pages/user/Profile";
+
 import "./styles/auth.css";
 
 function App() {
@@ -41,6 +44,11 @@ function App() {
         path="/admin/hackathons/:id/dashboard"
         element={<HackathonDashboard />}
       />
+
+
+        {/* ================= USER ROUTES ================= */}
+        <Route path="/profile" element={<Profile />} />
+
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/login" replace />} />
