@@ -17,6 +17,10 @@ import HackathonDashboard from "./pages/admin/HackathonDashboard";
 /* User Pages */
 import Profile from "./pages/user/Profile";
 
+/* participant pages */
+import SingleHackathon from "./pages/participant/SingleHackathon";
+import RegisterHackathon from "./pages/participant/RegisterHackathon";
+import JoinTeam from "./pages/participant/JoinTeam";
 import "./styles/auth.css";
 
 function App() {
@@ -44,6 +48,13 @@ function App() {
         path="/admin/hackathons/:id/dashboard"
         element={<HackathonDashboard />}
       />
+      {/* participant routes */}
+      <Route path="/user/hackathon/:id" element={<SingleHackathon />} />
+      <Route path="/user/hackathon/:id/register" element={<RegisterHackathon />} />
+      <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
+      
+      
+
 
 
         {/* ================= USER ROUTES ================= */}
