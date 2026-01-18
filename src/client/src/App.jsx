@@ -14,6 +14,9 @@ import CreateHackathon from "./pages/admin/CreateHackathon";
 import ViewHackathon from "./pages/admin/ViewHackathon";
 import HackathonDashboard from "./pages/admin/HackathonDashboard";
 
+/* User Pages */
+import Profile from "./pages/user/Profile";
+
 /* participant pages */
 import SingleHackathon from "./pages/participant/SingleHackathon";
 import RegisterHackathon from "./pages/participant/RegisterHackathon";
@@ -51,6 +54,11 @@ function App() {
       <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
       
       
+
+
+
+        {/* ================= USER ROUTES ================= */}
+        <Route path="/profile" element={<Profile />} />
 
 
       {/* Fallback */}

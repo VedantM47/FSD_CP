@@ -1,0 +1,42 @@
+export const teamsList = [
+  {
+    id: 1,
+    name: "Tech Innovators",
+    hackathon: "AI Innovation Challenge 2026",
+    members: 3,
+    status: "Active",
+    isLeader: true,
+  },
+  {
+    id: 2,
+    name: "FinTech Warriors",
+    hackathon: "FinTech Hackathon",
+    members: 4,
+    status: "Active",
+    isLeader: false,
+  },
+  {
+    id: 3,
+    name: "Web3 Pioneers",
+    hackathon: "Web3 Challenge",
+    members: 3,
+    status: "Completed",
+    isLeader: true,
+},
+  {
+    id: 4,
+    name: "Cloud Masters",
+    hackathon: "Cloud Computing Challenge",
+    members: 5,
+    status: "Completed",
+    isLeader: true,
+  },
+  {
+    id: 5,
+    name: "Data Wizards",
+    hackathon: "Data Science Challenge",
+    members: 4,
+    status: "Completed",
+    isLeader: true,
+  },
+];
