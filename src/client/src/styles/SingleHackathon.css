@@ -1,0 +1,388 @@
+/* --- Variables based on your palette --- */
+:root {
+  --primary-navy: #043873;       /* Dark Blue Header */
+  --action-blue: #4F9CF9;        /* Join Button / Accents */
+  --success-green: #22c55e;      /* Register Button */
+  --light-bg: #F9FAFB;           /* Page Background */
+  --card-white: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
+}
+
+/* --- Page Layout --- */
+.hackathon-page {
+  background-color: var(--light-bg);
+  width: 100%;
+  min-height: 100vh;      /* Takes up at least full screen */
+  height: auto;           /* Explicit auto height lets it grow */
+  overflow-y: auto;       /* Force vertical scroll capability */
+  font-family: 'Inter', sans-serif;
+  color: var(--text-main);
+  position: relative;
+}
+
+/* --- Hero Section (Circuit Board Pattern) --- */
+.hackathon-hero {
+  background-color: var(--primary-navy);
+  color: var(--card-white);
+  padding: 80px 20px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* CSS-only Circuit Pattern Overlay */
+.hackathon-hero::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 0.1;
+  background-image: 
+    linear-gradient(90deg, transparent 49px, #fff 49px, #fff 51px, transparent 51px),
+    linear-gradient(#fff 1px, transparent 1px);
+  background-size: 100px 100px;
+  pointer-events: none;
+}
+
+.hackathon-hero::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at center, transparent 0%, var(--primary-navy) 90%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 15px;
+  letter-spacing: -1px;
+}
+
+.hero-subtitle {
+  color: #bfdbfe; /* Light blue text */
+  font-weight: 500;
+  font-size: 1.1rem;
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* --- Navigation Bar --- */
+.hackathon-nav {
+  background: var(--card-white);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.nav-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 30px;
+  overflow-x: auto;
+  scrollbar-width: none; /* Hide scrollbar Firefox */
+}
+
+/* FIXED NAV LINKS */
+.nav-link {
+  background: transparent;
+  border: none;
+  padding: 18px 5px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  font-weight: 600;
+  white-space: nowrap;
+  
+  /* Removes the purple focus box */
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-link:hover {
+  color: var(--primary-navy);
+}
+
+.nav-link.active {
+  color: var(--primary-navy);
+  border-bottom-color: var(--primary-navy);
+}
+
+.nav-link:focus {
+  outline: none; /* Double check to remove focus ring */
+}
+
+/* --- Main Layout Grid --- */
+.hackathon-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 320px; /* Main Content (Left) | Sidebar (Right) */
+  gap: 40px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .hackathon-container {
+    grid-template-columns: 1fr;
+  }
+  .hero-title {
+    font-size: 2rem;
+  }
+}
+
+/* --- Card Style --- */
+.section-card {
+  background: var(--card-white);
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 30px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
+  
+  /* CRITICAL FIX: Offsets scroll position so title isn't hidden under navbar */
+  scroll-margin-top: 150px; 
+}
+
+.section-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* --- Content Styles --- */
+.about-text {
+  line-height: 1.7;
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.key-label {
+  font-weight: 700;
+  color: var(--primary-navy);
+  margin-top: 20px;
+  display: block;
+}
+
+/* Timeline */
+.timeline-list {
+  position: relative;
+  padding-left: 20px;
+  border-left: 2px solid #e5e7eb;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 25px;
+  padding-left: 20px;
+}
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -26px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--card-white);
+  border: 3px solid var(--primary-navy);
+}
+
+.t-date {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--action-blue);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.t-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.t-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* Prizes */
+.prizes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 20px;
+}
+
+.prize-card {
+  background: #eff6ff; /* Light blue bg */
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.prize-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  display: block;
+}
+
+/* Eligibility List */
+.eligibility-list {
+  list-style: none;
+  padding: 0;
+}
+
+.eligibility-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #f3f4f6;
+  display: flex;
+  gap: 12px;
+  color: var(--text-muted);
+}
+
+.eligibility-list li:last-child {
+  border-bottom: none;
+}
+
+/* FAQ Accordion */
+.faq-item {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.faq-btn {
+  width: 100%;
+  text-align: left;
+  padding: 18px 0;
+  background: none;
+  border: none;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.faq-answer {
+  padding-bottom: 18px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* --- Right Sidebar --- */
+.sidebar-sticky {
+  position: sticky;
+  top: 90px; /* Offset for navbar */
+}
+
+.sidebar-card {
+  background: var(--card-white);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-register {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--success-green);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  box-shadow: 0 2px 4px rgba(34, 197, 94, 0.3);
+}
+
+.btn-register:hover {
+  opacity: 0.9;
+}
+
+.btn-join {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--action-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 24px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(79, 156, 249, 0.3);
+}
+
+.team-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.toggle-switch {
+  width: 50px;
+  height: 28px;
+  background-color: #d1d5db;
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle-switch.on {
+  background-color: var(--success-green);
+}
+
+.toggle-circle {
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.toggle-switch.on .toggle-circle {
+  transform: translateX(22px);
+}

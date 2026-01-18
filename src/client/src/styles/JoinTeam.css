@@ -1,0 +1,190 @@
+/* --- PAGE WRAPPER (Fixes Scrolling) --- */
+.join-team-wrapper {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  overflow-y: auto;
+  background-color: #F8F9FA;
+  z-index: 9999;
+  font-family: 'Inter', sans-serif;
+  color: #1F2937;
+}
+
+/* --- HEADER --- */
+.join-header {
+  background-color: #003465; /* Deep Navy */
+  padding: 40px 0 80px; /* Extra padding for search bar overlap */
+  color: white;
+}
+
+.join-header-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.back-link {
+  color: #E5E7EB;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.9rem; margin-bottom: 20px;
+  background: none; border: none; padding: 0;
+}
+.back-link:hover { color: white; text-decoration: underline; }
+
+.join-title { font-size: 2rem; font-weight: 700; margin: 0 0 8px 0; }
+.join-subtitle { font-size: 1rem; color: #D1D5DB; margin: 0; }
+
+/* --- SEARCH & FILTER BAR --- */
+.filter-section {
+  max-width: 1000px;
+  margin: -40px auto 30px; /* Pulls up into header */
+  padding: 0 24px;
+  position: relative;
+  z-index: 10;
+}
+
+.search-box {
+  background: #EFF6FF; /* Light Blue Bar */
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  border: 1px solid #DBEAFE;
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  color: #1F2937;
+}
+.search-input:focus { outline: none; }
+.search-input::placeholder { color: #9CA3AF; }
+
+.filter-select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #D1D5DB;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+}
+
+.result-count {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #6B7280;
+}
+
+/* --- TEAM CARDS LIST --- */
+.teams-container {
+  max-width: 1000px;
+  margin: 0 auto 60px;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.team-card {
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.team-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+/* Card Header */
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.team-name { font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0; }
+
+.domain-badge {
+  background-color: #E0F2FE; /* Light Blue Pill */
+  color: #0284C7; /* Dark Blue Text */
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Meta Info (Leader, Members) */
+.card-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 0.9rem;
+  color: #6B7280;
+  align-items: center;
+}
+.meta-item { display: flex; align-items: center; gap: 6px; }
+
+/* Description */
+.team-desc {
+  font-size: 0.95rem;
+  color: #4B5563;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Bottom Row (Roles + Button) */
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 8px;
+}
+
+.roles-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.looking-label { font-size: 0.85rem; color: #6B7280; display: flex; align-items: center; gap: 6px; }
+
+.role-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.role-tag {
+  background-color: #FEF3C7; /* Yellow Pill */
+  color: #D97706; /* Dark Yellow Text */
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid #FDE68A;
+}
+
+.btn-apply {
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.btn-apply:hover { background-color: #2563EB; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-bottom { flex-direction: column; align-items: stretch; gap: 16px; }
+  .btn-apply { width: 100%; }
+}
