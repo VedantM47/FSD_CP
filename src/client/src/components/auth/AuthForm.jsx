@@ -21,6 +21,10 @@ const AuthForm = ({ type }) => {
         navigate('/admin/dashboard');
         return;
       }
+      else if (email === 'ad@gmail.com' && password === '12345') {
+        navigate("/judge/hackathons");
+        return;
+      }
     }
 
     console.log(`${type} form submitted (UI only)`);
