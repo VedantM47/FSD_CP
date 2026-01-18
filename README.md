@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Hackathon AI Recommendation System
 
 AI-Driven Problem Statement Recommendation System for Hackathon Platform. This service provides intelligent problem statement recommendations to teams based on their skills, experience, and expertise.
@@ -271,3 +272,6 @@ ISC
 
 For issues or questions, please contact the AI team.
 
+=======
+# Hackathon_Project_2025-26
+>>>>>>> fba25e15239b7fada200d30d7149a8b1b74d5deb
