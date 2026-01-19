@@ -1,29 +1,46 @@
-const HackathonCard = ({ hackathon }) => {
-  return (
-    <div className="border rounded-lg p-4 flex justify-between items-center">
-      <div>
-        <h4 className="font-medium">{hackathon.title}</h4>
-        <p className="text-sm text-gray-500">{hackathon.organizer}</p>
-        <p className="text-sm text-gray-500">
-          Current Round: {hackathon.round}
-        </p>
-        <p className="text-sm text-gray-500">Deadline: {hackathon.deadline}</p>
-      </div>
+import React from 'react';
 
-      <div className="flex gap-2">
-        <button
-          className={`px-4 py-2 text-sm rounded-md transition ${"bg-blue-50 text-blue-600 border border-blue-600"}`}
-        >
-          Submit
-        </button>
-        <button 
-          className={`px-4 py-2 text-sm rounded-md transition ${"bg-blue-50 text-blue-600 border border-blue-600"}`}
-        >
-          View Hackathon
-        </button>
-      </div>
-    </div>
-  );
+const HackathonCard = ({ hackathon }) => {
+    return (
+        <div className="hackathon-card">
+            <div className="card-image-container">
+                <img src={hackathon.image} alt={hackathon.name} className="card-image" />
+                <span className="status-badge">{hackathon.status}</span>
+            </div>
+
+            <div className="card-content">
+                <h3 className="card-title">{hackathon.name}</h3>
+                <p className="card-org">by {hackathon.organization}</p>
+                <p className="card-description">{hackathon.description}</p>
+
+                <div className="tag-container">
+                    {hackathon.tags.map(tag => (
+                        <span key={tag} className="tag">{tag}</span>
+                    ))}
+                </div>
+
+                <div className="info-grid">
+                    <div className="info-item">
+                        <span>👥</span> Team Size: {hackathon.teamSize}
+                    </div>
+                    <div className="info-item">
+                        <span>📍</span> Mode: {hackathon.mode}
+                    </div>
+                    <div className="info-item">
+                        <span>📅</span> Deadline: {hackathon.deadline}
+                    </div>
+                    <div className="info-item">
+                        <span>🏆</span> Prize Pool: {hackathon.prizePool}
+                    </div>
+                </div>
+            </div>
+
+            <div className="card-actions">
+                <button className="btn-primary">Register Now</button>
+                <button className="btn-secondary">View Details</button>
+            </div>
+        </div>
+    );
 };
 
 export default HackathonCard;

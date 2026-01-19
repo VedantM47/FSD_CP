@@ -16,12 +16,15 @@ import HackathonDashboard from "./pages/admin/HackathonDashboard";
 
 /* User Pages */
 import Profile from "./pages/user/Profile";
+import Discovery from "./pages/user/Discovery";
+import Calendar from "./pages/user/Calendar";
 
 /* participant pages */
 import SingleHackathon from "./pages/participant/SingleHackathon";
 import RegisterHackathon from "./pages/participant/RegisterHackathon";
 import JoinTeam from "./pages/participant/JoinTeam";
 import "./styles/auth.css";
+import "./styles/global.css";
 
 function App() {
   return (
@@ -52,13 +55,15 @@ function App() {
       <Route path="/user/hackathon/:id" element={<SingleHackathon />} />
       <Route path="/user/hackathon/:id/register" element={<RegisterHackathon />} />
       <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
-      
-      
 
 
 
-        {/* ================= USER ROUTES ================= */}
-        <Route path="/profile" element={<Profile />} />
+
+
+      {/* ================= USER ROUTES ================= */}
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/discovery" element={<Discovery />} />
+      <Route path="/calendar" element={<Calendar />} />
 
 
       {/* Fallback */}
