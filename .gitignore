@@ -1,4 +1,9 @@
-node_modules
+node_modules/
 .env
-package-lock.json
-data.json
+.DS_Store
+*.log
+dist/
+build/
+.vscode/
+.idea/
+

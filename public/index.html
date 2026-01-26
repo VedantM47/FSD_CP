@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hackathon AI Recommendation Tester</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #050816;
+      --card: #0f172a;
+      --accent: #6366f1;
+      --accent-soft: rgba(99, 102, 241, 0.12);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --error: #f97373;
+      --success: #6ee7b7;
+    }
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text',
+        'Segoe UI', sans-serif;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #111827 0, #020617 55%, #000 100%);
+      color: var(--text);
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 24px;
+    }
+    .shell {
+      max-width: 1120px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .shell {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .card {
+      background: linear-gradient(145deg, #020617 0%, #020617 40%, #020617 100%);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 18px 18px 16px;
+      box-shadow:
+        0 18px 45px rgba(15, 23, 42, 0.9),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      background: radial-gradient(circle at top left, rgba(96, 165, 250, 0.35), transparent 60%);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+    .title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pill {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: var(--muted);
+    }
+    .subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.4;
+      position: relative;
+      z-index: 1;
+    }
+    label {
+      font-size: 12px;
+      color: #d1d5db;
+      margin-bottom: 4px;
+      display: block;
+    }
+    input, textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 8px 10px;
+      font-size: 13px;
+      background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.42), rgba(15, 23, 42, 0.95));
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+    input::placeholder, textarea::placeholder {
+      color: rgba(148, 163, 184, 0.7);
+    }
+    input:focus, textarea:focus {
+      border-color: rgba(129, 140, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.4), 0 0 0 8px rgba(15, 23, 42, 0.9);
+      background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.72), rgba(15, 23, 42, 0.98));
+    }
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+    .field {
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+    .row > .field {
+      flex: 1 1 0;
+    }
+    button {
+      border-radius: 999px;
+      border: 1px solid rgba(129, 140, 248, 0.75);
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.9), rgba(37, 99, 235, 0.86));
+      color: #e5e7eb;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease, border-color 0.12s ease;
+    }
+    button:hover {
+      transform: translateY(-0.5px);
+      box-shadow:
+        0 10px 25px rgba(30, 64, 175, 0.55),
+        0 0 0 1px rgba(59, 130, 246, 0.9);
+      border-color: rgba(191, 219, 254, 0.95);
+    }
+    button:active {
+      transform: translateY(0);
+      box-shadow:
+        0 6px 16px rgba(30, 64, 175, 0.7),
+        0 0 0 1px rgba(59, 130, 246, 0.85);
+    }
+    button[disabled] {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+    .muted {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 10px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(75, 85, 99, 0.7);
+      color: var(--muted);
+    }
+    .log {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+      font-size: 11px;
+      background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.5), #020617);
+      border-radius: 12px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 10px;
+      max-height: 220px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #e5e7eb;
+    }
+    .log span.key {
+      color: #a5b4fc;
+    }
+    .log span.value {
+      color: #e5e7eb;
+    }
+    .log span.dim {
+      color: #6b7280;
+    }
+    .log span.error {
+      color: var(--error);
+    }
+    .log span.success {
+      color: var(--success);
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .chip {
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      padding: 2px 7px;
+      font-size: 10px;
+      color: #d1d5db;
+      background: rgba(15, 23, 42, 0.96);
+    }
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #9ca3af;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .tiny {
+      font-size: 10px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <!-- Left: Problem creation -->
+    <div class="card">
+      <div class="card-header">
+        <div class="title">
+          Problem Ingest
+          <span class="pill">/api/problems</span>
+        </div>
+      </div>
+      <div class="subtitle">
+        Quickly add a problem statement and see how the AI service ingests and stores metadata + embeddings.
+      </div>
+      <form id="problem-form">
+        <div class="field">
+          <label for="source">Source</label>
+          <input id="source" name="source" value="platform" />
+        </div>
+        <div class="field">
+          <label for="title">Title</label>
+          <input id="title" name="title" placeholder="AI-Powered Learning Platform" />
+        </div>
+        <div class="field">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            placeholder="Describe the problem, including required skills, domains, and tools..."
+          ></textarea>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
+          <button type="submit" id="create-problem-btn">
+            <span>Ingest Problem</span>
+          </button>
+          <div class="tiny">
+            The backend will extract skills/domains, generate metadata & embeddings.
+          </div>
+        </div>
+      </form>
+      <div style="margin-top:12px;">
+        <div class="section-title">Last created problem</div>
+        <div class="log" id="problem-log">
+          <span class="dim">No problem created yet.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Team + recommendations -->
+    <div class="card">
+      <div class="card-header">
+        <div class="title">
+          Team Recommendations
+          <span class="pill">/api/recommendations</span>
+        </div>
+      </div>
+      <div class="subtitle">
+        Use an existing <code>teamId</code> from your DB to extract skills and generate ranked problems.
+      </div>
+
+      <div class="field">
+        <label for="teamId">Team ID (Mongo ObjectId)</label>
+        <input id="teamId" placeholder="64f0d8c0a1b2c3d4e5f67890" />
+        <div class="tiny">
+          This should be an existing <strong>Team._id</strong> from your main hackathon database.
+        </div>
+      </div>
+
+      <div class="row" style="margin-bottom:8px;">
+        <div class="field">
+          <label for="topN">Top N Recommendations</label>
+          <input id="topN" type="number" value="5" min="1" max="50" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-bottom:6px;">
+        <button id="extract-btn" type="button">
+          Extract Team Skills
+        </button>
+        <button id="recommend-btn" type="button">
+          Generate Recommendations
+        </button>
+      </div>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <span class="section-title">Output</span>
+        <span class="badge" id="status-pill">
+          idle
+        </span>
+      </div>
+
+      <div class="log" id="output-log">
+        <span class="dim">Waiting for a request...</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiBase = '';
+
+    const problemForm = document.getElementById('problem-form');
+    const problemLog = document.getElementById('problem-log');
+    const createProblemBtn = document.getElementById('create-problem-btn');
+
+    const teamIdInput = document.getElementById('teamId');
+    const topNInput = document.getElementById('topN');
+    const extractBtn = document.getElementById('extract-btn');
+    const recommendBtn = document.getElementById('recommend-btn');
+    const outputLog = document.getElementById('output-log');
+    const statusPill = document.getElementById('status-pill');
+
+    function setStatus(text, tone = 'idle') {
+      statusPill.textContent = text;
+      const base = 'badge';
+      if (tone === 'error') {
+        statusPill.style.borderColor = '#f97373';
+        statusPill.style.color = '#fecaca';
+      } else if (tone === 'success') {
+        statusPill.style.borderColor = '#4ade80';
+        statusPill.style.color = '#bbf7d0';
+      } else if (tone === 'busy') {
+        statusPill.style.borderColor = '#38bdf8';
+        statusPill.style.color = '#bae6fd';
+      } else {
+        statusPill.style.borderColor = 'rgba(75,85,99,0.7)';
+        statusPill.style.color = '#9ca3af';
+      }
+    }
+
+    function pretty(obj) {
+      return JSON.stringify(obj, null, 2);
+    }
+
+    function renderProblemLog(data) {
+      if (!data?.data) {
+        problemLog.innerHTML = '<span class="error">No response.</span>';
+        return;
+      }
+      const p = data.data;
+      problemLog.textContent = JSON.stringify({
+        _id: p._id,
+        source: p.source,
+        title: p.title,
+        createdAt: p.createdAt,
+      }, null, 2);
+    }
+
+    async function createProblem(e) {
+      e.preventDefault();
+      const source = document.getElementById('source').value || 'platform';
+      const title = document.getElementById('title').value || 'Untitled Problem';
+      const description = document.getElementById('description').value || 'Sample problem description with some skills: JavaScript, React, Node.js, MongoDB.';
+
+      createProblemBtn.disabled = true;
+      createProblemBtn.textContent = 'Ingesting...';
+      problemLog.innerHTML = '<span class="dim">Sending request...</span>';
+
+      try {
+        const res = await fetch(apiBase + '/api/problems', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ source, title, description }),
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          problemLog.innerHTML = '<span class="error">' + pretty(json) + '</span>';
+        } else {
+          renderProblemLog(json);
+        }
+      } catch (err) {
+        problemLog.innerHTML = '<span class="error">' + err.message + '</span>';
+      } finally {
+        createProblemBtn.disabled = false;
+        createProblemBtn.textContent = 'Ingest Problem';
+      }
+    }
+
+    async function extractTeamSkills() {
+      const teamId = teamIdInput.value.trim();
+      if (!teamId) {
+        outputLog.innerHTML = '<span class="error">Please enter a teamId first.</span>';
+        return;
+      }
+      setStatus('extracting', 'busy');
+      outputLog.innerHTML = '<span class="dim">Extracting skills...</span>';
+
+      try {
+        const res = await fetch(apiBase + '/api/recommendations/teams/' + encodeURIComponent(teamId) + '/extract-skills', {
+          method: 'POST',
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          outputLog.innerHTML = '<span class="error">' + pretty(json) + '</span>';
+          setStatus('error', 'error');
+        } else {
+          outputLog.textContent = pretty(json);
+          setStatus('skills ready', 'success');
+        }
+      } catch (err) {
+        outputLog.innerHTML = '<span class="error">' + err.message + '</span>';
+        setStatus('network error', 'error');
+      }
+    }
+
+    async function generateRecommendations() {
+      const teamId = teamIdInput.value.trim();
+      if (!teamId) {
+        outputLog.innerHTML = '<span class="error">Please enter a teamId first.</span>';
+        return;
+      }
+      const topN = parseInt(topNInput.value || '5', 10);
+      setStatus('ranking', 'busy');
+      outputLog.innerHTML = '<span class="dim">Generating recommendations...</span>';
+
+      try {
+        const res = await fetch(apiBase + '/api/recommendations/teams/' + encodeURIComponent(teamId) + '/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topN }),
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          outputLog.innerHTML = '<span class="error">' + pretty(json) + '</span>';
+          setStatus('error', 'error');
+        } else {
+          outputLog.textContent = pretty(json);
+          setStatus('ok', 'success');
+        }
+      } catch (err) {
+        outputLog.innerHTML = '<span class="error">' + err.message + '</span>';
+        setStatus('network error', 'error');
+      }
+    }
+
+    problemForm.addEventListener('submit', createProblem);
+    extractBtn.addEventListener('click', extractTeamSkills);
+    recommendBtn.addEventListener('click', generateRecommendations);
+  </script>
+</body>
+</html>
+
+
