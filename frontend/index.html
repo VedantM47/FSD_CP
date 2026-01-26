@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hackathon Judging</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h2>Judge Evaluation Form</h2>
+
+<form id="form">
+  <label>Judge ID</label>
+  <input id="judgeId" value="J1" />
+
+  <label>Team ID</label>
+  <input id="teamId" value="T1" />
+
+  <h3>Raw Scores (1–10)</h3>
+  <div id="scores"></div>
+
+  <h3>Checkboxes</h3>
+  <div id="checks"></div>
+
+  <h3>Project Description (≤50 words)</h3>
+  <textarea id="desc" rows="3"></textarea>
+
+  <button type="submit">Submit</button>
+</form>
+
+<hr>
+
+<button onclick="loadLeaderboard()">View Leaderboard</button>
+<pre id="output"></pre>
+
+<script src="app.js"></script>
+</body>
+</html>
