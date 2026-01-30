@@ -1,53 +1,75 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import "../../styles/admin.css";
 
-function HackathonCard({ hackathon }) {
+const HackathonCard = ({ hackathon }) => {
   const navigate = useNavigate();
+
+  // ✅ fallback logic (IMPORTANT)
+  const title = hackathon.title || hackathon.name || "Untitled Hackathon";
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "draft":
+        return "status-draft";
+      case "open":
+        return "status-open";
+      case "ongoing":
+        return "status-live";
+      case "closed":
+        return "status-closed";
+      default:
+        return "";
+    }
+  };
 
   return (
     <div className="hackathon-card">
       <div className="hackathon-info">
         <div className="hackathon-header">
-          <h3 className="hackathon-title">{hackathon.name}</h3>
-          <span className={`status-badge status-live`}>
+          {/* ✅ TITLE FIX */}
+          <h3 className="hackathon-title">
+            {title}
+          </h3>
+
+          <span className={`status-badge ${getStatusClass(hackathon.status)}`}>
             {hackathon.status}
           </span>
         </div>
 
         <div className="hackathon-meta">
           <span>
-            {hackathon.startDate} – {hackathon.endDate}
+            {hackathon.startDate
+              ? new Date(hackathon.startDate).toLocaleDateString()
+              : "—"}{" "}
+            –{" "}
+            {hackathon.endDate
+              ? new Date(hackathon.endDate).toLocaleDateString()
+              : "—"}
           </span>
-          <span className="hackathon-divider">|</span>
-          <span>Organizer: {hackathon.organization}</span>
         </div>
       </div>
 
       <div className="hackathon-actions">
-        {/* VIEW PAGE */}
         <button
           className="action-btn"
-          onClick={() =>
-            navigate(`/admin/hackathons/${hackathon.id}`)
-          }
+          onClick={() => navigate(`/admin/hackathons/${hackathon._id}`)}
         >
           View
         </button>
 
-        {/* DASHBOARD PAGE (THIS IS WHAT YOU WANT) */}
         <button
           className="action-btn"
           onClick={() =>
-            navigate(`/admin/hackathons/${hackathon.id}/dashboard`)
+            navigate(`/admin/hackathons/${hackathon._id}/dashboard`)
           }
         >
           Dashboard
         </button>
 
-        {/* EDIT PAGE */}
         <button
           className="action-btn"
           onClick={() =>
-            navigate(`/admin/hackathons/${hackathon.id}/edit`)
+            navigate(`/admin/hackathons/${hackathon._id}/edit`)
           }
         >
           Edit
@@ -55,6 +77,6 @@ function HackathonCard({ hackathon }) {
       </div>
     </div>
   );
-}
+};
 
 export default HackathonCard;

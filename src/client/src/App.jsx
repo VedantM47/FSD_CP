@@ -30,7 +30,7 @@ function App() {
   return (
     <Routes>
       {/* Auth Routes */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
@@ -42,22 +42,16 @@ function App() {
         element={<TeamSubmissions />}
       />
 
-      {/* Admin Routes */}
+      {/* Admin */}
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/hackathons/create" element={<CreateHackathon />} />
       <Route path="/admin/hackathons/:id" element={<ViewHackathon />} />
       <Route path="/admin/hackathons/:id/edit" element={<CreateHackathon />} />
-      <Route
-        path="/admin/hackathons/:id/dashboard"
-        element={<HackathonDashboard />}
-      />
+      <Route path="/admin/hackathons/:id/dashboard" element={<HackathonDashboard />} />
       {/* participant routes */}
       <Route path="/user/hackathon/:id" element={<SingleHackathon />} />
       <Route path="/user/hackathon/:id/register" element={<RegisterHackathon />} />
       <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
-
-
-
 
 
       {/* ================= USER ROUTES ================= */}

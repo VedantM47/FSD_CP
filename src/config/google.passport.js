@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config({ path: process.cwd() + '/.env' });
-
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../models/user.model.js';
@@ -18,7 +15,7 @@ passport.use(
 
         if (!user) {
           user = await User.create({
-            name: profile.displayName,
+            fullName: profile.displayName,
             email: profile.emails[0].value,
             googleId: profile.id,
             authProvider: 'google',
@@ -27,8 +24,8 @@ passport.use(
         }
 
         done(null, user);
-      } catch (error) {
-        done(error, null);
+      } catch (err) {
+        done(err, null);
       }
     }
   )

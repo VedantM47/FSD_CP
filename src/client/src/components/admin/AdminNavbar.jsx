@@ -1,7 +1,15 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 function AdminNavbar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const isActive = (path) => pathname.startsWith(path);
+
+  const handleLogout = () => {
+    // later you can also clear token / user state here
+    navigate('/login');
+  };
 
   return (
     <nav className="admin-navbar">
@@ -20,21 +28,24 @@ function AdminNavbar() {
         <div className="navbar-right">
           <Link
             to="/admin/dashboard"
-            className={`nav-link ${pathname.includes('/dashboard') ? 'active' : ''}`}
+            className={`nav-link ${isActive('/admin/dashboard') ? 'active' : ''}`}
           >
             Dashboard
           </Link>
 
           <Link
-            to="/admin/create-hackathon"
-            className={`nav-link ${pathname.includes('/create') ? 'active' : ''}`}
+            to="/admin/hackathons/create"
+            className={`nav-link ${isActive('/admin/hackathons/create') ? 'active' : ''}`}
           >
             Create Hackathon
           </Link>
 
-          <Link to="/login" className="nav-link logout">
+          <button
+            onClick={handleLogout}
+            className="nav-link logout"
+          >
             Logout
-          </Link>
+          </button>
         </div>
       </div>
     </nav>

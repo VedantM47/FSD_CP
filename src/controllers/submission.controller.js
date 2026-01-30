@@ -37,6 +37,7 @@ export const createSubmission = async (req, res, next) => {
     // 2. SYNC: Update the 'Team' model
    
     await Team.findByIdAndUpdate(teamId, {
+      submissionId: newSubmission._id,   
       project: {
         title: title,
         description: description,
@@ -47,6 +48,7 @@ export const createSubmission = async (req, res, next) => {
       },
       isLocked: true 
     });
+
 
     // 3. Success Response
     res.status(201).json({ 

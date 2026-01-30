@@ -1,23 +1,95 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import AdminNavbar from '../../components/admin/AdminNavbar';
 import StatsCard from '../../components/admin/StatsCard';
 import AlertBanner from '../../components/admin/AlertBanner';
 import HackathonCard from '../../components/admin/HackathonCard';
-import { useNavigate } from 'react-router-dom';
-import mockHackathon from '../../data/mockHackathon';
+
+import { getAdminDashboard, getAdminHackathons } from '../../services/api';
+
 import '../../styles/admin.css';
 
 function AdminDashboard() {
   const navigate = useNavigate();
 
-  const hackathons = [mockHackathon];
+  const [stats, setStats] = useState(null);
+  const [hackathons, setHackathons] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchAdminData = async () => {
+      try {
+        setLoading(true);
+        setError('');
+
+        const [dashboardRes, hackathonsRes] = await Promise.all([
+          getAdminDashboard(),
+          getAdminHackathons(),
+        ]);
+
+        if (!isMounted) return;
+
+        setStats(dashboardRes.data.data);
+        setHackathons(hackathonsRes.data.data || []);
+      } catch (err) {
+        console.error('❌ ADMIN DASHBOARD ERROR:', err);
+
+        if (!isMounted) return;
+
+        setError(
+          err?.response?.data?.message ||
+            err?.message ||
+            'Failed to load admin dashboard'
+        );
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchAdminData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  /* ================= LOADING ================= */
+  if (loading) {
+    return (
+      <div className="admin-layout">
+        <AdminNavbar />
+        <main className="admin-main">
+          <div className="admin-container">Loading dashboard...</div>
+        </main>
+      </div>
+    );
+  }
+
+  /* ================= ERROR ================= */
+  if (error) {
+    return (
+      <div className="admin-layout">
+        <AdminNavbar />
+        <main className="admin-main">
+          <div className="admin-container error-text">{error}</div>
+        </main>
+      </div>
+    );
+  }
+
+  /* ================= UI ================= */
   return (
     <div className="admin-layout">
       <AdminNavbar />
-      
+
       <main className="admin-main">
         <div className="admin-container">
-          <button 
+          {/* CREATE BUTTON */}
+          <button
             className="create-hackathon-btn"
             onClick={() => navigate('/admin/hackathons/create')}
           >
@@ -25,39 +97,52 @@ function AdminDashboard() {
             Create a Hackathon
           </button>
 
+          {/* OVERVIEW */}
           <section className="overview-section">
             <h2 className="section-title">Overview</h2>
+
             <div className="stats-grid">
-              <StatsCard label="Total Hackathons" value="4" />
-              <StatsCard label="Active Hackathons" value="2" />
-              <StatsCard label="Upcoming Hackathons" value="1" />
-              <StatsCard label="Closed Hackathons" value="1" />
+              <StatsCard label="Total Hackathons" value={stats?.hackathons ?? 0} />
+              <StatsCard
+                label="Active Hackathons"
+                value={stats?.activeHackathons ?? 0}
+              />
+              <StatsCard label="Teams" value={stats?.teams ?? 0} />
+              <StatsCard label="Submissions" value={stats?.submissions ?? 0} />
+              <StatsCard label="Users" value={stats?.users ?? 0} />
             </div>
           </section>
 
+          {/* ALERTS */}
           <section className="alerts-section">
             <h2 className="section-title">Alerts & Notifications</h2>
+
             <div className="alerts-list">
-              <AlertBanner message="AI Innovation Challenge 2026 registration closes in 2 days" />
-              <AlertBanner message="Round 1 submissions pending from 12 teams in Mobile App Marathon" />
+              <AlertBanner message="Some hackathons are nearing submission deadlines." />
             </div>
           </section>
 
+          {/* HACKATHONS */}
           <section className="hackathons-section">
             <h2 className="section-title">My Hackathons</h2>
-            <div className="hackathons-list">
-              {hackathons.map((hackathon) => (
-                <HackathonCard
-                  key={hackathon.id}
-                  hackathon={hackathon}
-                />
-              ))}
-            </div>
-          </section>
 
+            {hackathons.length === 0 ? (
+              <p>No hackathons created yet.</p>
+            ) : (
+              <div className="hackathons-list">
+                {hackathons.map((hackathon) => (
+                  <HackathonCard
+                    key={hackathon._id}
+                    hackathon={hackathon}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       </main>
 
+      {/* FOOTER */}
       <footer className="admin-footer">
         <div className="footer-content">
           <div className="footer-left">
