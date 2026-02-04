@@ -22,9 +22,10 @@ const AuthForm = ({ type }) => {
         return;
       }
       else if (email === 'ad@gmail.com' && password === '12345') {
+        localStorage.setItem("token", "dummy-token");
         navigate("/judge/hackathons");
         return;
-      }
+      }  
     }
 
     console.log(`${type} form submitted (UI only)`);
