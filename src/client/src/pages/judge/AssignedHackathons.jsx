@@ -4,6 +4,7 @@ import Footer from "../../components/judge/Footer";
 import HackathonCard from "../../components/judge/HackathonCard";
 import judgeApi from "../../services/judgeApi";
 import "../../styles/judge.css";
+import "../../styles/judge-additional.css";
 
 const AssignedHackathons = () => {
   const [hackathons, setHackathons] = useState([]);
@@ -26,17 +27,17 @@ const AssignedHackathons = () => {
 
       // Get all hackathons
       const response = await judgeApi.getAssignedHackathons();
-
+      
       if (response.success) {
         // Filter hackathons where current user is a judge
         const userHackathonRoles = userData.data.hackathonRoles || [];
         const judgeHackathonIds = userHackathonRoles
-          .filter((role) => role.role === "judge")
-          .map((role) => role.hackathonId);
+          .filter(role => role.role === 'judge')
+          .map(role => role.hackathonId);
 
         // Filter and enrich hackathon data
-        const assignedHackathons = response.data.filter((hackathon) =>
-          judgeHackathonIds.includes(hackathon._id),
+        const assignedHackathons = response.data.filter(hackathon => 
+          judgeHackathonIds.includes(hackathon._id)
         );
 
         // Fetch additional data for each hackathon
@@ -44,22 +45,18 @@ const AssignedHackathons = () => {
           assignedHackathons.map(async (hackathon) => {
             try {
               // Get teams for this hackathon
-              const teamsResponse = await judgeApi.getTeamsByHackathon(
-                hackathon._id,
-              );
+              const teamsResponse = await judgeApi.getTeamsByHackathon(hackathon._id);
               const teams = teamsResponse.data || [];
 
               // Get overview data (if admin endpoint is accessible)
               let overview = { teamsCount: teams.length, submissionsCount: 0 };
               try {
-                const overviewResponse = await judgeApi.getHackathonOverview(
-                  hackathon._id,
-                );
+                const overviewResponse = await judgeApi.getHackathonOverview(hackathon._id);
                 if (overviewResponse.success) {
                   overview = overviewResponse.data;
                 }
               } catch (err) {
-                console.log("Overview not available, using team count");
+                console.log('Overview not available, using team count');
               }
 
               // Count evaluated teams by checking if evaluations exist
@@ -67,13 +64,13 @@ const AssignedHackathons = () => {
               for (const team of teams) {
                 try {
                   const evalResponse = await judgeApi.getEvaluationsByTeam(
-                    hackathon._id,
-                    team._id,
+                    hackathon._id, 
+                    team._id
                   );
                   if (evalResponse.success && evalResponse.count > 0) {
                     // Check if current judge has evaluated
                     const hasJudgeEvaluated = evalResponse.data.some(
-                      (evaluation) => evaluation.judgeId === userData.data._id,
+                      evaluation => evaluation.judgeId === userData.data._id
                     );
                     if (hasJudgeEvaluated) evaluatedCount++;
                   }
@@ -87,40 +84,34 @@ const AssignedHackathons = () => {
                 title: hackathon.title,
                 status: getHackathonStatus(hackathon),
                 round: "Final Round", // You can make this dynamic based on your logic
-                timeline: formatTimeline(
-                  hackathon.startDate,
-                  hackathon.endDate,
-                ),
+                timeline: formatTimeline(hackathon.startDate, hackathon.endDate),
                 deadline: formatDeadline(hackathon.endDate),
                 evaluated: evaluatedCount,
                 total: overview.teamsCount,
-                rawData: hackathon,
+                rawData: hackathon
               };
             } catch (err) {
-              console.error("Error enriching hackathon:", err);
+              console.error('Error enriching hackathon:', err);
               return {
                 id: hackathon._id,
                 title: hackathon.title,
                 status: getHackathonStatus(hackathon),
                 round: "Final Round",
-                timeline: formatTimeline(
-                  hackathon.startDate,
-                  hackathon.endDate,
-                ),
+                timeline: formatTimeline(hackathon.startDate, hackathon.endDate),
                 deadline: formatDeadline(hackathon.endDate),
                 evaluated: 0,
                 total: 0,
-                rawData: hackathon,
+                rawData: hackathon
               };
             }
-          }),
+          })
         );
 
         setHackathons(enrichedHackathons);
       }
     } catch (err) {
-      console.error("Error fetching hackathons:", err);
-      setError(err.message || "Failed to load assigned hackathons");
+      console.error('Error fetching hackathons:', err);
+      setError(err.message || 'Failed to load assigned hackathons');
     } finally {
       setLoading(false);
     }
@@ -128,40 +119,40 @@ const AssignedHackathons = () => {
 
   const getHackathonStatus = (hackathon) => {
     switch (hackathon.status) {
-      case "ongoing":
-        return "In Progress";
-      case "open":
-        return "Pending";
-      case "closed":
-        return "Completed";
-      case "draft":
-        return "Draft";
+      case 'ongoing':
+        return 'In Progress';
+      case 'open':
+        return 'Pending';
+      case 'closed':
+        return 'Completed';
+      case 'draft':
+        return 'Draft';
       default:
-        return "Unknown";
+        return 'Unknown';
     }
   };
 
   const formatTimeline = (startDate, endDate) => {
-    if (!startDate || !endDate) return "N/A";
-    const start = new Date(startDate).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
+    if (!startDate || !endDate) return 'N/A';
+    const start = new Date(startDate).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
     });
-    const end = new Date(endDate).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
+    const end = new Date(endDate).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
     });
     return `${start} - ${end}`;
   };
 
   const formatDeadline = (endDate) => {
-    if (!endDate) return "N/A";
-    return new Date(endDate).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
+    if (!endDate) return 'N/A';
+    return new Date(endDate).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
     });
   };
 
@@ -191,7 +182,10 @@ const AssignedHackathons = () => {
             <div className="error-container">
               <h2>Error Loading Hackathons</h2>
               <p>{error}</p>
-              <button className="btn-primary" onClick={fetchAssignedHackathons}>
+              <button 
+                className="btn-primary" 
+                onClick={fetchAssignedHackathons}
+              >
                 Retry
               </button>
             </div>

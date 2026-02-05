@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute";
 
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
@@ -32,34 +31,16 @@ function App() {
   return (
     <Routes>
       {/* Auth Routes */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
-      {/* Judge Routes - NOW PROTECTED */}
-      <Route
-        path="/judge/hackathons"
-        element={
-          <ProtectedRoute allowedRoles={["user", "admin", "mentor"]}>
-            <AssignedHackathons />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/judge/hackathons/:id"
-        element={
-          <ProtectedRoute allowedRoles={["user", "admin", "mentor"]}>
-            <HackathonOverview />
-          </ProtectedRoute>
-        }
-      />
+      {/* Judge Routes - Backend handles auth */}
+      <Route path="/judge/hackathons" element={<AssignedHackathons />} />
+      <Route path="/judge/hackathons/:id" element={<HackathonOverview />} />
       <Route
         path="/judge/hackathons/:id/submissions"
-        element={
-          <ProtectedRoute allowedRoles={["user", "admin", "mentor"]}>
-            <TeamSubmissions />
-          </ProtectedRoute>
-        }
+        element={<TeamSubmissions />}
       />
 
       {/* Admin Routes */}

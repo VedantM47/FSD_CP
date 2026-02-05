@@ -1,7 +1,14 @@
 import React from "react";
 import "../../styles/judge.css";
+import "../../styles/judge-additional.css";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    // later you can also clear token / user state here
+    navigate("/login");
+  };
   return (
     <nav className="judge-navbar">
       <div className="navbar-content">
@@ -28,6 +35,9 @@ const Navbar = () => {
               />
             </svg>
           </div>
+          <button onClick={handleLogout} className="nav-link logout">
+            Logout
+          </button>
         </div>
       </div>
     </nav>

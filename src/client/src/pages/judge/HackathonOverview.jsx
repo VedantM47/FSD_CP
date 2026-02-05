@@ -4,11 +4,12 @@ import Navbar from "../../components/judge/Navbar";
 import Footer from "../../components/judge/Footer";
 import judgeApi from "../../services/judgeApi";
 import "../../styles/judge.css";
+import "../../styles/judge-additional.css";
 
 const HackathonOverview = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-
+  
   const [hackathon, setHackathon] = useState(null);
   const [overview, setOverview] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,7 +27,7 @@ const HackathonOverview = () => {
       // Fetch hackathon details
       const hackathonResponse = await judgeApi.getHackathonById(id);
       if (!hackathonResponse.success) {
-        throw new Error("Failed to load hackathon details");
+        throw new Error('Failed to load hackathon details');
       }
       setHackathon(hackathonResponse.data);
 
@@ -37,14 +38,13 @@ const HackathonOverview = () => {
           setOverview(overviewResponse.data);
         }
       } catch (overviewErr) {
-        console.log("Overview endpoint not available, fetching teams directly");
+        console.log('Overview endpoint not available, fetching teams directly');
         // Fallback: fetch teams directly
         const teamsResponse = await judgeApi.getTeamsByHackathon(id);
         if (teamsResponse.success) {
           setOverview({
             teamsCount: teamsResponse.count || teamsResponse.data.length,
-            submissionsCount: teamsResponse.data.filter((t) => t.project?.title)
-              .length,
+            submissionsCount: teamsResponse.data.filter(t => t.project?.title).length
           });
         }
       }
@@ -52,18 +52,15 @@ const HackathonOverview = () => {
       // Get evaluation progress for current judge
       const userData = await judgeApi.getMe();
       const teamsResponse = await judgeApi.getTeamsByHackathon(id);
-
+      
       if (teamsResponse.success) {
         let evaluatedCount = 0;
         for (const team of teamsResponse.data) {
           try {
-            const evalResponse = await judgeApi.getEvaluationsByTeam(
-              id,
-              team._id,
-            );
+            const evalResponse = await judgeApi.getEvaluationsByTeam(id, team._id);
             if (evalResponse.success) {
               const hasJudgeEvaluated = evalResponse.data.some(
-                (evaluation) => evaluation.judgeId === userData.data._id,
+                evaluation => evaluation.judgeId === userData.data._id
               );
               if (hasJudgeEvaluated) evaluatedCount++;
             }
@@ -71,16 +68,17 @@ const HackathonOverview = () => {
             // Continue if evaluation fetch fails
           }
         }
-
-        setOverview((prev) => ({
+        
+        setOverview(prev => ({
           ...prev,
           evaluatedCount,
-          totalTeams: teamsResponse.data.length,
+          totalTeams: teamsResponse.data.length
         }));
       }
+
     } catch (err) {
-      console.error("Error fetching hackathon data:", err);
-      setError(err.message || "Failed to load hackathon data");
+      console.error('Error fetching hackathon data:', err);
+      setError(err.message || 'Failed to load hackathon data');
     } finally {
       setLoading(false);
     }
@@ -88,38 +86,38 @@ const HackathonOverview = () => {
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case "ongoing":
-        return "status-in-progress";
-      case "open":
-        return "status-pending";
-      case "closed":
-        return "status-completed";
+      case 'ongoing':
+        return 'status-in-progress';
+      case 'open':
+        return 'status-pending';
+      case 'closed':
+        return 'status-completed';
       default:
-        return "status-draft";
+        return 'status-draft';
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case "ongoing":
-        return "In Progress";
-      case "open":
-        return "Open";
-      case "closed":
-        return "Completed";
-      case "draft":
-        return "Draft";
+      case 'ongoing':
+        return 'In Progress';
+      case 'open':
+        return 'Open';
+      case 'closed':
+        return 'Completed';
+      case 'draft':
+        return 'Draft';
       default:
         return status;
     }
   };
 
   const formatDate = (date) => {
-    if (!date) return "N/A";
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -148,10 +146,10 @@ const HackathonOverview = () => {
           <div className="page-container">
             <div className="error-container">
               <h2>Error Loading Hackathon</h2>
-              <p>{error || "Hackathon not found"}</p>
-              <button
-                className="btn-primary"
-                onClick={() => navigate("/judge/hackathons")}
+              <p>{error || 'Hackathon not found'}</p>
+              <button 
+                className="btn-primary" 
+                onClick={() => navigate('/judge/hackathons')}
               >
                 Back to Hackathons
               </button>
@@ -172,9 +170,7 @@ const HackathonOverview = () => {
           <div className="overview-card">
             <div className="overview-header">
               <h1 className="overview-title">{hackathon.title}</h1>
-              <span
-                className={`status-badge ${getStatusBadgeClass(hackathon.status)}`}
-              >
+              <span className={`status-badge ${getStatusBadgeClass(hackathon.status)}`}>
                 {getStatusText(hackathon.status)}
               </span>
             </div>
@@ -182,7 +178,7 @@ const HackathonOverview = () => {
             <p className="overview-round">Final Round</p>
 
             <p className="overview-description">
-              {hackathon.description || "No description available"}
+              {hackathon.description || 'No description available'}
             </p>
 
             <div className="overview-info-grid">
@@ -211,8 +207,7 @@ const HackathonOverview = () => {
                 <div className="info-text">
                   <p className="info-text-label">Timeline</p>
                   <p className="info-text-value">
-                    {formatDate(hackathon.startDate)} -{" "}
-                    {formatDate(hackathon.endDate)}
+                    {formatDate(hackathon.startDate)} - {formatDate(hackathon.endDate)}
                   </p>
                 </div>
               </div>
@@ -282,8 +277,7 @@ const HackathonOverview = () => {
                 <div className="info-text">
                   <p className="info-text-label">Evaluation Progress</p>
                   <p className="info-text-value">
-                    {overview?.evaluatedCount || 0} /{" "}
-                    {overview?.totalTeams || overview?.teamsCount || 0} teams
+                    {overview?.evaluatedCount || 0} / {overview?.totalTeams || overview?.teamsCount || 0} teams
                   </p>
                 </div>
               </div>
@@ -300,9 +294,8 @@ const HackathonOverview = () => {
           <div className="deadline-card">
             <h3 className="deadline-title">Submission Deadline</h3>
             <p className="deadline-text">
-              Teams must submit their projects by{" "}
-              <strong>{formatDate(hackathon.endDate)}</strong>. You can begin
-              evaluating submissions as they come in.
+              Teams must submit their projects by <strong>{formatDate(hackathon.endDate)}</strong>.
+              You can begin evaluating submissions as they come in.
             </p>
           </div>
         </div>

@@ -17,6 +17,7 @@ const getAuthToken = () => {
   return localStorage.getItem('authToken');
 };
 
+
 // Helper function to handle API errors
 const handleApiError = (error) => {
   if (error.response) {
@@ -59,5 +60,4 @@ export const getAuthHeaders = () => ({
   },
 });
 
-export { API , getAuthToken, handleApiError };
-
+export { API, getAuthToken, handleApiError };

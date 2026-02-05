@@ -1,5 +1,6 @@
 import React from "react";
 import "../../styles/judge.css";
+import "../../styles/judge-additional.css";
 
 const Footer = () => {
   return (
