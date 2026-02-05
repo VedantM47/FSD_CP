@@ -1,21 +1,15 @@
 import axios from "axios";
 
-const API = axios.create({
+/* ================= AXIOS INSTANCE ================= */
+export const API = axios.create({
   baseURL: "http://localhost:8080/api",
 });
 
-// ADMIN APIs
-export const getAdminDashboard = () => API.get("/admin/dashboard");
-export const getAdminHackathons = () => API.get("/admin/hackathons");
-export const getHackathonById = (id) => API.get(`/hackathons/${id}`);
-export const createHackathon = (data) => API.post("/hackathons", data);
-export const updateHackathon = (id, data) =>
-  API.patch(`/hackathons/${id}`, data);
-export const updateHackathonStatus = (id, status) =>
-  API.patch(`/hackathons/${id}/status`, { status });
-const getAuthToken = () => {
-  return localStorage.getItem('authToken');
+/* ================= AUTH HELPERS ================= */
+export const getAuthToken = () => {
+  return localStorage.getItem("authToken");
 };
+
 
 
 // Helper function to handle API errors
@@ -53,11 +47,10 @@ export const axiosConfig = {
 };
 
 // Add auth token to requests
+ bcac1889cbd99d24e6cbb4a14e6cc58ee3e1ce47
 export const getAuthHeaders = () => ({
   headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${getAuthToken()}`,
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${getAuthToken()}`,
   },
 });
-
-export { API, getAuthToken, handleApiError };
