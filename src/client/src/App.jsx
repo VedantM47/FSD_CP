@@ -32,7 +32,7 @@ function App() {
   return (
     <Routes>
       {/* Auth Routes */}
-      <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
