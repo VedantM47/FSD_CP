@@ -33,7 +33,7 @@ const apiLimiter = rateLimit({
 
 /* ================= MIDDLEWARES ================= */
 app.use(express.json());
-app.use(apiLimiter);
+// app.use(apiLimiter);
 app.use(passport.initialize());
 
 /* ================= ROUTES ================= */
