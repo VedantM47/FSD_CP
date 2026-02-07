@@ -2,51 +2,41 @@ import 'dotenv/config';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
-import app from './app.js';
-import connectDB from './config/database.js'; 
-import socketAuth from './middlewares/socketAuth.middleware.js'; 
+// Import from src
+import app from './src/app.js';
+import connectDB from './src/config/database.js';
+import socketAuth from './src/middlewares/socketAuth.middleware.js'; 
+import chatHandler from './src/socket/chat.handler.js';
 
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {
-    // 1. Connect to Database
     await connectDB();
 
-    // 2. Create HTTP Server explicitly to attach Socket.io
+    // Create HTTP Server for Socket.io
     const httpServer = createServer(app);
 
-    // 3. Initialize Socket.io with CORS settings
+    // Initialize Socket.io
     const io = new Server(httpServer, {
-      cors: {
-        origin: "*", 
-        methods: ["GET", "POST"]
-      }
+      cors: { origin: "*", methods: ["GET", "POST"] }
     });
 
-    // 4. Apply Socket Authentication Middleware
     io.use(socketAuth);
-
-    // 5. Handle Socket Connections
+    
     io.on('connection', (socket) => {
-      // console.log(`User connected: ${socket.user.fullName}`);
-      console.log(`Socket connected: ${socket.id}`);
-      
-      // Attach Chat Event Listeners
-      // chatHandler(io, socket);
-
-      socket.on('disconnect', () => {
-        console.log('User disconnected');
-      });
+      console.log(`Socket Connected: ${socket.id}`);
+      chatHandler(io, socket);
+      socket.on('disconnect', () => console.log('Socket Disconnected'));
     });
 
-    // 6. Start Server
+    // Start Server
     const server = httpServer.listen(PORT, () => {
       console.log(`\n🚀 Server running on port ${PORT}`);
       console.log(`🔗 http://localhost:${PORT}`);
     });
 
-    // Graceful Shutdown Logic
+    // Graceful Shutdown
     const shutdown = async (signal) => {
       console.log(`\n${signal} received. Shutting down...`);
       io.close(); 
@@ -55,12 +45,11 @@ const startServer = async () => {
         process.exit(0);
       });
     };
-
     process.on('SIGINT', shutdown);
     process.on('SIGTERM', shutdown);
 
   } catch (error) {
-    console.error('Failed to start server', error);
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 };

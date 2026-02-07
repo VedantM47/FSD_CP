@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const problemEmbeddingSchema = new mongoose.Schema(
   {
     problemId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'ProblemStatement',
+      ref: "ProblemStatement",
       required: true,
       unique: true,
       index: true,
@@ -15,7 +15,7 @@ const problemEmbeddingSchema = new mongoose.Schema(
     },
     embeddingModel: {
       type: String,
-      default: 'default',
+      default: "default",
     },
     createdAt: {
       type: Date,
@@ -24,13 +24,15 @@ const problemEmbeddingSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-// Index for faster queries
-problemEmbeddingSchema.index({ problemId: 1 });
+// // Index for faster queries
+// problemEmbeddingSchema.index({ problemId: 1 });
 
-const ProblemEmbedding = mongoose.model('ProblemEmbedding', problemEmbeddingSchema);
+const ProblemEmbedding = mongoose.model(
+  "ProblemEmbedding",
+  problemEmbeddingSchema,
+);
 
 export default ProblemEmbedding;
-

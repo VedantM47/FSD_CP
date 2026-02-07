@@ -1,5 +1,5 @@
 import natural from 'natural';
-import Team from '../models/Team.js';
+import Team from '../models/team.model.js';
 import TeamSkillProfile from '../models/teamSkillProfile.model.js';
 import { extractSkills, extractDomains, extractTools, extractAll } from '../utils/skillExtractor.js';
 

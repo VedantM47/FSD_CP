@@ -7,7 +7,7 @@ const problemMetadataSchema = new mongoose.Schema(
       ref: 'ProblemStatement',
       required: true,
       unique: true,
-      index: true,
+      index: true, // Index created here
     },
     domains: {
       type: [String],
@@ -35,7 +35,7 @@ const problemMetadataSchema = new mongoose.Schema(
 );
 
 // Indexes for faster queries
-problemMetadataSchema.index({ problemId: 1 });
+// problemMetadataSchema.index({ problemId: 1 });
 problemMetadataSchema.index({ domains: 1 });
 problemMetadataSchema.index({ difficulty: 1 });
 problemMetadataSchema.index({ requiredSkills: 1 });
@@ -43,4 +43,3 @@ problemMetadataSchema.index({ requiredSkills: 1 });
 const ProblemMetadata = mongoose.model('ProblemMetadata', problemMetadataSchema);
 
 export default ProblemMetadata;
-

@@ -1,21 +1,21 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const submissionSchema = new mongoose.Schema(
   {
     hackathonId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Hackathon',
+      ref: "Hackathon",
       required: true,
       index: true,
     },
     teamId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Team',
+      ref: "Team",
       required: true,
     },
     submittedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     projectDetails: {
@@ -48,13 +48,13 @@ const submissionSchema = new mongoose.Schema(
     },
     round: {
       type: String,
-      enum: ['Round 1', 'Round 2', 'Finals'],
-      default: 'Round 1',
+      enum: ["Round 1", "Round 2", "Finals"],
+      default: "Round 1",
     },
     status: {
       type: String,
-      enum: ['submitted', 'under_review', 'graded', 'rejected'],
-      default: 'submitted',
+      enum: ["submitted", "under_review", "graded", "rejected"],
+      default: "submitted",
     },
     score: {
       type: Number,
@@ -67,13 +67,12 @@ const submissionSchema = new mongoose.Schema(
       default: "",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-submissionSchema.index({ hackathonId: 1, teamId: 1, round: 1 }, { unique: true });
-submissionSchema.index({ hackathonId: 1, track: 1 });
+// submissionSchema.index({ hackathonId: 1, teamId: 1, round: 1 }, { unique: true });
+// submissionSchema.index({ hackathonId: 1, track: 1 });
 
-const Submission = mongoose.model('Submission', submissionSchema);
+const Submission = mongoose.model("Submission", submissionSchema);
 
 export default Submission;
-

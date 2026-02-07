@@ -34,10 +34,9 @@ const teamSkillProfileSchema = new mongoose.Schema(
 );
 
 // Index for faster queries
-teamSkillProfileSchema.index({ teamId: 1 });
+// teamSkillProfileSchema.index({ teamId: 1 });
 teamSkillProfileSchema.index({ lastUpdated: -1 });
 
 const TeamSkillProfile = mongoose.model('TeamSkillProfile', teamSkillProfileSchema);
 
 export default TeamSkillProfile;
-
