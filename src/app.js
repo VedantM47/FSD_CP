@@ -26,6 +26,7 @@ import calendarRoutes from './routes/calendar.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import problemRoutes from './routes/problem.routes.js';
 import recommendationRoutes from './routes/recommendation.routes.js';
+import judgeRoutes from './routes/judge.routes.js';
 
 // --- Passport Config ---
 // ⚠️ TEMPORARILY DISABLED: Preventing crash due to missing GOOGLE_CLIENT_ID
@@ -76,6 +77,8 @@ app.use('/api/calendar', calendarRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/problems', problemRoutes);
 app.use('/api/recommendations', recommendationRoutes);
+
+app.use('/api/judge', judgeRoutes);
 
 // Test Endpoint
 app.get('/test', (req, res) => {
