@@ -2,8 +2,8 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import connectDB from '../config/database.js';
-import User from '../models/User.js';
-import Team from '../models/Team.js';
+import User from '../models/User.model.js';
+import Team from '../models/team.model.js';
 
 dotenv.config();
 

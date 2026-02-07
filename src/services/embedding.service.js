@@ -1,4 +1,4 @@
-import ProblemEmbedding from '../models/ProblemEmbedding.js';
+import ProblemEmbedding from '../models/problemEmbedding.model.js';
 import natural from 'natural';
 
 /**

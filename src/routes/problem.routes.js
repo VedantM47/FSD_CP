@@ -5,7 +5,7 @@ import {
   getProblemById,
   updateProblem,
   deleteProblem,
-} from '../controllers/problemController.js';
+} from '../controllers/problem.controller.js';
 
 const router = express.Router();
 

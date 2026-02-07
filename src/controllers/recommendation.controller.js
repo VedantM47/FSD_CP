@@ -1,7 +1,7 @@
-import { extractTeamSkills } from '../services/nlpService.js';
-import { generateRecommendations, getStoredRecommendations } from '../services/recommendationService.js';
-import TeamSkillProfile from '../models/TeamSkillProfile.js';
-import Team from '../models/Team.js';
+import { extractTeamSkills } from '../services/nlp.service.js';
+import { generateRecommendations, getStoredRecommendations } from '../services/recommendation.service.js';
+import TeamSkillProfile from '../models/teamSkillProfile.model.js';
+import Team from '../models/team.model.js';
 
 /**
  * Extract and update team skill profile

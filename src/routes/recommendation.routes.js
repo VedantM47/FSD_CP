@@ -5,7 +5,7 @@ import {
   generateRecommendationsController,
   getRecommendations,
   getRecommendationStats,
-} from '../controllers/recommendationController.js';
+} from '../controllers/recommendation.controller.js';
 
 const router = express.Router();
 

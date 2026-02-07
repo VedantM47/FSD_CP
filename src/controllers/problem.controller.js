@@ -1,8 +1,8 @@
-import ProblemStatement from '../models/ProblemStatement.js';
-import ProblemMetadata from '../models/ProblemMetadata.js';
-import ProblemEmbedding from '../models/ProblemEmbedding.js';
-import embeddingService from '../services/embeddingService.js';
-import { extractProblemMetadata } from '../services/nlpService.js';
+import ProblemStatement from '../models/problemStatement.model.js';
+import ProblemMetadata from '../models/problemMetadata.model.js';
+import ProblemEmbedding from '../models/problemEmbedding.model.js';
+import embeddingService from '../services/embedding.service.js';
+import { extractProblemMetadata } from '../services/nlp.service.js';
 
 /**
  * Create a new problem statement

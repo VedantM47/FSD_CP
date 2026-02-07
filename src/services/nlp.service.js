@@ -1,7 +1,6 @@
 import natural from 'natural';
-import User from '../models/User.js';
 import Team from '../models/Team.js';
-import TeamSkillProfile from '../models/TeamSkillProfile.js';
+import TeamSkillProfile from '../models/teamSkillProfile.model.js';
 import { extractSkills, extractDomains, extractTools, extractAll } from '../utils/skillExtractor.js';
 
 /**

@@ -1,21 +1,22 @@
 import 'dotenv/config'; 
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import app from './src/app.js';
-import connectDB from './src/config/db.js';
-import socketAuth from './src/middlewares/socketAuth.middleware.js';
-import chatHandler from './src/socket/chat.handler.js';
+
+import app from './app.js';
+import connectDB from './config/database.js'; 
+import socketAuth from './middlewares/socketAuth.middleware.js'; 
 
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {
+    // 1. Connect to Database
     await connectDB();
 
-    // Create HTTP Server explicitly to attach Socket.io
+    // 2. Create HTTP Server explicitly to attach Socket.io
     const httpServer = createServer(app);
 
-    // Initialize Socket.io with CORS settings
+    // 3. Initialize Socket.io with CORS settings
     const io = new Server(httpServer, {
       cors: {
         origin: "*", 
@@ -23,24 +24,26 @@ const startServer = async () => {
       }
     });
 
-    // Apply Socket Authentication Middleware
+    // 4. Apply Socket Authentication Middleware
     io.use(socketAuth);
 
-    // Handle Socket Connections
+    // 5. Handle Socket Connections
     io.on('connection', (socket) => {
-      console.log(`User connected: ${socket.user.fullName}`);
+      // console.log(`User connected: ${socket.user.fullName}`);
+      console.log(`Socket connected: ${socket.id}`);
       
       // Attach Chat Event Listeners
-      chatHandler(io, socket);
+      // chatHandler(io, socket);
 
       socket.on('disconnect', () => {
         console.log('User disconnected');
       });
     });
 
-    // Start Server
+    // 6. Start Server
     const server = httpServer.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log(`\n🚀 Server running on port ${PORT}`);
+      console.log(`🔗 http://localhost:${PORT}`);
     });
 
     // Graceful Shutdown Logic

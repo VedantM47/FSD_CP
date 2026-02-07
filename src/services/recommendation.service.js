@@ -1,10 +1,9 @@
-import TeamSkillProfile from '../models/TeamSkillProfile.js';
-import ProblemStatement from '../models/ProblemStatement.js';
-import ProblemMetadata from '../models/ProblemMetadata.js';
-import ProblemEmbedding from '../models/ProblemEmbedding.js';
-import RecommendationResult from '../models/RecommendationResult.js';
-import embeddingService from './embeddingService.js';
-import { extractAll } from '../utils/skillExtractor.js';
+import TeamSkillProfile from '../models/teamSkillProfile.model.js';
+import ProblemStatement from '../models/problemStatement.model.js';
+import ProblemMetadata from '../models/problemMetadata.model.js';
+import ProblemEmbedding from '../models/problemEmbedding.model.js';
+import RecommendationResult from '../models/recommendationResult.model.js';
+import embeddingService from './embedding.service.js';
 
 /**
  * Rule-based filtering to shortlist candidate problems

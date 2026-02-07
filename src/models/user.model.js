@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     email: {
       type: String,
       required: true,
@@ -14,15 +15,18 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       index: true,
     },
+
     phone: {
       type: Number,
       trim: true,
     },
+
     password: {
       type: String,
       required: true,
       select: false, // never return password by default
-    }, // hashed password
+    },
+
     // System-level role
     systemRole: {
       type: String,
@@ -42,37 +46,45 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+
     college: {
       type: String,
       trim: true,
     },
+
     department: {
       type: String,
       trim: true,
     },
+
     year: {
       type: Number,
     },
+
     skills: [
       {
         type: String,
       },
     ],
+
     github: String,
     linkedin: String,
+    
     isVerified: {
       type: Boolean,
       default: false,
     },
+
     teams: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Team',
       },
     ],
-    createdAt: {
-      type: Date,
-      default: Date.now,
+    // AI Embeddings for recommendation engine
+    embedding: {
+      type: [Number], 
+      select: false,  // Hidden by default for performance
     },
   },
   {
@@ -81,6 +93,4 @@ const userSchema = new mongoose.Schema(
 );
 
 const User = mongoose.model('User', userSchema);
-
 export default User;
-
