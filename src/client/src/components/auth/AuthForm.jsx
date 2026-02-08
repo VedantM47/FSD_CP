@@ -1,33 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Input from '../common/Input';
 import Button from '../common/Button';
 import SocialButtons from './SocialButtons';
+import { signIn, signUp } from '../../services/api'; 
 
 const AuthForm = ({ type }) => {
   const isSignup = type === 'signup';
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    // Only check admin credentials on LOGIN
-    if (!isSignup) {
-      const email = e.target.email.value;
-      const password = e.target.password.value;
+    // FIX 1: Grab values directly from the form event (Bypasses state issues)
+    const form = e.target;
+    const email = form.email.value;
+    const password = form.password.value;
+    
+    // FIX 2: Check if fullName exists (only for signup)
+    const fullName = isSignup ? form.fullName.value : null;
 
-      // 🔐 HARDCODED ADMIN LOGIN (UI ONLY)
-      if (email === 'admin@example.com' && password === '1234') {
-        navigate('/admin/dashboard');
-        return;
+    const payload = isSignup 
+      ? { fullName, email, password } 
+      : { email, password };
+
+    console.log("📤 Sending Payload:", payload); // Debugging: Check console to see data
+
+    try {
+      let response;
+      
+      if (isSignup) {
+        response = await signUp(payload);
+      } else {
+        response = await signIn(payload);
       }
-      else if (email === 'ad@gmail.com' && password === '12345') {
-        navigate("/judge/hackathons");
-        return;
+
+      if (response.data.token) {
+        localStorage.setItem('profile', JSON.stringify({ token: response.data.token }));
+        alert(isSignup ? "✅ Account Created!" : "✅ Login Successful!");
+        navigate('/user/dashboard'); 
       }
+
+    } catch (error) {
+      console.error("Auth Error:", error);
+      const msg = error.response?.data?.message || "Authentication failed.";
+      alert(`❌ Error: ${msg}`);
+    } finally {
+      setLoading(false);
     }
-
-    console.log(`${type} form submitted (UI only)`);
   };
 
   return (
@@ -46,10 +68,10 @@ const AuthForm = ({ type }) => {
       <form onSubmit={handleSubmit} className="auth-form">
         {isSignup && (
           <Input
-            label="Name"
-            name="name"
+            label="Full Name"
+            name="fullName" /* ⚠️ FIX 3: Changed 'name' to 'fullName' to match Backend */
             type="text"
-            placeholder="Enter your name"
+            placeholder="Enter your full name"
             required
           />
         )}
@@ -85,7 +107,11 @@ const AuthForm = ({ type }) => {
           </div>
         )}
 
-        <Button text={isSignup ? 'Register' : 'Login'} type="submit" />
+        <Button 
+          text={loading ? (isSignup ? 'Registering...' : 'Logging in...') : (isSignup ? 'Register' : 'Login')} 
+          type="submit" 
+          disabled={loading}
+        />
       </form>
 
       <div className="divider">
@@ -98,16 +124,12 @@ const AuthForm = ({ type }) => {
         {isSignup ? (
           <>
             Already have an account?{' '}
-            <Link to="/login" className="auth-link">
-              Login
-            </Link>
+            <Link to="/login" className="auth-link">Login</Link>
           </>
         ) : (
           <>
-            Don&apos;t have an account?{' '}
-            <Link to="/signup" className="auth-link">
-              Signup
-            </Link>
+            Don't have an account?{' '}
+            <Link to="/signup" className="auth-link">Signup</Link>
           </>
         )}
       </p>

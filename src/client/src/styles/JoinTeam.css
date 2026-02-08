@@ -1,190 +1,268 @@
-/* --- PAGE WRAPPER (Fixes Scrolling) --- */
+/* GLOBAL LAYOUT */
 .join-team-wrapper {
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  overflow-y: auto;
-  background-color: #F8F9FA;
-  z-index: 9999;
+  min-height: 100vh;
+  background-color: #F8FAFC;
   font-family: 'Inter', sans-serif;
-  color: #1F2937;
+  padding-bottom: 80px;
 }
 
-/* --- HEADER --- */
-.join-header {
-  background-color: #003465; /* Deep Navy */
-  padding: 40px 0 80px; /* Extra padding for search bar overlap */
-  color: white;
-}
-
-.join-header-content {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-.back-link {
-  color: #E5E7EB;
-  cursor: pointer;
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.9rem; margin-bottom: 20px;
-  background: none; border: none; padding: 0;
-}
-.back-link:hover { color: white; text-decoration: underline; }
-
-.join-title { font-size: 2rem; font-weight: 700; margin: 0 0 8px 0; }
-.join-subtitle { font-size: 1rem; color: #D1D5DB; margin: 0; }
-
-/* --- SEARCH & FILTER BAR --- */
-.filter-section {
-  max-width: 1000px;
-  margin: -40px auto 30px; /* Pulls up into header */
-  padding: 0 24px;
-  position: relative;
-  z-index: 10;
-}
-
-.search-box {
-  background: #EFF6FF; /* Light Blue Bar */
-  border-radius: 8px;
-  padding: 12px 16px;
+/* ================= STEP 1: INTAKE FORM (CENTERED CARD) ================= */
+.intake-container {
   display: flex;
-  gap: 16px;
+  justify-content: center;
   align-items: center;
-  border: 1px solid #DBEAFE;
+  min-height: 90vh;
+  padding: 20px;
+  background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
 }
 
-.search-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  font-size: 1rem;
-  color: #1F2937;
-}
-.search-input:focus { outline: none; }
-.search-input::placeholder { color: #9CA3AF; }
-
-.filter-select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #D1D5DB;
+.intake-card {
   background: white;
-  color: #374151;
-  cursor: pointer;
+  width: 100%;
+  max-width: 500px;
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  text-align: center;
 }
 
-.result-count {
-  margin-top: 12px;
-  font-size: 0.9rem;
-  color: #6B7280;
-}
-
-/* --- TEAM CARDS LIST --- */
-.teams-container {
-  max-width: 1000px;
-  margin: 0 auto 60px;
-  padding: 0 24px;
+.intake-icon {
+  width: 60px; height: 60px;
+  background: #EFF6FF;
+  color: #3B82F6;
+  border-radius: 50%;
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 20px;
+}
+
+.intake-title { font-size: 1.8rem; font-weight: 800; color: #111827; margin-bottom: 8px; }
+.intake-subtitle { color: #6B7280; margin-bottom: 30px; font-size: 0.95rem; }
+
+.intake-form .form-group { margin-bottom: 20px; text-align: left; }
+.intake-form label { display: block; font-weight: 600; font-size: 0.9rem; color: #374151; margin-bottom: 6px; }
+
+.intake-input, .intake-select, .intake-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #D1D5DB;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #F9FAFB;
+}
+
+.intake-input:focus, .intake-select:focus, .intake-textarea:focus {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+  background: white;
+}
+
+.btn-continue {
+  width: 100%;
+  padding: 14px;
+  background: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: transform 0.1s;
+}
+.btn-continue:hover { background: #2563EB; transform: translateY(-1px); }
+
+/* ================= STEP 2: TEAM BROWSER ================= */
+.browse-header {
+  background: white;
+  border-bottom: 1px solid #E5E7EB;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+.browse-title h2 { font-size: 1.5rem; font-weight: 700; color: #111827; margin: 0; }
+.browse-subtitle { color: #6B7280; font-size: 0.9rem; margin-top: 4px; }
+
+.search-bar-wrapper {
+  position: relative;
+  width: 300px;
+}
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
+.browse-search {
+  width: 100%;
+  padding: 10px 10px 10px 36px;
+  border-radius: 20px;
+  border: 1px solid #E5E7EB;
+  background: #F3F4F6;
+}
+
+/* TEAM GRID */
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 24px;
+  padding: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .team-card {
   background: white;
+  border-radius: 16px;
   border: 1px solid #E5E7EB;
-  border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
-  gap: 16px;
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+  height: 100%; /* Ensures equal height in grid */
 }
 
 .team-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
+  border-color: #BFDBFE;
 }
 
 /* Card Header */
-.card-top {
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  margin-bottom: 16px;
+}
+.t-name { font-size: 1.25rem; font-weight: 700; color: #1F2937; }
+.t-status { 
+  font-size: 0.75rem; 
+  font-weight: 700; 
+  padding: 4px 10px; 
+  border-radius: 20px; 
+  background: #ECFDF5; 
+  color: #059669; 
 }
 
-.team-name { font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0; }
-
-.domain-badge {
-  background-color: #E0F2FE; /* Light Blue Pill */
-  color: #0284C7; /* Dark Blue Text */
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-/* Meta Info (Leader, Members) */
-.card-meta {
-  display: flex;
-  gap: 16px;
-  font-size: 0.9rem;
-  color: #6B7280;
-  align-items: center;
-}
-.meta-item { display: flex; align-items: center; gap: 6px; }
-
-/* Description */
-.team-desc {
+/* Card Body */
+.t-desc {
   font-size: 0.95rem;
   color: #4B5563;
   line-height: 1.5;
-  margin: 0;
+  margin-bottom: 20px;
+  flex-grow: 1; /* Pushes footer down */
 }
 
-/* Bottom Row (Roles + Button) */
-.card-bottom {
+/* Progress Bar */
+.member-progress {
+  margin-bottom: 20px;
+}
+.progress-label {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  margin-top: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: #F3F4F6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: #3B82F6;
+  border-radius: 4px;
 }
 
-.roles-wrapper {
+/* --- FOOTER FIXES --- */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Vertically center items */
+  border-top: 1px solid #F3F4F6;
+  padding-top: 20px;
+  margin-top: auto;
+}
+
+.leader-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Space between avatar and text */
+}
+
+.leader-pic {
+  width: 42px; 
+  height: 42px; 
+  background: #EEF2FF;
+  color: #4F46E5;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.leader-text { 
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  line-height: 1.3;
 }
 
-.looking-label { font-size: 0.85rem; color: #6B7280; display: flex; align-items: center; gap: 6px; }
-
-.role-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-
-.role-tag {
-  background-color: #FEF3C7; /* Yellow Pill */
-  color: #D97706; /* Dark Yellow Text */
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  border: 1px solid #FDE68A;
-}
-
-.btn-apply {
-  background-color: #3B82F6;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
+.leader-label {
+  font-size: 0.75rem;
+  color: #9CA3AF;
   font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.btn-apply:hover { background-color: #2563EB; }
+.leader-name {
+  font-size: 0.95rem;
+  color: #1F2937;
+  font-weight: 600;
+}
 
-/* Responsive */
-@media (max-width: 768px) {
-  .card-bottom { flex-direction: column; align-items: stretch; gap: 16px; }
-  .btn-apply { width: 100%; }
+.btn-join {
+  padding: 10px 24px;
+  background: #111827;
+  color: white;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  /* Prevent full width stretching */
+  width: auto; 
+  min-width: 100px;
+}
+
+.btn-join:hover { 
+  background: #374151; 
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15);
+}
+
+.btn-join:disabled { 
+  background: #E5E7EB; 
+  color: #9CA3AF; 
+  cursor: not-allowed; 
+  transform: none;
+  box-shadow: none;
 }
