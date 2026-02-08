@@ -6,6 +6,8 @@ import {
   createHackathon,
   updateHackathon,
   getHackathonById,
+  getAllJudges,
+  assignJudgesToHackathon,
 } from '../../services/api';
 
 import '../../styles/admin.css';
@@ -18,6 +20,11 @@ function CreateHackathon() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  /* ================= JUDGES ================= */
+  const [judges, setJudges] = useState([]);
+  const [selectedJudges, setSelectedJudges] = useState([]);
+
+  /* ================= FORM ================= */
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -31,7 +38,21 @@ function CreateHackathon() {
     terms: '',
   });
 
-  /* ================= LOAD DATA (EDIT MODE) ================= */
+  /* ================= LOAD JUDGES ================= */
+  useEffect(() => {
+    const fetchJudges = async () => {
+      try {
+        const res = await getAllJudges();
+        setJudges(res.data.data || []);
+      } catch (err) {
+        console.error('Failed to load judges', err);
+      }
+    };
+
+    fetchJudges();
+  }, []);
+
+  /* ================= LOAD HACKATHON (EDIT MODE) ================= */
   useEffect(() => {
     if (!isEditMode) return;
 
@@ -53,7 +74,13 @@ function CreateHackathon() {
           rules: data.rules || '',
           terms: data.terms || '',
         });
+
+        // ✅ Prefill assigned judges
+        setSelectedJudges(
+          data.judges?.map(j => j.judgeUserId) || []
+        );
       } catch (err) {
+        console.error(err);
         setError('Failed to load hackathon details');
       } finally {
         setLoading(false);
@@ -67,7 +94,15 @@ function CreateHackathon() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const toggleJudge = (judgeId) => {
+    setSelectedJudges(prev =>
+      prev.includes(judgeId)
+        ? prev.filter(id => id !== judgeId)
+        : [...prev, judgeId]
+    );
   };
 
   const handleSubmit = async () => {
@@ -75,14 +110,24 @@ function CreateHackathon() {
       setLoading(true);
       setError('');
 
+      let hackathonId;
+
       if (isEditMode) {
         await updateHackathon(id, formData);
+        hackathonId = id;
       } else {
-        await createHackathon(formData);
+        const res = await createHackathon(formData);
+        hackathonId = res.data.data._id;
+      }
+
+      // ✅ Assign judges AFTER save
+      if (selectedJudges.length > 0) {
+        await assignJudgesToHackathon(hackathonId, selectedJudges);
       }
 
       navigate('/admin/dashboard');
     } catch (err) {
+      console.error(err);
       setError('Failed to save hackathon');
     } finally {
       setLoading(false);
@@ -199,7 +244,7 @@ function CreateHackathon() {
                 </div>
               </section>
 
-              {/* ================= RULES & PRIZES ================= */}
+              {/* ================= RULES & REWARDS ================= */}
               <section className="form-section">
                 <h2 className="form-section-title">Rules & Rewards</h2>
 
@@ -248,6 +293,30 @@ function CreateHackathon() {
                 </div>
               </section>
 
+              {/* ================= JUDGES ================= */}
+              <section className="form-section">
+                <h2 className="form-section-title">Assign Judges</h2>
+
+                {judges.length === 0 ? (
+                  <p>No judges available</p>
+                ) : (
+                  <div className="judge-list">
+                    {judges.map(judge => (
+                      <label key={judge._id} className="judge-item">
+                        <input
+                          type="checkbox"
+                          checked={selectedJudges.includes(judge._id)}
+                          onChange={() => toggleJudge(judge._id)}
+                        />
+                        <span>
+                          {judge.fullName} ({judge.email})
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </section>
+
               {/* ================= ACTIONS ================= */}
               <div className="form-actions">
                 <button
@@ -265,11 +334,11 @@ function CreateHackathon() {
                 </button>
               </div>
             </div>
+
           )}
         </div>
       </main>
 
-      {/* FOOTER */}
       <footer className="admin-footer">
         <div className="footer-content">
           <span className="footer-brand">HackPlatform</span>

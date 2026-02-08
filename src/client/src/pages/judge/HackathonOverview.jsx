@@ -1,12 +1,166 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../components/judge/Navbar";
 import Footer from "../../components/judge/Footer";
+import judgeApi from "../../services/judgeApi";
 import "../../styles/judge.css";
+import "../../styles/judge-additional.css";
 
 const HackathonOverview = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  
+  const [hackathon, setHackathon] = useState(null);
+  const [overview, setOverview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchHackathonData();
+  }, [id]);
+
+  const fetchHackathonData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch hackathon details
+      const hackathonResponse = await judgeApi.getHackathonById(id);
+      if (!hackathonResponse.success) {
+        throw new Error('Failed to load hackathon details');
+      }
+      setHackathon(hackathonResponse.data);
+
+      // Fetch overview statistics
+      try {
+        const overviewResponse = await judgeApi.getHackathonOverview(id);
+        if (overviewResponse.success) {
+          setOverview(overviewResponse.data);
+        }
+      } catch (overviewErr) {
+        console.log('Overview endpoint not available, fetching teams directly');
+        // Fallback: fetch teams directly
+        const teamsResponse = await judgeApi.getTeamsByHackathon(id);
+        if (teamsResponse.success) {
+          setOverview({
+            teamsCount: teamsResponse.count || teamsResponse.data.length,
+            submissionsCount: teamsResponse.data.filter(t => t.project?.title).length
+          });
+        }
+      }
+
+      // Get evaluation progress for current judge
+      const userData = await judgeApi.getMe();
+      const teamsResponse = await judgeApi.getTeamsByHackathon(id);
+      
+      if (teamsResponse.success) {
+        let evaluatedCount = 0;
+        for (const team of teamsResponse.data) {
+          try {
+            const evalResponse = await judgeApi.getEvaluationsByTeam(id, team._id);
+            if (evalResponse.success) {
+              const hasJudgeEvaluated = evalResponse.data.some(
+                evaluation => evaluation.judgeId === userData.data._id
+              );
+              if (hasJudgeEvaluated) evaluatedCount++;
+            }
+          } catch (err) {
+            // Continue if evaluation fetch fails
+          }
+        }
+        
+        setOverview(prev => ({
+          ...prev,
+          evaluatedCount,
+          totalTeams: teamsResponse.data.length
+        }));
+      }
+
+    } catch (err) {
+      console.error('Error fetching hackathon data:', err);
+      setError(err.message || 'Failed to load hackathon data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'ongoing':
+        return 'status-in-progress';
+      case 'open':
+        return 'status-pending';
+      case 'closed':
+        return 'status-completed';
+      default:
+        return 'status-draft';
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'ongoing':
+        return 'In Progress';
+      case 'open':
+        return 'Open';
+      case 'closed':
+        return 'Completed';
+      case 'draft':
+        return 'Draft';
+      default:
+        return status;
+    }
+  };
+
+  const formatDate = (date) => {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="judge-page">
+        <Navbar />
+        <main className="page-main">
+          <div className="page-container">
+            <div className="loading-container">
+              <div className="spinner"></div>
+              <p>Loading hackathon details...</p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !hackathon) {
+    return (
+      <div className="judge-page">
+        <Navbar />
+        <main className="page-main">
+          <div className="page-container">
+            <div className="error-container">
+              <h2>Error Loading Hackathon</h2>
+              <p>{error || 'Hackathon not found'}</p>
+              <button 
+                className="btn-primary" 
+                onClick={() => navigate('/judge/hackathons')}
+              >
+                Back to Hackathons
+              </button>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="judge-page">
       <Navbar />
@@ -15,19 +169,16 @@ const HackathonOverview = () => {
         <div className="page-container overview-container">
           <div className="overview-card">
             <div className="overview-header">
-              <h1 className="overview-title">AI Innovation Challenge 2026</h1>
-              <span className="status-badge status-in-progress">
-                In Progress
+              <h1 className="overview-title">{hackathon.title}</h1>
+              <span className={`status-badge ${getStatusBadgeClass(hackathon.status)}`}>
+                {getStatusText(hackathon.status)}
               </span>
             </div>
 
             <p className="overview-round">Final Round</p>
 
             <p className="overview-description">
-              A premier hackathon focused on developing innovative AI solutions
-              for real-world problems. Participants will create cutting-edge
-              applications using machine learning, natural language processing,
-              and computer vision.
+              {hackathon.description || 'No description available'}
             </p>
 
             <div className="overview-info-grid">
@@ -55,7 +206,9 @@ const HackathonOverview = () => {
                 </div>
                 <div className="info-text">
                   <p className="info-text-label">Timeline</p>
-                  <p className="info-text-value">Jan 10, 2026 - Feb 15, 2026</p>
+                  <p className="info-text-value">
+                    {formatDate(hackathon.startDate)} - {formatDate(hackathon.endDate)}
+                  </p>
                 </div>
               </div>
 
@@ -83,7 +236,9 @@ const HackathonOverview = () => {
                 </div>
                 <div className="info-text">
                   <p className="info-text-label">Judging Deadline</p>
-                  <p className="info-text-value">Feb 20, 2026</p>
+                  <p className="info-text-value">
+                    {formatDate(hackathon.endDate)}
+                  </p>
                 </div>
               </div>
 
@@ -121,7 +276,9 @@ const HackathonOverview = () => {
                 </div>
                 <div className="info-text">
                   <p className="info-text-label">Evaluation Progress</p>
-                  <p className="info-text-value">12 / 45 teams</p>
+                  <p className="info-text-value">
+                    {overview?.evaluatedCount || 0} / {overview?.totalTeams || overview?.teamsCount || 0} teams
+                  </p>
                 </div>
               </div>
             </div>
@@ -137,7 +294,7 @@ const HackathonOverview = () => {
           <div className="deadline-card">
             <h3 className="deadline-title">Submission Deadline</h3>
             <p className="deadline-text">
-              Teams must submit their projects by <strong>Feb 15, 2026</strong>.
+              Teams must submit their projects by <strong>{formatDate(hackathon.endDate)}</strong>.
               You can begin evaluating submissions as they come in.
             </p>
           </div>

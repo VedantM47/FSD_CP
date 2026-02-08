@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/judge.css";
+import "../../styles/judge-additional.css";
 
 const HackathonCard = ({ hackathon }) => {
   const navigate = useNavigate();

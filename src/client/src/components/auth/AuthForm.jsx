@@ -14,19 +14,29 @@ const AuthForm = ({ type }) => {
     e.preventDefault();
     setLoading(true);
 
-    // FIX 1: Grab values directly from the form event (Bypasses state issues)
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
     
-    // FIX 2: Check if fullName exists (only for signup)
+    // Check if fullName exists (only for signup)
     const fullName = isSignup ? form.fullName.value : null;
+
+    // --- VEDANT'S ADMIN LOGIC (Preserved) ---
+    // This allows the "Inbuilt Admin" to login without hitting the database
+    if (!isSignup && email === 'ad@gmail.com' && password === '12345') {
+       console.log("👨‍⚖️ Admin/Judge Bypass Triggered");
+       // We save a dummy profile so the router thinks we are logged in
+       localStorage.setItem("profile", JSON.stringify({ token: "dummy-judge-token", role: "judge" }));
+       alert("👨‍⚖️ Logged in as Inbuilt Admin/Judge!");
+       navigate("/judge/hackathons"); // Or wherever Vedant redirected
+       setLoading(false);
+       return; // Stop here, don't call the API
+    }
+    // ----------------------------------------
 
     const payload = isSignup 
       ? { fullName, email, password } 
       : { email, password };
-
-    console.log("📤 Sending Payload:", payload); // Debugging: Check console to see data
 
     try {
       let response;
@@ -37,6 +47,7 @@ const AuthForm = ({ type }) => {
         response = await signIn(payload);
       }
 
+      // --- YOUR API LOGIC (Preserved) ---
       if (response.data.token) {
         localStorage.setItem('profile', JSON.stringify({ token: response.data.token }));
         alert(isSignup ? "✅ Account Created!" : "✅ Login Successful!");
@@ -69,7 +80,7 @@ const AuthForm = ({ type }) => {
         {isSignup && (
           <Input
             label="Full Name"
-            name="fullName" /* ⚠️ FIX 3: Changed 'name' to 'fullName' to match Backend */
+            name="fullName"
             type="text"
             placeholder="Enter your full name"
             required
