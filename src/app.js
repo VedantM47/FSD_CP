@@ -8,10 +8,12 @@ import errorHandler from './middlewares/error.middleware.js';
 import userRoutes from './routes/user.routes.js';
 import teamRoutes from './routes/team.routes.js';
 import hackathonRoutes from './routes/hackathon.routes.js';
+import calendarRoutes from './routes/calendar.routes.js';
 import submissionRoutes from './routes/submission.routes.js';
 import evaluationRoutes from './routes/evaluation.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import oauthRoutes from './routes/oauth.routes.js';
+
 
 const app = express();
 
@@ -40,10 +42,12 @@ app.use(passport.initialize());
 app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/hackathons', hackathonRoutes);
+app.use('/api/calendar', calendarRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/evaluations', evaluationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/oauth', oauthRoutes);
+
 
 /* ================= HEALTH CHECK ================= */
 app.get('/test', (req, res) => {

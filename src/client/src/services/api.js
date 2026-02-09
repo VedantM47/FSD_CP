@@ -58,22 +58,12 @@ export const updateHackathonStatus = (id, status) => API.patch(`/hackathons/${id
 // We keep these exports so his Admin Dashboard works
 export const getAllJudges = () => API.get("/admin/judges");
 export const assignJudgesToHackathon = (hackathonId, judgeIds) =>
-  API.post(`/admin/hackathons/${hackathonId}/judges`, { judgeIds });
-
-/* ================= PARTICIPANT APIs (Your Work) ================= */
-export const getHackathonById = (id) => API.get(`/hackathons/${id}`);
-export const registerTeam = (data) => API.post("/teams", data);
-export const getHackathonTeams = (hackathonId) => API.get(`/hackathons/${hackathonId}/teams`);
-export const searchUsers = (query) => API.get(`/users/search?query=${query}`);
-
-/* ================= TEAM & JOIN APIs (Your New Work) ================= */
-export const requestJoinTeam = (teamId) => API.post(`/teams/${teamId}/join`);
-export const respondToRequest = (teamId, userId, status) => API.patch(`/teams/${teamId}/member/${userId}`, { status });
-export const getMyTeamInvites = () => API.get("/teams/my-invites");
-export const replyToTeamInvite = (teamId, status) => API.patch(`/teams/${teamId}/respond`, { status });
-
-/* ================= ERROR HANDLER (From Vedant) ================= */
-// Kept exactly as is so his error popups still work
+  API.post(
+    `/admin/hackathons/${hackathonId}/judges`,
+    { judgeIds },
+    getAuthHeaders()
+  );
+/* ================= ERROR HANDLER ================= */
 export const handleApiError = (error) => {
   if (error.response) {
     return {
