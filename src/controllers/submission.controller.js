@@ -20,6 +20,27 @@ export const createEvaluation = async (req, res, next) => {
       return next({ statusCode: 400, message: "Already evaluated" });
     }
 
+    // 2. SYNC: Update the 'Team' model
+   
+    await Team.findByIdAndUpdate(teamId, {
+      submissionId: newSubmission._id,   
+      project: {
+        title: title,
+        description: description,
+        driveUrl: pptLink,   
+        repoUrl: repoLink,
+        demoUrl: demoLink,
+        submittedAt: new Date()
+      },
+      isLocked: true 
+    });
+
+
+    // 3. Success Response
+    res.status(201).json({ 
+      success: true,
+      message: "Project submitted successfully!", 
+      submission: newSubmission
     // Compute total score
     let total = 0;
     let weightSum = 0;

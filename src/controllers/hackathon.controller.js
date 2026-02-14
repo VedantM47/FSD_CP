@@ -6,12 +6,13 @@ import User from '../models/user.model.js';
 const MAX_JUDGES = 10;
 
 /* ================= CREATE HACKATHON ================= */
-/* Admin / Mentor */
+
 export const createHackathon = async (req, res, next) => {
   try {
     const hackathon = await Hackathon.create({
       ...req.body,
-      createdBy: req.user._id,
+      // TEMP: auth disabled
+      // createdBy will be added when auth is enabled
     });
 
     res.status(201).json({
@@ -25,6 +26,7 @@ export const createHackathon = async (req, res, next) => {
     });
   }
 };
+
 
 /* ================= GET ALL HACKATHONS ================= */
 /* Public */

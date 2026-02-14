@@ -42,6 +42,11 @@ const submissionSchema = new mongoose.Schema(
         trim: true,
       },
     },
+    submissionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Submission',
+    },
+
     track: {
       type: String,
       required: true,
@@ -66,6 +71,15 @@ const submissionSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    finalRank: {
+      type: Number,
+    },
+
+    qualified: {
+      type: Boolean,
+      default: false,
+    }
+
   },
   { timestamps: true }
 );

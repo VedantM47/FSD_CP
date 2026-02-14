@@ -1,0 +1,19 @@
+.navbar {
+  background: #0b4ea2;
+  height: 64px;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.search {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+}

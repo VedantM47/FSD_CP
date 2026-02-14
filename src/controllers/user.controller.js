@@ -189,3 +189,31 @@ export const deleteUser = async (req, res, next) => {
     next({ statusCode: 400, message: err.message });
   }
 };
+export const searchUsers = async (req, res, next) => {
+  try {
+    const { query } = req.query;
+    
+    // Safety check: Don't search for empty or very short strings
+    if (!query || query.length < 2) {
+        return res.status(200).json({ success: true, data: [] });
+    }
+
+    // Search by Name OR Email (Case insensitive regex)
+    // Only returns safe public info (name, email, avatar, id)
+    const users = await User.find({
+      $or: [
+        { fullName: { $regex: query, $options: 'i' } },
+        { email: { $regex: query, $options: 'i' } }
+      ]
+    })
+    .select('fullName email _id') 
+    .limit(5); // Limit to 5 results for speed
+
+    res.status(200).json({
+      success: true,
+      data: users
+    });
+  } catch (err) {
+    next({ statusCode: 500, message: err.message });
+  }
+};

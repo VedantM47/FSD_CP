@@ -1,24 +1,54 @@
 import Team from "../models/team.model.js";
 import Hackathon from "../models/hackathon.model.js";
 
-/* ================= CREATE TEAM ================= */
+/* ================= UPDATED CREATE TEAM ================= */
 export const createTeam = async (req, res, next) => {
   try {
-    const { name, hackathonId } = req.body;
+    // 1. Get 'members' array from body (List of User IDs)
+    const { name, hackathonId, members = [] } = req.body; 
+    
     const hackathon = await Hackathon.findById(hackathonId);
-    const maxTeamSize = hackathon.maxTeamSize ?? hackathon.maxSize ?? 4;
+    if (!hackathon) return next({ statusCode: 404, message: 'Hackathon not found' });
 
+    const maxTeamSize = hackathon.maxTeamSize ?? 4;
+
+    // 2. Prepare the Member List
+    // Leader is 'accepted' automatically.
+    const initialMembers = [
+      {
+        userId: req.user._id,
+        status: 'accepted',
+        role: 'leader' 
+      }
+    ];
+
+    // 3. Add Invited Members as 'pending'
+    if (members.length > 0) {
+      // Filter out duplicates and self-invite
+      const uniqueInvites = [...new Set(members)].filter(
+        id => id !== req.user._id.toString()
+      );
+      
+      uniqueInvites.forEach(invitedUserId => {
+        initialMembers.push({
+          userId: invitedUserId,
+          status: 'pending' // <--- Key: They must accept later
+        });
+      });
+    }
+
+    // 4. Check Size Limit
+    if (initialMembers.length > maxTeamSize) {
+      return next({ statusCode: 400, message: `Max team size is ${maxTeamSize}` });
+    }
+
+    // 5. Create Team
     const team = await Team.create({
       name,
       hackathonId,
       leader: req.user._id,
       maxSize: maxTeamSize,
-      members: [
-        {
-          userId: req.user._id,
-          status: "accepted",
-        },
-      ],
+      members: initialMembers, // <--- Saving the list!
       isOpenToJoin: true,
     });
 

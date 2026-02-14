@@ -14,7 +14,7 @@ import {
   removeJudgeFromHackathon,
   searchHackathons
 } from '../controllers/hackathon.controller.js';
-
+   
 import Hackathon from '../models/hackathon.model.js';
 
 const router = express.Router();
@@ -50,36 +50,13 @@ router.get(
 /* ================= PROTECTED ================= */
 
 // Create hackathon (admin / Mentor)
-router.post(
-  '/',
-  auth,
-  authorize('CREATE_HACKATHON', async (req) => ({
-    user: req.user,
-  })),
-  createHackathon
-);
+router.post('/', createHackathon);
 
-// Update hackathon (admin / organizer / Mentor)
-router.patch(
-  '/:id',
-  auth,
-  authorize('UPDATE_HACKATHON', async (req) => {
-    const hackathon = await Hackathon.findById(req.params.id);
-    return { user: req.user, hackathon };
-  }),
-  updateHackathon
-);
+router.patch('/:id', updateHackathon);
+
 
 // Update hackathon status (admin / organizer / Mentor)
-router.patch(
-  '/:id/status',
-  auth,
-  authorize('UPDATE_HACKATHON', async (req) => {
-    const hackathon = await Hackathon.findById(req.params.id);
-    return { user: req.user, hackathon };
-  }),
-  updateHackathonStatus
-);
+router.patch('/:id/status', updateHackathonStatus);
 
 /* ================= ASSIGN JUDGE ================= */
 router.post(

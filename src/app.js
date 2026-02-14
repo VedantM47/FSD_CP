@@ -1,45 +1,47 @@
-import dotenv from 'dotenv';
-
-dotenv.config({ path: process.cwd() + '/.env' });
-
 import express from 'express';
 import passport from 'passport';
+import rateLimit from 'express-rate-limit';
+import cors from 'cors';
+
 import errorHandler from './middlewares/error.middleware.js';
+
 import userRoutes from './routes/user.routes.js';
 import teamRoutes from './routes/team.routes.js';
 import hackathonRoutes from './routes/hackathon.routes.js';
 import calendarRoutes from './routes/calendar.routes.js';
+import submissionRoutes from './routes/submission.routes.js';
 import oauthRoutes from './routes/oauth.routes.js';
 import sumbissionRoutes from './routes/submission.routes.js';
 import rateLimit from 'express-rate-limit';
 import evaluationRoutes from './routes/evaluation.routes.js';
-
-
-// Load OAuth strategies
-import './config/google.passport.js';
-import './config/github.passport.js';
+import adminRoutes from './routes/admin.routes.js';
+import oauthRoutes from './routes/oauth.routes.js';
 
 
 const app = express();
 
-const apilimiter = rateLimit({
+/* ================= CORS (MUST BE FIRST) ================= */
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
+    credentials: true,
+  })
+);
+
+/* ================= RATE LIMITER ================= */
+const apiLimiter = rateLimit({
   windowMs: 1000,
   max: 5,
-  message: 'Too many Request',
+  message: 'Too many requests, please try again later.',
 });
 
-// Middleware to parse JSON requests
+/* ================= MIDDLEWARES ================= */
 app.use(express.json());
-
-// Initialize Passport (STEP 4)
+// app.use(apiLimiter);
 app.use(passport.initialize());
 
-// Middleware to add rate limiter
-app.use(apilimiter);
-
-
-
-// Routes
+/* ================= ROUTES ================= */
 app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/hackathons', hackathonRoutes);
@@ -47,14 +49,16 @@ app.use('/api/hackathons', hackathonRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/submissions', sumbissionRoutes);
 app.use('/api/evaluations', evaluationRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/oauth', oauthRoutes);
 
-// Test Route
+
+/* ================= HEALTH CHECK ================= */
 app.get('/test', (req, res) => {
-  res.send('API is working fine');
+  res.status(200).json({ success: true, message: 'API is working fine' });
 });
 
-// Global Error Handling Middleware
+/* ================= ERROR HANDLER ================= */
 app.use(errorHandler);
 
 export default app;

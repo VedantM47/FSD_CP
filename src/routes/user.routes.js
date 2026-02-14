@@ -24,16 +24,17 @@ router.post('/logout', auth, logout);
 /* ============ USER (SELF) ============ */
 router.get('/me', auth, getMe);
 router.put('/me', auth, updateMe);
+router.get('/search',auth, searchUsers);
 
-/* ================= SEARCH USERS ================= */
-router.get(
-  '/search',
-  auth,
-  authorize('SEARCH_USERS', async (req) => ({
-    user: req.user,
-  })),
-  searchUsers
-);
+// /* ================= SEARCH USERS ================= */
+// router.get(
+//   '/search',
+//   auth,
+//   authorize('SEARCH_USERS', async (req) => ({
+//     user: req.user,
+//   })),
+//   searchUsers
+// );
 
 /* ============ ADMIN (ABAC) ============ */
 router.get(
