@@ -155,8 +155,13 @@ export const removeJudgeFromHackathon = async (req, res, next) => {
 
     // Check judge exists in hackathon
     const isJudgeAssigned = hackathon.judges.some(
-  (j) => j.judgeUserId.toString() === judgeUserId
-);
+      (j) => j.judgeUserId.toString() === judgeUserId
+    );
+
+    const judgeUserEXIT = await User.findById(judgeUserId);
+    if (!judgeUserEXIT) {
+      return next({ statusCode: 404, message: "Judge user not found" });
+    }
 
     if (!isJudgeAssigned) {
       return next({
@@ -193,6 +198,37 @@ export const removeJudgeFromHackathon = async (req, res, next) => {
       statusCode: 500,
       message: err.message,
     });
+  }
+};
+
+// ================= SEARCH HACKATHONS =================
+
+export const searchHackathons = async (req, res, next) => {
+  try {
+    const { q, status } = req.query;
+
+    const filter = {};
+
+    if (q) {
+      filter.title = { $regex: q, $options: 'i' };
+    }
+
+    if (status) {
+      filter.status = status; // open, ongoing, closed
+    }
+
+    const hackathons = await Hackathon.find(filter)
+      .select("title startDate endDate status maxTeamSize prizePool")
+      .sort({ startDate: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: hackathons.length,
+      data: hackathons
+    });
+
+  } catch (err) {
+    next({ statusCode: 500, message: err.message });
   }
 };
 

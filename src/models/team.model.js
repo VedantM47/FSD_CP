@@ -55,6 +55,11 @@ const teamSchema = new mongoose.Schema(
       driveUrl: String,
       submittedAt: Date,
     },
+    presentationSlot: {
+      date: Date,
+      startTime: String,
+      endTime: String,
+    },
   },
   { timestamps: true }
 );
@@ -71,5 +76,14 @@ teamSchema.pre('save', function(next) {
   }
   next();
 });
+
+// unique team name
+teamSchema.index(
+  { name: 1, hackathonId: 1 },
+  { unique: true }
+);
+
+// text index for searching teams by name
+teamSchema.index({ name: 'text' });
 
 export default Team;
