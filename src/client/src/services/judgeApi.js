@@ -1,4 +1,4 @@
-import { API, getAuthHeaders, handleApiError } from './api';
+import API, { getAuthHeaders, handleApiError } from './api';
 
 const judgeApi = {
   /* ================= HACKATHONS ================= */

@@ -13,11 +13,15 @@ const API = axios.create({
 // This ensures Vedant's components work even when logged in via your system.
 
 export const getAuthToken = () => {
-  // First try your method
-  const profile = localStorage.getItem("profile");
-  if (profile) {
-    const parsed = JSON.parse(profile);
-    return parsed.token;
+  try {
+    // First try your method
+    const profile = localStorage.getItem("profile");
+    if (profile) {
+      const parsed = JSON.parse(profile);
+      return parsed?.token;
+    }
+  } catch (err) {
+    console.error("❌ Auth Token Error:", err);
   }
   // Fallback to Vedant's method (just in case)
   return localStorage.getItem("authToken");
@@ -45,6 +49,7 @@ API.interceptors.request.use((req) => {
 export const signIn = (formData) => API.post("/users/login", formData);
 export const signUp = (formData) => API.post("/users/register", formData);
 export const getMe = () => API.get("/users/me");
+export const searchUsers = (query) => API.get(`/users/search?q=${query}`);
 
 /* ================= ADMIN APIs ================= */
 export const getAdminDashboard = () => API.get("/admin/dashboard");
@@ -53,6 +58,11 @@ export const createHackathon = (data) => API.post("/hackathons", data);
 // We use API.patch directly, but if Vedant's code passed headers manually, the interceptor handles it now.
 export const updateHackathon = (id, data) => API.patch(`/hackathons/${id}`, data);
 export const updateHackathonStatus = (id, status) => API.patch(`/hackathons/${id}/status`, { status });
+export const getHackathonById = (id) => API.get(`/hackathons/${id}`);
+export const getHackathonTeams = (id) => API.get(`/hackathons/${id}/teams`);
+export const registerTeam = (data) => API.post("/teams", data);
+export const requestJoinTeam = (teamId) => API.post(`/teams/${teamId}/join`);
+export const getCalendarEvents = () => API.get("/calendar");
 
 /* ================= JUDGE APIs (From Vedant) ================= */
 // We keep these exports so his Admin Dashboard works
