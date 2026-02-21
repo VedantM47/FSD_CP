@@ -12,10 +12,8 @@ import calendarRoutes from './routes/calendar.routes.js';
 import submissionRoutes from './routes/submission.routes.js';
 import oauthRoutes from './routes/oauth.routes.js';
 import sumbissionRoutes from './routes/submission.routes.js';
-import rateLimit from 'express-rate-limit';
 import evaluationRoutes from './routes/evaluation.routes.js';
 import adminRoutes from './routes/admin.routes.js';
-import oauthRoutes from './routes/oauth.routes.js';
 
 
 const app = express();
