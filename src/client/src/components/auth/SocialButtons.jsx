@@ -5,13 +5,13 @@ const SocialButtons = () => {
   // 1. Google Login Redirect
   const handleGoogleLogin = () => {
     // Redirects browser to Backend -> Passport initiates Google flow
-    window.location.href = "http://localhost:3000/api/oauth/google";
+    window.location.href = "http://localhost:8080/api/oauth/google";
   };
 
   // 2. GitHub Login Redirect
   const handleGithubLogin = () => {
     // Redirects browser to Backend -> Passport initiates GitHub flow
-    window.location.href = "http://localhost:3000/api/oauth/github";
+    window.location.href = "http://localhost:8080/api/oauth/github";
   };
 
   return (

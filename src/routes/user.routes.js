@@ -1,6 +1,6 @@
-import express from 'express';
-import auth from '../middlewares/auth.middleware.js';
-import authorize from '../middlewares/authorize.js';
+import express from "express";
+import auth from "../middlewares/auth.middleware.js";
+import authorize from "../middlewares/authorize.js";
 
 import {
   register,
@@ -12,42 +12,45 @@ import {
   getUserById,
   deleteUser,
   searchUsers,
-} from '../controllers/user.controller.js';
+} from "../controllers/user.controller.js";
 
 const router = express.Router();
 
-/* ============ PUBLIC ============ */
-router.post('/register', register);
-router.post('/login', login);
-router.post('/logout', auth, logout);
+/* ======================================================
+   PUBLIC ROUTES (NO AUTH REQUIRED)
+====================================================== */
 
-/* ============ USER (SELF) ============ */
-router.get('/me', auth, getMe);
-router.put('/me', auth, updateMe);
-router.get('/search',auth, searchUsers);
+router.post("/register", register);
+router.post("/login", login);
 
-// /* ================= SEARCH USERS ================= */
-// router.get(
-//   '/search',
-//   auth,
-//   authorize('SEARCH_USERS', async (req) => ({
-//     user: req.user,
-//   })),
-//   searchUsers
-// );
+/* ======================================================
+   PROTECTED USER ROUTES (AUTH REQUIRED)
+====================================================== */
 
-/* ============ ADMIN (ABAC) ============ */
+router.post("/logout", auth, logout);
+
+router.get("/me", auth, getMe);
+router.put("/me", auth, updateMe);
+
+router.get("/search", auth, searchUsers);
+
+/* ======================================================
+   ADMIN ROUTES (AUTH + AUTHORIZE)
+====================================================== */
+
 router.get(
-  '/',
+  "/",
   auth,
-  authorize('VIEW_ALL_USERS', async (req) => ({ user: req.user })),
+  authorize("VIEW_ALL_USERS", async (req) => ({
+    user: req.user,
+  })),
   getAllUsers
 );
 
 router.get(
-  '/:id',
+  "/:id",
   auth,
-  authorize('VIEW_USER_BY_ID', async (req) => ({
+  authorize("VIEW_USER_BY_ID", async (req) => ({
     user: req.user,
     targetUserId: req.params.id,
   })),
@@ -55,9 +58,9 @@ router.get(
 );
 
 router.delete(
-  '/:id',
+  "/:id",
   auth,
-  authorize('DELETE_USER', async (req) => ({
+  authorize("DELETE_USER", async (req) => ({
     user: req.user,
     targetUserId: req.params.id,
   })),
