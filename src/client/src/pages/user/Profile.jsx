@@ -1,57 +1,117 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
-import ProfileLayout from "../../components/user/ProfileLayout";
 import ProfileHeader from "../../components/user/ProfileHeader";
 import ProfileTabs from "../../components/user/ProfileTabs";
-import HackathonCard from "../../components/user/cards/HackathonCard";
-import ActivityTimeline from "../../components/user/timeline/ActivityTimeline";
+import OverviewTab from "../../components/user/tabs/OverviewTab";
 import HackathonsTab from "../../components/user/tabs/HackathonsTab";
-import TeamInfoCard from "../../components/user/cards/TeamInfoCard";
-import { userProfile } from "../../data/userProfile.mock";
 import TeamsTab from "../../components/user/tabs/TeamsTab";
-import SettingsTab from "../../components/user/tabs/SettingsTab";
 import SubmissionsTab from "../../components/user/tabs/SubmissionsTab";
+import SettingsTab from "../../components/user/tabs/SettingsTab";
+import { getMyProfile } from "../../services/api";
+import "../../styles/profile.css";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("Overview");
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const res = await getMyProfile();
+      setProfile(res.data.data);
+    } catch (err) {
+      console.error("❌ Profile fetch error:", err);
+      setError(
+        err?.response?.data?.message || "Failed to load profile"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  /* ===== Loading ===== */
+  if (loading) {
+    return (
+      <div className="profile-page">
+        <Navbar />
+        <div className="profile-loading">
+          <div className="profile-spinner" />
+          <p>Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  /* ===== Error ===== */
+  if (error) {
+    return (
+      <div className="profile-page">
+        <Navbar />
+        <div className="profile-error">
+          <p>{error}</p>
+          <button onClick={fetchProfile}>Retry</button>
+        </div>
+      </div>
+    );
+  }
+
+  const { user, stats, hackathons, teams, submissions } = profile;
 
   return (
-    <>
+    <div className="profile-page">
       <Navbar />
-      <ProfileLayout>
-        <ProfileHeader user={userProfile} />
+
+      <div className="profile-layout">
+        <ProfileHeader user={user} stats={stats} />
         <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {activeTab === "Overview" && (
-          <>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 bg-white rounded-xl p-6">
-                <h3 className="font-semibold mb-4">Active Hackathons</h3>
-                <div className="space-y-4">
-                  {userProfile.activeHackathons.map((h) => (
-                    <HackathonCard key={h.id} hackathon={h} />
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl p-6">
-                <h3 className="font-semibold mb-4">Recent Activity</h3>
-                <ActivityTimeline items={userProfile.activity} />
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <TeamInfoCard team={userProfile.team} />
-            </div>
-          </>
+          <OverviewTab
+            hackathons={hackathons}
+            teams={teams}
+            navigate={navigate}
+          />
         )}
-        {activeTab === "Hackathons" && <HackathonsTab />}
-        {activeTab === "Teams" && <TeamsTab />}
-        {activeTab === "Submissions" && <SubmissionsTab />}
-        {activeTab === "Settings" && <SettingsTab />}
 
-      </ProfileLayout>
-    </>
+        {activeTab === "Hackathons" && (
+          <HackathonsTab hackathons={hackathons} navigate={navigate} />
+        )}
+
+        {activeTab === "Teams" && (
+          <TeamsTab teams={teams} navigate={navigate} />
+        )}
+
+        {activeTab === "Submissions" && (
+          <SubmissionsTab submissions={submissions} />
+        )}
+
+        {activeTab === "Settings" && (
+          <SettingsTab user={user} onUpdate={fetchProfile} />
+        )}
+      </div>
+
+      {/* Footer */}
+      <footer className="profile-footer">
+        <div className="profile-footer__inner">
+          <span className="profile-footer__brand">Hackplatform</span>
+          <div className="profile-footer__links">
+            <a href="#about">About</a>
+            <a href="#faqs">FAQs</a>
+            <a href="#contact">Contact</a>
+            <a href="#terms">Terms & Privacy</a>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 };
 

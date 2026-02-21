@@ -1,14 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Navbar from '../../components/common/Navbar';
 import CalendarSidebar from '../../components/user/CalendarSidebar';
 import CalendarGrid from '../../components/user/CalendarGrid';
 import CalendarListView from '../../components/user/CalendarListView';
 import Footer from '../../components/common/Footer';
-import { calendarEvents } from '../../data/calendarData';
 import EventModal from '../../components/user/EventModal';
+import { getCalendarEvents } from '../../services/api';
 import '../../styles/calendar.css';
 
 const Calendar = () => {
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1));
     const [filters, setFilters] = useState({
         status: ['Ongoing', 'Upcoming', 'Past'],
@@ -18,6 +20,31 @@ const Calendar = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [viewMode, setViewMode] = useState('month'); // 'month', 'week', 'list'
     const [categoryMode, setCategoryMode] = useState('personalized'); // 'personalized', 'generic'
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                setLoading(true);
+                const response = await getCalendarEvents();
+                if (response.data.success) {
+                    // Map backend fields to frontend fields
+                    const mappedEvents = response.data.data.map(event => ({
+                        ...event,
+                        id: event._id,
+                        name: event.title,
+                        hackathon: event.hackathonName || (event.hackathon ? event.hackathon.title : 'N/A')
+                    }));
+                    setEvents(mappedEvents);
+                }
+            } catch (error) {
+                console.error("Error fetching calendar events:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEvents();
+    }, []);
 
     const handleFilterChange = (category, value) => {
         setFilters(prev => {
@@ -50,7 +77,7 @@ const Calendar = () => {
     };
 
     const filteredEvents = useMemo(() => {
-        return calendarEvents.filter(event => {
+        return events.filter(event => {
             const statusMatch = filters.status.length === 0 ||
                 filters.status.some(s => s.toLowerCase() === event.status.toLowerCase().trim());
 
@@ -59,13 +86,25 @@ const Calendar = () => {
 
             return statusMatch && typeMatch;
         });
-    }, [filters]);
+    }, [events, filters]);
 
     const onNavigateMonth = (direction) => {
         const nextDate = new Date(currentDate);
         nextDate.setMonth(currentDate.getMonth() + direction);
         setCurrentDate(nextDate);
     };
+
+    if (loading) {
+        return (
+            <div className="calendar-page">
+                <Navbar />
+                <div className="loading-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+                    <div className="loader">Loading...</div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
 
     return (
         <div className="calendar-page">

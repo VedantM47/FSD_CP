@@ -55,13 +55,17 @@ const teamSchema = new mongoose.Schema(
       driveUrl: String,
       submittedAt: Date,
     },
+    presentationSlot: {
+      date: Date,
+      startTime: String,
+      endTime: String,
+    },
   },
   { timestamps: true }
 );
 
-const Team = mongoose.model('Team', teamSchema);
-
-//  Custom validation to prevent duplicate userId in members array
+// Custom validation to prevent duplicate userId in members array
+// NOTE: Must be defined BEFORE mongoose.model() call
 teamSchema.pre('save', function(next) {
   const userIds = this.members.map(m => m.userId.toString());
   const uniqueIds = new Set(userIds);
@@ -71,5 +75,16 @@ teamSchema.pre('save', function(next) {
   }
   next();
 });
+
+// unique team name
+teamSchema.index(
+  { name: 1, hackathonId: 1 },
+  { unique: true }
+);
+
+// text index for searching teams by name
+teamSchema.index({ name: 'text' });
+
+const Team = mongoose.model('Team', teamSchema);
 
 export default Team;

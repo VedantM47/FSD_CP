@@ -1,78 +1,69 @@
-import submissions from "../../../data/submissions";
-
-const FeedbackBadge = ({ status }) => {
-  if (status === "available") {
+const SubmissionsTab = ({ submissions }) => {
+  if (!submissions || submissions.length === 0) {
     return (
-      <span className="flex items-center gap-2 text-green-600 font-medium">
-        <span className="w-4 h-4 rounded-full border-2 border-green-500 flex items-center justify-center">
-          ✓
-        </span>
-        Available
-      </span>
+      <div className="submissions-table-wrapper">
+        <div className="empty-state">
+          <p>No submissions yet.</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <span className="flex items-center gap-2 text-yellow-600 font-medium">
-      <span className="w-4 h-4 rounded-full border-2 border-yellow-500 flex items-center justify-center">
-        ⏳
-      </span>
-      Pending
-    </span>
-  );
-};
-
-const SubmissionsTab = () => {
-  return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
-            <tr>
-              <th className="px-6 py-4 text-left">Hackathon</th>
-              <th className="px-6 py-4 text-left">Round</th>
-              <th className="px-6 py-4 text-left">Submission Link</th>
-              <th className="px-6 py-4 text-left">Score</th>
-              <th className="px-6 py-4 text-left">Feedback Status</th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y">
-            {submissions.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4 font-medium text-blue-700">
-                  {item.hackathon}
-                </td>
-
-                <td className="px-6 py-4 text-gray-700">
-                  {item.round}
-                </td>
-
-                <td className="px-6 py-4">
+    <div className="submissions-table-wrapper">
+      <table className="submissions-table">
+        <thead>
+          <tr>
+            <th>Hackathon</th>
+            <th>Round</th>
+            <th>Submission Link</th>
+            <th>Score</th>
+            <th>Feedback Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {submissions.map((s) => (
+            <tr key={s._id}>
+              <td className="hack-name">{s.hackathonName}</td>
+              <td>{s.round}</td>
+              <td>
+                {s.link ? (
                   <a
-                    href={item.link}
+                    href={s.link.startsWith("http") ? s.link : `https://${s.link}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline flex items-center gap-1"
+                    className="submission-link"
                   >
-                    {item.link.replace("https://", "")}
-                    <span>↗</span>
+                    {s.link.replace(/^https?:\/\//, "").slice(0, 35)}
+                    {s.link.length > 35 ? "..." : ""} ↗
                   </a>
-                </td>
-
-                <td className="px-6 py-4 font-medium">
-                  {item.score}
-                </td>
-
-                <td className="px-6 py-4">
-                  <FeedbackBadge status={item.feedback} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                ) : (
+                  <span style={{ color: "#94a3b8" }}>—</span>
+                )}
+              </td>
+              <td className="score-cell">{s.score}</td>
+              <td>
+                <span
+                  className={`feedback-badge ${s.feedbackStatus === "available"
+                      ? "feedback-badge--available"
+                      : "feedback-badge--pending"
+                    }`}
+                >
+                  <span
+                    className={`feedback-icon ${s.feedbackStatus === "available"
+                        ? "feedback-icon--available"
+                        : "feedback-icon--pending"
+                      }`}
+                  >
+                    {s.feedbackStatus === "available" ? "✓" : "⏳"}
+                  </span>
+                  {s.feedbackStatus === "available" ? "Available" : "Pending"}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

@@ -1,38 +1,32 @@
-const ProfileHeader = ({ user }) => {
-  return (
-    <div className="bg-white rounded-xl p-6 flex justify-between items-center mb-6">
-      <div className="flex gap-4">
-        <div className="w-14 h-14 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xl font-semibold">
-          {user.name[0]}
-        </div>
+const ProfileHeader = ({ user, stats }) => {
+  const initial = user?.fullName?.[0]?.toUpperCase() || "?";
 
-        <div>
-          <h2 className="text-lg font-semibold">{user.name}</h2>
-          <p className="text-sm text-gray-500">{user.email}</p>
-          <p className="text-sm text-gray-500">{user.college}</p>
-          <p className="text-sm text-gray-500">{user.course}</p>
-          <p className="text-sm text-gray-500">{user.location}</p>
+  return (
+    <div className="profile-header">
+      <div className="profile-header__left">
+        <div className="profile-header__avatar">{initial}</div>
+
+        <div className="profile-header__info">
+          <h2>{user.fullName}</h2>
+          <p><span className="icon">✉</span> {user.email}</p>
+          {user.college && <p>{user.college}</p>}
+          {user.department && <p>{user.department}</p>}
+          {user.year && <p><span className="icon">📍</span> {user.year}</p>}
         </div>
       </div>
 
-      <div className="flex gap-8 text-center">
-        <div>
-          <p className="text-xl font-bold text-indigo-600">
-            {user.stats.hackathons}
-          </p>
-          <p className="text-sm text-gray-500">Hackathons</p>
+      <div className="profile-header__stats">
+        <div className="stat-card">
+          <p className="stat-card__value">{stats?.hackathonsParticipated ?? 0}</p>
+          <p className="stat-card__label">Hackathons Participated</p>
         </div>
-        <div>
-          <p className="text-xl font-bold text-indigo-600">
-            {user.stats.wins}
-          </p>
-          <p className="text-sm text-gray-500">Wins</p>
+        <div className="stat-card">
+          <p className="stat-card__value">{stats?.wins ?? 0}</p>
+          <p className="stat-card__label">Wins / Top Finishes</p>
         </div>
-        <div>
-          <p className="text-xl font-bold text-indigo-600">
-            {user.stats.active}
-          </p>
-          <p className="text-sm text-gray-500">Active</p>
+        <div className="stat-card">
+          <p className="stat-card__value">{stats?.activeHackathons ?? 0}</p>
+          <p className="stat-card__label">Active Hackathons</p>
         </div>
       </div>
     </div>

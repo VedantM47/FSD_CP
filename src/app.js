@@ -1,4 +1,5 @@
 import express from 'express';
+import log from './utils/logger.js';
 import passport from 'passport';
 import rateLimit from 'express-rate-limit';
 import cors from 'cors';
@@ -8,10 +9,12 @@ import errorHandler from './middlewares/error.middleware.js';
 import userRoutes from './routes/user.routes.js';
 import teamRoutes from './routes/team.routes.js';
 import hackathonRoutes from './routes/hackathon.routes.js';
-import submissionRoutes from './routes/submission.routes.js';
+import calendarRoutes from './routes/calendar.routes.js';
+import oauthRoutes from './routes/oauth.routes.js';
+import sumbissionRoutes from './routes/submission.routes.js';
 import evaluationRoutes from './routes/evaluation.routes.js';
 import adminRoutes from './routes/admin.routes.js';
-import oauthRoutes from './routes/oauth.routes.js';
+import profileRoutes from './routes/profile.routes.js';
 
 const app = express();
 
@@ -36,14 +39,24 @@ app.use(express.json());
 // app.use(apiLimiter);
 app.use(passport.initialize());
 
+/* ================= REQUEST LOGGER ================= */
+app.use((req, res, next) => {
+  log.request(req.method, req.originalUrl);
+  next();
+});
+
 /* ================= ROUTES ================= */
 app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/hackathons', hackathonRoutes);
-app.use('/api/submissions', submissionRoutes);
+// Calendar Routes
+app.use('/api/calendar', calendarRoutes);
+app.use('/api/submissions', sumbissionRoutes);
 app.use('/api/evaluations', evaluationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/profile', profileRoutes);
 app.use('/api/oauth', oauthRoutes);
+
 
 /* ================= HEALTH CHECK ================= */
 app.get('/test', (req, res) => {

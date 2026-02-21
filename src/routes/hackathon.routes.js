@@ -12,6 +12,7 @@ import {
   getTeamsByHackathon,
   assignJudgeToHackathon,
   removeJudgeFromHackathon,
+  searchHackathons
 } from '../controllers/hackathon.controller.js';
    
 import Hackathon from '../models/hackathon.model.js';
@@ -23,13 +24,27 @@ const router = express.Router();
 // Get all hackathons
 router.get('/', getAllHackathons);
 
-// Get hackathon by ID
-router.get('/:id', getHackathonById);
-
 // Get teams by hackathon ID
 router.get(
   '/:hackathonId/teams',
   getTeamsByHackathon
+);
+
+
+/* ================= PUBLIC DISCOVERY ================= */
+
+// Anyone logged-in can discover hackathons
+router.get(
+  "/search",
+  auth,
+  searchHackathons
+);
+
+// View a hackathon’s public info
+router.get(
+  "/:id",
+  auth,
+  getHackathonById
 );
 
 /* ================= PROTECTED ================= */
