@@ -42,7 +42,7 @@ router.get(
 
 // View a hackathon’s public info
 router.get(
-  "/:hackathonId",
+  "/:id",
   auth,
   getHackathonById
 );

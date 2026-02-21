@@ -1,13 +1,18 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
+
+  // Get user initial for avatar
+  const initial = user?.fullName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?';
 
   return (
     <div className="bg-[#002b5b] text-white px-8 py-4 flex items-center justify-between sticky top-0 z-[100] shadow-lg">
       <div className="flex items-center gap-12">
-        <Link to="/discovery" className="font-bold text-2xl tracking-tight text-white hover:text-blue-200 transition-colors">
+        <Link to="/" className="font-bold text-2xl tracking-tight text-white hover:text-blue-200 transition-colors">
           Hackplatform
         </Link>
 
@@ -39,14 +44,40 @@ const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <button className="p-2 rounded-full hover:bg-white/10 transition-colors" title="Notifications">
-          <span className="text-xl">🏁</span>
-        </button>
-        <Link to="/profile" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-lg border-2 border-white/20 group-hover:border-white/50 transition-all overflow-hidden shadow-md">
-            S
+        {isAuthenticated ? (
+          <>
+            <button className="p-2 rounded-full hover:bg-white/10 transition-colors" title="Notifications">
+              <span className="text-xl">🏁</span>
+            </button>
+            <Link to="/profile" className="flex items-center gap-2 group">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-lg border-2 border-white/20 group-hover:border-white/50 transition-all overflow-hidden shadow-md">
+                {initial}
+              </div>
+            </Link>
+            <button
+              onClick={logout}
+              className="text-sm font-semibold text-white/70 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-all"
+              title="Logout"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <div className="flex items-center gap-3">
+            <Link
+              to="/login"
+              className="text-sm font-semibold text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition-all"
+            >
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              className="text-sm font-semibold bg-white/10 border border-white/20 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-all"
+            >
+              Sign Up
+            </Link>
           </div>
-        </Link>
+        )}
       </div>
     </div>
   );

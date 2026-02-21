@@ -1,15 +1,11 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 function AdminNavbar() {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const isActive = (path) => pathname.startsWith(path);
-
-  const handleLogout = () => {
-    // later you can also clear token / user state here
-    navigate('/login');
-  };
 
   return (
     <nav className="admin-navbar">
@@ -41,7 +37,7 @@ function AdminNavbar() {
           </Link>
 
           <button
-            onClick={handleLogout}
+            onClick={logout}
             className="nav-link logout"
           >
             Logout

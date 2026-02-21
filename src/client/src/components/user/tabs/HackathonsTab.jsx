@@ -1,26 +1,59 @@
-import HackathonTableRow from "../table/HackathonTableRow";
-import { hackathonsList } from "../../../data/hackathons.mock";
+const HackathonsTab = ({ hackathons, navigate }) => {
+  if (!hackathons || hackathons.length === 0) {
+    return (
+      <div className="hackathons-table-wrapper">
+        <div className="empty-state">
+          <p>You haven't participated in any hackathons yet.</p>
+        </div>
+      </div>
+    );
+  }
 
-const HackathonsTab = () => {
   return (
-    <div className="bg-white rounded-xl p-6">
-      <table className="w-full text-sm">
+    <div className="hackathons-table-wrapper">
+      <table className="hackathons-table">
         <thead>
-          <tr className="text-left text-gray-500 border-b">
-            <th className="pb-3">HACKATHON NAME</th>
-            <th className="pb-3">ROLE</th>
-            <th className="pb-3">STATUS</th>
-            <th className="pb-3">RESULT</th>
-            <th className="pb-3">ACTION</th>
+          <tr>
+            <th>Hackathon Name</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Result</th>
+            <th>Action</th>
           </tr>
         </thead>
-
         <tbody>
-          {hackathonsList.map((hackathon) => (
-            <HackathonTableRow
-              key={hackathon.id}
-              hackathon={hackathon}
-            />
+          {hackathons.map((h) => (
+            <tr key={h._id}>
+              <td
+                className="name-cell"
+                onClick={() => navigate(`/user/hackathon/${h._id}`)}
+              >
+                {h.title}
+              </td>
+              <td>{h.role}</td>
+              <td>
+                <span
+                  className={`status-badge ${h.status === "In Progress"
+                      ? "status-badge--in-progress"
+                      : h.status === "Completed"
+                        ? "status-badge--completed"
+                        : "status-badge--registered"
+                    }`}
+                >
+                  {h.status}
+                </span>
+              </td>
+              <td>{h.result || "-"}</td>
+              <td>
+                <a
+                  className="action-icon"
+                  onClick={() => navigate(`/user/hackathon/${h._id}`)}
+                  title="View hackathon"
+                >
+                  ↗
+                </a>
+              </td>
+            </tr>
           ))}
         </tbody>
       </table>

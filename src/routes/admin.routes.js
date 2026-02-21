@@ -1,6 +1,5 @@
 import express from 'express';
 import auth from '../middlewares/auth.middleware.js';
-import adminOnly from '../middlewares/admin.middleware.js';
 
 import {
   getAdminDashboard,
@@ -14,15 +13,21 @@ import {
 
 const router = express.Router();
 
-// enable later
-// router.use(auth, adminOnly);
+/* ---------- Admin-only guard ---------- */
+const adminOnly = (req, res, next) => {
+  if (req.user?.systemRole !== 'admin') {
+    return next({ statusCode: 403, message: 'Admin access required' });
+  }
+  next();
+};
+
+router.use(auth, adminOnly);
 
 router.get('/dashboard', getAdminDashboard);
 router.get('/hackathons', getAdminHackathons);
 router.get('/hackathons/:id/overview', getHackathonOverview);
 router.get('/submissions', getAdminSubmissions);
 router.get('/teams', getAdminTeams);
-
 
 router.get('/judges', getAllJudges);
 router.post('/hackathons/:id/judges', assignJudgesToHackathon);

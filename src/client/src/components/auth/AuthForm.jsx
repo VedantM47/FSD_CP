@@ -3,11 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import Input from '../common/Input';
 import Button from '../common/Button';
 import SocialButtons from './SocialButtons';
-import { signIn, signUp } from '../../services/api'; 
+import { signIn, signUp } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const AuthForm = ({ type }) => {
   const isSignup = type === 'signup';
   const navigate = useNavigate();
+  const auth = useAuth();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -17,43 +19,25 @@ const AuthForm = ({ type }) => {
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
-    
+
     // Check if fullName exists (only for signup)
     const fullName = isSignup ? form.fullName.value : null;
 
-    // --- VEDANT'S ADMIN LOGIC (Preserved) ---
-    // This allows the "Inbuilt Admin" to login without hitting the database
-    if (!isSignup && email === 'ad@gmail.com' && password === '12345') {
-       console.log("👨‍⚖️ Admin/Judge Bypass Triggered");
-       // We save a dummy profile so the router thinks we are logged in
-       localStorage.setItem("profile", JSON.stringify({ token: "dummy-judge-token", role: "judge" }));
-       alert("👨‍⚖️ Logged in as Inbuilt Admin/Judge!");
-       navigate("/judge/hackathons"); // Or wherever Vedant redirected
-       setLoading(false);
-       return; // Stop here, don't call the API
-    }
-    // ----------------------------------------
-
-    const payload = isSignup 
-      ? { fullName, email, password } 
+    const payload = isSignup
+      ? { fullName, email, password }
       : { email, password };
 
     try {
-      let response;
-      
-      if (isSignup) {
-        response = await signUp(payload);
-      } else {
-        response = await signIn(payload);
-      }
+      const response = isSignup ? await signUp(payload) : await signIn(payload);
 
-      // --- YOUR API LOGIC (Preserved) ---
       if (response.data.token) {
-        localStorage.setItem('profile', JSON.stringify({ token: response.data.token }));
-        alert(isSignup ? "✅ Account Created!" : "✅ Login Successful!");
-        navigate('/user/dashboard'); 
+        const userData = await auth.login(response.data.token);
+        if (userData) {
+          // Route based on systemRole from backend
+          const dest = userData.systemRole === 'admin' ? '/admin/dashboard' : '/discovery';
+          navigate(dest, { replace: true });
+        }
       }
-
     } catch (error) {
       console.error("Auth Error:", error);
       const msg = error.response?.data?.message || "Authentication failed.";
@@ -118,9 +102,9 @@ const AuthForm = ({ type }) => {
           </div>
         )}
 
-        <Button 
-          text={loading ? (isSignup ? 'Registering...' : 'Logging in...') : (isSignup ? 'Register' : 'Login')} 
-          type="submit" 
+        <Button
+          text={loading ? (isSignup ? 'Registering...' : 'Logging in...') : (isSignup ? 'Register' : 'Login')}
+          type="submit"
           disabled={loading}
         />
       </form>

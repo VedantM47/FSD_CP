@@ -1,28 +1,20 @@
 import { useState } from "react";
+import { updateMyProfile } from "../../../services/api";
 
-const Toggle = ({ enabled, onChange }) => (
-  <button
-    onClick={onChange}
-    className={`w-11 h-6 flex items-center rounded-full p-1 transition ${
-      enabled ? "bg-blue-600" : "bg-gray-300"
-    }`}
-  >
-    <div
-      className={`bg-white w-4 h-4 rounded-full shadow transform transition ${
-        enabled ? "translate-x-5" : "translate-x-0"
-      }`}
-    />
-  </button>
-);
-
-const SettingsTab = () => {
-  const [profile, setProfile] = useState({
-    fullName: "John Doe",
-    email: "john.doe@university.edu",
-    college: "Massachusetts Institute of Technology",
-    course: "B.Tech Computer Science & Engineering",
-    location: "Cambridge, Massachusetts",
+const SettingsTab = ({ user, onUpdate }) => {
+  const [form, setForm] = useState({
+    fullName: user?.fullName || "",
+    email: user?.email || "",
+    college: user?.college || "",
+    department: user?.department || "",
+    year: user?.year || "",
+    github: user?.github || "",
+    linkedin: user?.linkedin || "",
   });
+
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
   const [notifications, setNotifications] = useState({
     email: true,
@@ -37,100 +29,137 @@ const SettingsTab = () => {
     allowInvites: true,
   });
 
+  const handleChange = (key, value) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setSuccess(false);
+    setError("");
+  };
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setError("");
+      await updateMyProfile(form);
+      setSuccess(true);
+      if (onUpdate) onUpdate();
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to save changes");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="settings-grid">
+      {/* ===== LEFT: Profile Form ===== */}
+      <div className="settings-card">
+        <h3 className="settings-card__title">Profile Information</h3>
 
-      {/* ================= LEFT: PROFILE INFO ================= */}
-      <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Profile Information
-        </h3>
+        {[
+          ["👤", "Full Name", "fullName"],
+          ["✉", "Email", "email"],
+          ["🏫", "College / Organization", "college"],
+          ["🎓", "Course & Specialization", "department"],
+          ["📍", "Location / Year", "year"],
+          ["🔗", "GitHub", "github"],
+          ["🔗", "LinkedIn", "linkedin"],
+        ].map(([icon, label, key]) => (
+          <div key={key} className="settings-field">
+            <label>
+              <span className="field-icon">{icon}</span> {label}
+            </label>
+            <input
+              type="text"
+              value={form[key]}
+              onChange={(e) => handleChange(key, e.target.value)}
+              disabled={key === "email"} /* email cannot be changed */
+            />
+          </div>
+        ))}
 
-        <div className="space-y-4">
-          {[
-            ["Full Name", "fullName"],
-            ["Email", "email"],
-            ["College / Organization", "college"],
-            ["Course & Specialization", "course"],
-            ["Location", "location"],
-          ].map(([label, key]) => (
-            <div key={key} className="text-gray-200">
-              <label className="block text-sm text-gray-800 mb-1">
-                {label}
-              </label>
-              <input
-                type="text"
-                placeholder={profile[key]}
-                onChange={(e) =>
-                  setProfile({ ...profile, [key]: e.target.value })
-                }
-                className={`w-full border rounded-lg px-4 py-2 text-sm focus:ring-2 text-gray-500 focus:ring-blue-500 outline-none ${"bg-blue-50 text-blue-600 border border-blue-600"} `}
-              />
-            </div>
-          ))}
-        </div>
-
-        <button className="mt-6 w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition">
-          Save Changes
+        <button
+          className="btn-save"
+          onClick={handleSave}
+          disabled={saving}
+        >
+          {saving ? "Saving..." : "Save Changes"}
         </button>
+
+        {success && <p className="save-success">✅ Profile updated!</p>}
+        {error && (
+          <p className="save-success" style={{ color: "#dc2626" }}>
+            {error}
+          </p>
+        )}
       </div>
 
-      {/* ================= RIGHT: SETTINGS ================= */}
-      <div className="space-y-6">
-
-        {/* Notifications */}
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      {/* ===== RIGHT: Preferences ===== */}
+      <div className="settings-right">
+        {/* Notification Preferences */}
+        <div className="settings-card">
+          <h3 className="settings-card__title">
             🔔 Notification Preferences
           </h3>
 
           {[
             ["Email Notifications", "Receive updates via email", "email"],
-            ["Hackathon Reminders", "Deadline & round reminders", "reminders"],
+            [
+              "Hackathon Reminders",
+              "Deadline and round reminders",
+              "reminders",
+            ],
             ["Team Invitations", "Notify when invited to teams", "invites"],
-            ["Result Announcements", "Get notified of results", "results"],
+            [
+              "Result Announcements",
+              "Get notified of results",
+              "results",
+            ],
           ].map(([title, desc, key]) => (
-            <div key={key} className="flex justify-between items-center mb-4">
-              <div>
-                <p className="text-sm font-medium text-gray-800">{title}</p>
-                <p className="text-xs text-gray-500">{desc}</p>
+            <div key={key} className="toggle-row">
+              <div className="toggle-row__info">
+                <h5>{title}</h5>
+                <p>{desc}</p>
               </div>
-              <Toggle
+              <ToggleSwitch
                 enabled={notifications[key]}
                 onChange={() =>
-                  setNotifications({
-                    ...notifications,
-                    [key]: !notifications[key],
-                  })
+                  setNotifications((p) => ({ ...p, [key]: !p[key] }))
                 }
               />
             </div>
           ))}
         </div>
 
-        {/* Privacy */}
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            🔒 Privacy Settings
-          </h3>
+        {/* Privacy Settings */}
+        <div className="settings-card">
+          <h3 className="settings-card__title">🔒 Privacy Settings</h3>
 
           {[
-            ["Public Profile", "Make profile visible to others", "publicProfile"],
-            ["Show Achievements", "Display wins and rankings", "showAchievements"],
-            ["Allow Team Invites", "Others can invite you to teams", "allowInvites"],
+            [
+              "Public Profile",
+              "Make profile visible to others",
+              "publicProfile",
+            ],
+            [
+              "Show Achievements",
+              "Display wins and rankings",
+              "showAchievements",
+            ],
+            [
+              "Allow Team Invites",
+              "Others can invite you to teams",
+              "allowInvites",
+            ],
           ].map(([title, desc, key]) => (
-            <div key={key} className="flex justify-between items-center mb-4">
-              <div>
-                <p className="text-sm font-medium text-gray-800">{title}</p>
-                <p className="text-xs text-gray-500">{desc}</p>
+            <div key={key} className="toggle-row">
+              <div className="toggle-row__info">
+                <h5>{title}</h5>
+                <p>{desc}</p>
               </div>
-              <Toggle
+              <ToggleSwitch
                 enabled={privacy[key]}
                 onChange={() =>
-                  setPrivacy({
-                    ...privacy,
-                    [key]: !privacy[key],
-                  })
+                  setPrivacy((p) => ({ ...p, [key]: !p[key] }))
                 }
               />
             </div>
@@ -140,5 +169,17 @@ const SettingsTab = () => {
     </div>
   );
 };
+
+/* ===== Toggle Switch Component ===== */
+const ToggleSwitch = ({ enabled, onChange }) => (
+  <button
+    className={`toggle-switch ${enabled ? "toggle-switch--on" : "toggle-switch--off"
+      }`}
+    onClick={onChange}
+    type="button"
+  >
+    <div className="toggle-switch__knob" />
+  </button>
+);
 
 export default SettingsTab;
