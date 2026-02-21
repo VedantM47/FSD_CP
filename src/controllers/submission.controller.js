@@ -1,78 +1,60 @@
 import Submission from '../models/submission.model.js';
 import Team from '../models/team.model.js';
 import Hackathon from '../models/hackathon.model.js';
+import log from '../utils/logger.js';
 
 /* ================= CREATE SUBMISSION ================= */
 
-export const createEvaluation = async (req, res, next) => {
+export const createSubmission = async (req, res, next) => {
   try {
-    const { hackathonId, teamId, round, criteriaScores, remarks } = req.body;
+    const { hackathonId, teamId, title, description, pptLink, repoLink, demoLink, track } = req.body;
+    log.info('CREATE_SUBMISSION', 'Creating submission', { hackathonId, teamId, track, by: req.user?.email });
 
-    // Prevent duplicate
-    const exists = await Evaluation.findOne({
+    // 1. Create the submission document
+    const newSubmission = await Submission.create({
       hackathonId,
       teamId,
-      judgeId: req.user._id,
-      round
+      submittedBy: req.user._id,
+      projectDetails: { title, description, pptLink, repoLink, demoLink },
+      track,
     });
 
-    if (exists) {
-      return next({ statusCode: 400, message: "Already evaluated" });
-    }
+    log.info('CREATE_SUBMISSION', `Submission created (id=${newSubmission._id}), syncing team`);
 
     // 2. SYNC: Update the 'Team' model
-   
     await Team.findByIdAndUpdate(teamId, {
-      submissionId: newSubmission._id,   
+      submissionId: newSubmission._id,
       project: {
-        title: title,
-        description: description,
-        driveUrl: pptLink,   
+        title,
+        description,
+        driveUrl: pptLink,
         repoUrl: repoLink,
         demoUrl: demoLink,
         submittedAt: new Date()
       },
-      isLocked: true 
+      isLocked: true
     });
-
 
     // 3. Success Response
-    res.status(201).json({ 
+    log.success('CREATE_SUBMISSION', `Submission complete: "${title}"`);
+    res.status(201).json({
       success: true,
-      message: "Project submitted successfully!", 
+      message: "Project submitted successfully!",
       submission: newSubmission
-    // Compute total score
-    let total = 0;
-    let weightSum = 0;
-
-    for (const key in criteriaScores) {
-      const { score, weight } = criteriaScores[key];
-      total += score * weight;
-      weightSum += weight;
-    }
-
-    const evaluation = await Evaluation.create({
-      hackathonId,
-      teamId,
-      judgeId: req.user._id,
-      round,
-      criteriaScores,
-      totalScore: total,
-      normalizedScore: total / weightSum,
-      remarks,
-      status: "submitted"
     });
-
-    res.status(201).json({ success: true, data: evaluation });
   } catch (err) {
+    log.error('CREATE_SUBMISSION', 'Failed to create submission', err);
     next(err);
   }
 };
+
+// NOTE: createEvaluation lives in evaluation.controller.js — removed duplicate here
 
 // ================= GET SUBMISSION DETAILS =================
 export const getSubmission = async (req, res, next) => {
   try {
     const { submissionId } = req.params;
+    log.info('GET_SUBMISSION', 'Fetching submission', { submissionId, by: req.user?.email });
 
     
     const submission = await Submission.findById(submissionId)
@@ -81,9 +63,11 @@ export const getSubmission = async (req, res, next) => {
       .populate('hackathonId', 'title');         
 
     if (!submission) {
+      log.warn('GET_SUBMISSION', `Not found: ${submissionId}`);
       return next({ statusCode: 404, message: "Submission not found" });
     }
 
+    log.success('GET_SUBMISSION', `Found submission: "${submission.projectDetails?.title}"`);
     // 2. Return Data
     res.status(200).json({
       success: true,
@@ -91,6 +75,7 @@ export const getSubmission = async (req, res, next) => {
     });
 
   } catch (error) {
+    log.error('GET_SUBMISSION', 'Failed to fetch submission', error);
     next(error);
   }
 };
@@ -126,8 +111,9 @@ export const updateSubmission = async (req, res, next) => {
       track 
     } = req.body;
 
+    log.info('UPDATE_SUBMISSION', 'Updating submission', { submissionId, fields: Object.keys(req.body), by: req.user?.email });
+
     // 1. Find and Update the Submission
-    // Note: Permissions are already checked by the Policy Middleware before this runs.
     const updatedSubmission = await Submission.findByIdAndUpdate(
       submissionId,
       {
@@ -140,10 +126,11 @@ export const updateSubmission = async (req, res, next) => {
           demoLink
         }
       },
-      { new: true, runValidators: true } // Return the updated doc & validate rules
+      { new: true, runValidators: true }
     );
 
     if (!updatedSubmission) {
+      log.warn('UPDATE_SUBMISSION', `Not found: ${submissionId}`);
       return next({ statusCode: 404, message: "Submission not found" });
     }
 
@@ -159,6 +146,7 @@ export const updateSubmission = async (req, res, next) => {
       }
     });
 
+    log.success('UPDATE_SUBMISSION', `Submission updated: "${title}"`);
     res.status(200).json({
       success: true,
       message: "Submission updated successfully!",
@@ -166,8 +154,7 @@ export const updateSubmission = async (req, res, next) => {
     });
 
   } catch (error) {
+    log.error('UPDATE_SUBMISSION', 'Failed to update submission', error);
     next(error);
   }
 };
-
-

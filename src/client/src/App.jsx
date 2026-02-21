@@ -1,4 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import Home from "./pages/home/Home";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
@@ -30,41 +32,37 @@ import "./styles/global.css";
 function App() {
   return (
     <Routes>
-      {/* Auth Routes */}
-      <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+      {/* ===== PUBLIC ROUTES ===== */}
+      <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
-      {/* Judge Routes - Backend handles auth */}
-      <Route path="/judge/hackathons" element={<AssignedHackathons />} />
-      <Route path="/judge/hackathons/:id" element={<HackathonOverview />} />
-      <Route
-        path="/judge/hackathons/:id/submissions"
-        element={<TeamSubmissions />}
-      />
+      {/* ===== ADMIN-ONLY ROUTES ===== */}
+      <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/hackathons/create" element={<CreateHackathon />} />
+        <Route path="/admin/hackathons/:id" element={<ViewHackathon />} />
+        <Route path="/admin/hackathons/:id/edit" element={<CreateHackathon />} />
+        <Route path="/admin/hackathons/:id/dashboard" element={<HackathonDashboard />} />
+      </Route>
 
-      {/* Admin Routes */}
-      <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      <Route path="/admin/hackathons/create" element={<CreateHackathon />} />
-      <Route path="/admin/hackathons/:id" element={<ViewHackathon />} />
-      <Route path="/admin/hackathons/:id/edit" element={<CreateHackathon />} />
-      <Route
-        path="/admin/hackathons/:id/dashboard"
-        element={<HackathonDashboard />}
-      />
+      {/* ===== PROTECTED ROUTES (any authenticated user) ===== */}
+      <Route element={<ProtectedRoute />}>
+        {/* Judge Routes */}
+        <Route path="/judge/hackathons" element={<AssignedHackathons />} />
+        <Route path="/judge/hackathons/:id" element={<HackathonOverview />} />
+        <Route path="/judge/hackathons/:id/submissions" element={<TeamSubmissions />} />
 
-      {/* participant routes */}
-      <Route path="/user/hackathon/:id" element={<SingleHackathon />} />
-      <Route
-        path="/user/hackathon/:id/register"
-        element={<RegisterHackathon />}
-      />
-      <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
+        {/* Participant Routes */}
+        <Route path="/user/hackathon/:id" element={<SingleHackathon />} />
+        <Route path="/user/hackathon/:id/register" element={<RegisterHackathon />} />
+        <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
 
-      {/* ================= USER ROUTES ================= */}
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/discovery" element={<Discovery />} />
-      <Route path="/calendar" element={<Calendar />} />
+        {/* User Routes */}
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/discovery" element={<Discovery />} />
+        <Route path="/calendar" element={<Calendar />} />
+      </Route>
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/login" replace />} />

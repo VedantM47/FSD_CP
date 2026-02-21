@@ -64,9 +64,8 @@ const teamSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Team = mongoose.model('Team', teamSchema);
-
-//  Custom validation to prevent duplicate userId in members array
+// Custom validation to prevent duplicate userId in members array
+// NOTE: Must be defined BEFORE mongoose.model() call
 teamSchema.pre('save', function(next) {
   const userIds = this.members.map(m => m.userId.toString());
   const uniqueIds = new Set(userIds);
@@ -85,5 +84,7 @@ teamSchema.index(
 
 // text index for searching teams by name
 teamSchema.index({ name: 'text' });
+
+const Team = mongoose.model('Team', teamSchema);
 
 export default Team;

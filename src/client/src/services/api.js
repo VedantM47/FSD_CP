@@ -13,18 +13,21 @@ const API = axios.create({
 // This ensures Vedant's components work even when logged in via your system.
 
 export const getAuthToken = () => {
+  // Primary: unified key
+  const token = localStorage.getItem("authToken");
+  if (token) return token;
+
+  // Legacy fallback: profile object
   try {
-    // First try your method
     const profile = localStorage.getItem("profile");
     if (profile) {
       const parsed = JSON.parse(profile);
-      return parsed?.token;
+      return parsed?.token || null;
     }
   } catch (err) {
     console.error("❌ Auth Token Error:", err);
   }
-  // Fallback to Vedant's method (just in case)
-  return localStorage.getItem("authToken");
+  return null;
 };
 
 // Vedant's pages call this function manually. We keep it so they don't crash.
@@ -39,7 +42,7 @@ export const getAuthHeaders = () => ({
 // This handles auth for all YOUR new requests automatically
 API.interceptors.request.use((req) => {
   const token = getAuthToken();
-  if (token && token !== "dummy-judge-token") {
+  if (token) {
     req.headers.Authorization = `Bearer ${token}`;
   }
   return req;
@@ -51,9 +54,16 @@ export const signUp = (formData) => API.post("/users/register", formData);
 export const getMe = () => API.get("/users/me");
 export const searchUsers = (query) => API.get(`/users/search?q=${query}`);
 
+/* ================= PROFILE APIs ================= */
+export const getMyProfile = () => API.get("/profile/me");
+export const updateMyProfile = (data) => API.put("/users/me", data);
+
 /* ================= ADMIN APIs ================= */
 export const getAdminDashboard = () => API.get("/admin/dashboard");
 export const getAdminHackathons = () => API.get("/admin/hackathons");
+export const getAdminSubmissions = () => API.get("/admin/submissions");
+export const getAdminTeams = () => API.get("/admin/teams");
+export const getHackathonOverview = (id) => API.get(`/admin/hackathons/${id}/overview`);
 export const createHackathon = (data) => API.post("/hackathons", data);
 // We use API.patch directly, but if Vedant's code passed headers manually, the interceptor handles it now.
 export const updateHackathon = (id, data) => API.patch(`/hackathons/${id}`, data);

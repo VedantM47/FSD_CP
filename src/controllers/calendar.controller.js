@@ -1,8 +1,13 @@
- import CalendarEvent from '../models/calendar.model.js';
+import CalendarEvent from '../models/calendar.model.js';
+import Hackathon from '../models/hackathon.model.js';
+import { differenceInHours } from 'date-fns';
+import log from '../utils/logger.js';
 
 export const getAllEvents = async (req, res, next) => {
     try {
+        log.info('GET_EVENTS', 'Fetching all calendar events');
         const events = await CalendarEvent.find().populate('hackathon').sort({ date: 1 });
+        log.success('GET_EVENTS', `Returning ${events.length} events`);
         res.status(200).json({
             success: true,
             data: events,
@@ -14,7 +19,9 @@ export const getAllEvents = async (req, res, next) => {
 
 export const createEvent = async (req, res, next) => {
     try {
+        log.info('CREATE_EVENT', 'Creating calendar event', { title: req.body.title, type: req.body.type });
         const event = await CalendarEvent.create(req.body);
+        log.success('CREATE_EVENT', `Event created: "${event.title}"`);
         res.status(201).json({
             success: true,
             data: event,
@@ -23,8 +30,6 @@ export const createEvent = async (req, res, next) => {
         next(error);
     }
 };
-import Hackathon from '../models/hackathon.model.js';
-import { differenceInHours } from 'date-fns';
 
 /**
  * @desc    Get public calendar events for all hackathons
@@ -33,6 +38,7 @@ import { differenceInHours } from 'date-fns';
  */
 export const getPublicCalendar = async (req, res, next) => {
     try {
+        log.info('PUBLIC_CALENDAR', 'Fetching public calendar events');
         // 1. Get all open or ongoing hackathons
         const hackathons = await Hackathon.find({ 
             status: { $in: ['open', 'ongoing', 'closed'] } 
@@ -69,12 +75,14 @@ export const getPublicCalendar = async (req, res, next) => {
             });
         });
 
+        log.success('PUBLIC_CALENDAR', `Returning ${events.length} events`);
         res.status(200).json({
             success: true,
             count: events.length,
             data: events
         });
     } catch (err) {
+        log.error('PUBLIC_CALENDAR', 'Failed to fetch public calendar', err);
         next({ statusCode: 500, message: err.message });
     }
 };
@@ -84,9 +92,9 @@ export const getPublicCalendar = async (req, res, next) => {
  * @route   GET /api/calendar/export
  * @access  Public
  */
-
 export const exportToGoogleCalendar = async (req, res, next) => {
   try {
+    log.info('EXPORT_CALENDAR', 'Exporting calendar as ICS');
     // 1. Fetch all hackathons
     const hackathons = await Hackathon.find({ 
         status: { $in: ['open', 'ongoing'] } 
@@ -144,10 +152,11 @@ END:VEVENT
       'attachment; filename="hackathon-calendar.ics"'
     );
 
+    log.success('EXPORT_CALENDAR', `ICS file generated with ${hackathons.length} hackathons`);
     return res.status(200).send(icsContent);
 
   } catch (err) {
+    log.error('EXPORT_CALENDAR', 'Failed to export calendar', err);
     next({ statusCode: 500, message: err.message });
   }
 };
-

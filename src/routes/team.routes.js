@@ -33,14 +33,6 @@ router.get(
 
 /* ================= PROTECTED TEAM VIEWS ================= */
 
-// Full team details (ABAC protected)
-router.get(
-  "/:teamId",
-  auth,
-  authorize("VIEW_TEAM_DETAILS"),
-  getTeamDetails
-);
-
 // Search teams (participants / judges / organizers)
 router.get(
   "/hackathon/:hackathonId/search",
