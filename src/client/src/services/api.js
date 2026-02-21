@@ -2,7 +2,7 @@ import axios from "axios";
 
 /* ================= 1. UNIFIED AXIOS INSTANCE ================= */
 // Using Port 3000 (Standardizing on your working backend)
-const API = axios.create({
+export const API = axios.create({
   baseURL: "http://localhost:3000/api",
   withCredentials: true,
 });
