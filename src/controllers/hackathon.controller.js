@@ -257,21 +257,55 @@ export const searchHackathons = async (req, res, next) => {
 
 /* ================= UPDATE HACKATHON ================= */
 /* Admin / Mentor */
+/* ================= UPDATE HACKATHON ================= */
+/* Admin / Mentor */
 export const updateHackathon = async (req, res, next) => {
   try {
     log.info('UPDATE_HACKATHON', 'Updating hackathon', { id: req.params.id, fields: Object.keys(req.body), by: req.user?.email });
+
+    // 1. Separate the simple string array of judges from the rest of the data
+    const { judges: newJudgeIds, ...updateData } = req.body;
+
+    // 2. Format strings into the exact object structure Mongoose demands
+    if (newJudgeIds && Array.isArray(newJudgeIds)) {
+      updateData.judges = newJudgeIds.map(id => ({
+        judgeUserId: id,
+        assignedAt: new Date()
+      }));
+    }
+
+    // 3. Save the Hackathon document
     const hackathon = await Hackathon.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
 
     if (!hackathon) {
       log.warn('UPDATE_HACKATHON', `Not found: ${req.params.id}`);
-      return next({
-        statusCode: 404,
-        message: 'Hackathon not found',
-      });
+      return next({ statusCode: 404, message: 'Hackathon not found' });
+    }
+
+    // 4. BULLETPROOF SYNC: Force the User collection to match the incoming list
+    if (newJudgeIds && Array.isArray(newJudgeIds)) {
+      const incomingIds = newJudgeIds.map(id => id.toString());
+
+      // STEP A: Clean Slate. Pull this specific hackathon's judge role from EVERYONE.
+      // This prevents duplicates and clears out anyone who was un-checked.
+      await User.updateMany(
+        { 'hackathonRoles.hackathonId': hackathon._id, 'hackathonRoles.role': 'judge' },
+        { $pull: { hackathonRoles: { hackathonId: hackathon._id, role: 'judge' } } }
+      );
+
+      // STEP B: Re-apply the role ONLY to the incoming IDs.
+      if (incomingIds.length > 0) {
+        await User.updateMany(
+          { _id: { $in: incomingIds } },
+          { $push: { hackathonRoles: { hackathonId: hackathon._id, role: 'judge' } } }
+        );
+      }
+      
+      log.info('UPDATE_HACKATHON', `Force-synced judge roles. Active judges: ${incomingIds.length}`);
     }
 
     log.success('UPDATE_HACKATHON', `Updated: "${hackathon.title}"`);

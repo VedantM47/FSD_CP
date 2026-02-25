@@ -25,6 +25,7 @@ import Calendar from "./pages/user/Calendar";
 import SingleHackathon from "./pages/participant/SingleHackathon";
 import RegisterHackathon from "./pages/participant/RegisterHackathon";
 import JoinTeam from "./pages/participant/JoinTeam";
+import SubmitProject from "./pages/participant/SubmitProject";
 
 import "./styles/auth.css";
 import "./styles/global.css";
@@ -57,6 +58,7 @@ function App() {
         <Route path="/user/hackathon/:id" element={<SingleHackathon />} />
         <Route path="/user/hackathon/:id/register" element={<RegisterHackathon />} />
         <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
+        <Route path="/user/hackathon/:id/submit" element={<SubmitProject />} />
 
         {/* User Routes */}
         <Route path="/profile" element={<Profile />} />

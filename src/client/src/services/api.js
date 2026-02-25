@@ -1,14 +1,11 @@
 import axios from "axios";
 
 /* ================= 1. UNIFIED AXIOS INSTANCE ================= */
-<<<<<<< HEAD
 // Using Port 3000 (Standardizing on your working backend)
+
+
 export const API = axios.create({
-  baseURL: "http://localhost:3000/api",
-=======
-const API = axios.create({
   baseURL: "http://localhost:8080/api",
->>>>>>> 41a8399a1e11d148aeff7148603dd6b1e4043a78
   withCredentials: true,
 });
 
@@ -96,6 +93,8 @@ export const assignJudgesToHackathon = (hackathonId, judgeIds) =>
     getAuthHeaders()
   );
 
+export const submitProject = (submissionData) => 
+  API.post("/submissions", submissionData, getAuthHeaders());
 /* ================= ERROR HANDLER ================= */
 export const handleApiError = (error) => {
   if (error.response) {

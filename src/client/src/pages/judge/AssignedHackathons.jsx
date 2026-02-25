@@ -21,26 +21,27 @@ const AssignedHackathons = () => {
       setLoading(true);
       setError(null);
 
-      // Get current user to check their judge assignments
+      // 1. Get current user 
       const userData = await judgeApi.getMe();
       setUser(userData.data);
+      const currentUserId = String(userData.data._id);
 
-      // Get all hackathons
+      // 2. Get all hackathons
       const response = await judgeApi.getAssignedHackathons();
       
       if (response.success) {
-        // Filter hackathons where current user is a judge
-        const userHackathonRoles = userData.data.hackathonRoles || [];
-        const judgeHackathonIds = userHackathonRoles
-          .filter(role => role.role === 'judge')
-          .map(role => role.hackathonId);
+        
+        // --- THE FIX IS HERE ---
+        // Filter hackathons by checking if this user's ID is inside the hackathon's judges array
+        const assignedHackathons = response.data.filter((hackathon) => {
+          if (!hackathon.judges || !Array.isArray(hackathon.judges)) return false;
+          
+          return hackathon.judges.some(
+            (judge) => String(judge.judgeUserId) === currentUserId
+          );
+        });
 
-        // Filter and enrich hackathon data
-        const assignedHackathons = response.data.filter(hackathon => 
-          judgeHackathonIds.includes(hackathon._id)
-        );
-
-        // Fetch additional data for each hackathon
+        // 3. Fetch additional data for each hackathon
         const enrichedHackathons = await Promise.all(
           assignedHackathons.map(async (hackathon) => {
             try {
@@ -70,7 +71,7 @@ const AssignedHackathons = () => {
                   if (evalResponse.success && evalResponse.count > 0) {
                     // Check if current judge has evaluated
                     const hasJudgeEvaluated = evalResponse.data.some(
-                      evaluation => evaluation.judgeId === userData.data._id
+                      evaluation => String(evaluation.judgeId) === currentUserId
                     );
                     if (hasJudgeEvaluated) evaluatedCount++;
                   }

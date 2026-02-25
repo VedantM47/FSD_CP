@@ -34,6 +34,9 @@ const AuthForm = ({ type }) => {
         const userData = await auth.login(response.data.token);
         if (userData) {
           // Route based on systemRole from backend
+          
+         
+
           const dest = userData.systemRole === 'admin' ? '/admin/dashboard' : '/discovery';
           navigate(dest, { replace: true });
         }

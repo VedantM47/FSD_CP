@@ -110,19 +110,24 @@ function CreateHackathon() {
       setLoading(true);
       setError('');
 
-      let hackathonId;
-
       if (isEditMode) {
-        await updateHackathon(id, formData);
-        hackathonId = id;
+        // 1. EDIT MODE: Merge formData and selectedJudges so the backend Magic Sync works!
+        const updatePayload = {
+          ...formData,
+          judges: selectedJudges // Passes the array of IDs directly to the backend
+        };
+        await updateHackathon(id, updatePayload);
+        
       } else {
+        // 2. CREATE MODE: Create the hackathon first
         const res = await createHackathon(formData);
-        hackathonId = res.data.data._id;
-      }
+        const hackathonId = res.data.data._id;
 
-      // ✅ Assign judges AFTER save
-      if (selectedJudges.length > 0) {
-        await assignJudgesToHackathon(hackathonId, selectedJudges);
+        // Then assign the judges using the dedicated route
+        if (selectedJudges.length > 0) {
+          // Make sure your api.js passes this as { judgeIds: selectedJudges } to match backend
+          await assignJudgesToHackathon(hackathonId, selectedJudges); 
+        }
       }
 
       navigate('/admin/dashboard');
@@ -133,7 +138,6 @@ function CreateHackathon() {
       setLoading(false);
     }
   };
-
   /* ================= UI ================= */
 
   return (

@@ -73,7 +73,7 @@ teamSchema.pre('save', function(next) {
   if (userIds.length !== uniqueIds.size) {
     return next(new Error('Duplicate user in team members'));
   }
-  next();
+  
 });
 
 // unique team name

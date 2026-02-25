@@ -184,28 +184,41 @@ export const assignJudgesToHackathon = async (req, res, next) => {
       });
     }
 
-    // avoid duplicate judges
+    // 1. Filter out IDs that are already judges for this hackathon
     const existingJudgeIds = new Set(
       hackathon.judges.map(j => j.judgeUserId.toString())
     );
+    const newJudgeIds = judgeIds.filter(judgeId => !existingJudgeIds.has(judgeId));
 
-    let added = 0;
-    judgeIds.forEach(judgeId => {
-      if (!existingJudgeIds.has(judgeId)) {
+    if (newJudgeIds.length > 0) {
+      // 2. UPDATE HACKATHON: Push new judges into the array
+      newJudgeIds.forEach(judgeId => {
         hackathon.judges.push({
           judgeUserId: judgeId,
           assignedAt: new Date(),
         });
-        added++;
-      }
-    });
+      });
+      await hackathon.save();
 
-    await hackathon.save();
+      // 3. SYNC USERS: Add the 'judge' role to each User's hackathonRoles array
+      // This is the part that was missing and causing the 403 error
+      await User.updateMany(
+        { _id: { $in: newJudgeIds } },
+        { 
+          $addToSet: { 
+            hackathonRoles: { 
+              hackathonId: id, 
+              role: 'judge' 
+            } 
+          } 
+        }
+      );
+    }
 
-    log.success('ASSIGN_JUDGES_BULK', `Judges assigned: ${added} new, ${judgeIds.length - added} already existed`);
+    log.success('ASSIGN_JUDGES_BULK', `Judges assigned: ${newJudgeIds.length} new, ${judgeIds.length - newJudgeIds.length} already existed`);
     res.status(200).json({
       success: true,
-      message: 'Judges assigned successfully',
+      message: `${newJudgeIds.length} new judges assigned and roles synchronized.`,
     });
   } catch (err) {
     log.error('ASSIGN_JUDGES_BULK', 'Failed to assign judges', err);
