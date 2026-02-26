@@ -16,23 +16,31 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
 
+    /*
+     * FIX: Changed from Number to String.
+     * Phone numbers can start with '+' or '0' and need trim — Number doesn't support trim.
+     */
     phone: {
-      type: Number,
+      type: String,
       trim: true,
     },
 
     password: {
       type: String,
       required: function () {
-       return this.authProvider === 'local';
+        return this.authProvider === 'local';
       },
       select: false, // never return password by default
-    }, 
+    },
 
-    // System-level role
+    /*
+     * System-level role.
+     * FIX: Added 'judge' to the enum so that systemRole-based judge queries work correctly.
+     * Previously 'judge' was missing here, causing getAllJudges to always return 0 results.
+     */
     systemRole: {
       type: String,
-      enum: ['user', 'admin', 'mentor'],
+      enum: ['user', 'admin', 'mentor', 'judge'],
       default: 'user',
     },
 
@@ -75,17 +83,18 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
+
     githubId: {
       type: String,
       unique: true,
       sparse: true,
     },
+
     authProvider: {
       type: String,
       enum: ['local', 'google', 'github'],
       default: 'local',
     },
-
 
     github: String,
     linkedin: String,
@@ -102,18 +111,18 @@ const userSchema = new mongoose.Schema(
       },
     ],
 
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      select: false,
-    },
+    /*
+     * FIX: Removed the manual `createdAt` field.
+     * Since `timestamps: true` is set below, Mongoose automatically manages
+     * both `createdAt` and `updatedAt`. Having both caused a conflict.
+     */
   },
   {
-    timestamps: true,
+    timestamps: true, // auto-manages createdAt and updatedAt
   }
-  
 );
-// indexing
+
+// Full-text search index on name and email
 userSchema.index({ fullName: 'text', email: 'text' });
 
 const User = mongoose.model('User', userSchema);

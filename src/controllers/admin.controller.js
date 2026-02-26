@@ -1,9 +1,11 @@
+import mongoose from 'mongoose';
 import Hackathon from '../models/hackathon.model.js';
 import Team from '../models/team.model.js';
 import Submission from '../models/submission.model.js';
 import User from '../models/user.model.js';
 import log from '../utils/logger.js';
 
+/* ================= ADMIN DASHBOARD ================= */
 export const getAdminDashboard = async (req, res, next) => {
   try {
     log.info('ADMIN_DASHBOARD', 'Fetching admin dashboard stats', { by: req.user?.email });
@@ -22,7 +24,14 @@ export const getAdminDashboard = async (req, res, next) => {
       Hackathon.countDocuments({ status: 'ongoing' }),
     ]);
 
-    log.success('ADMIN_DASHBOARD', 'Stats fetched', { totalHackathons, totalTeams, totalSubmissions, totalUsers, activeHackathons });
+    log.success('ADMIN_DASHBOARD', 'Stats fetched', {
+      totalHackathons,
+      totalTeams,
+      totalSubmissions,
+      totalUsers,
+      activeHackathons,
+    });
+
     res.status(200).json({
       success: true,
       data: {
@@ -43,6 +52,7 @@ export const getAdminDashboard = async (req, res, next) => {
   }
 };
 
+/* ================= ADMIN HACKATHONS ================= */
 export const getAdminHackathons = async (req, res, next) => {
   try {
     log.info('ADMIN_HACKATHONS', 'Fetching hackathons list', { by: req.user?.email });
@@ -51,7 +61,7 @@ export const getAdminHackathons = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    const formatted = hackathons.map(h => ({
+    const formatted = hackathons.map((h) => ({
       _id: h._id,
       title: h.title,
       name: h.title,
@@ -68,16 +78,28 @@ export const getAdminHackathons = async (req, res, next) => {
     });
   } catch (err) {
     log.error('ADMIN_HACKATHONS', 'Failed to fetch hackathons', err);
-    next(err);
+    next({
+      statusCode: 500,
+      message: 'Failed to fetch hackathons',
+      error: err.message,
+    });
   }
 };
-
 
 /* ================= ADMIN HACKATHON OVERVIEW ================= */
 export const getHackathonOverview = async (req, res, next) => {
   try {
     const hackathonId = req.params.id;
-    log.info('ADMIN_OVERVIEW', 'Fetching hackathon overview', { hackathonId, by: req.user?.email });
+
+    // FIX: Validate that the provided hackathon ID is a valid ObjectId
+    if (!mongoose.isValidObjectId(hackathonId)) {
+      return next({ statusCode: 400, message: 'Invalid hackathon ID' });
+    }
+
+    log.info('ADMIN_OVERVIEW', 'Fetching hackathon overview', {
+      hackathonId,
+      by: req.user?.email,
+    });
 
     const [teamsCount, submissionsCount] = await Promise.all([
       Team.countDocuments({ hackathonId }),
@@ -94,7 +116,11 @@ export const getHackathonOverview = async (req, res, next) => {
     });
   } catch (err) {
     log.error('ADMIN_OVERVIEW', 'Failed to fetch overview', err);
-    next(err);
+    next({
+      statusCode: 500,
+      message: 'Failed to fetch hackathon overview',
+      error: err.message,
+    });
   }
 };
 
@@ -103,20 +129,43 @@ export const getAdminSubmissions = async (req, res, next) => {
   try {
     log.info('ADMIN_SUBMISSIONS', 'Fetching all submissions', { by: req.user?.email });
 
-    const submissions = await Submission.find()
-      .populate('hackathonId', 'title')
-      .populate('teamId', 'name')
-      .populate('submittedBy', 'fullName email')
-      .sort({ createdAt: -1 });
+    /*
+     * FIX: Added pagination to prevent fetching all documents at once,
+     * which would cause memory issues and slow responses at scale.
+     */
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
 
-    log.success('ADMIN_SUBMISSIONS', `Returning ${submissions.length} submissions`);
+    const [submissions, total] = await Promise.all([
+      Submission.find()
+        .populate('hackathonId', 'title')
+        .populate('teamId', 'name')
+        .populate('submittedBy', 'fullName email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Submission.countDocuments(),
+    ]);
+
+    log.success('ADMIN_SUBMISSIONS', `Returning ${submissions.length} of ${total} submissions`);
     res.status(200).json({
       success: true,
       data: submissions,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (err) {
     log.error('ADMIN_SUBMISSIONS', 'Failed to fetch submissions', err);
-    next(err);
+    next({
+      statusCode: 500,
+      message: 'Failed to fetch submissions',
+      error: err.message,
+    });
   }
 };
 
@@ -125,27 +174,54 @@ export const getAdminTeams = async (req, res, next) => {
   try {
     log.info('ADMIN_TEAMS', 'Fetching all teams', { by: req.user?.email });
 
-    const teams = await Team.find()
-      .populate('hackathonId', 'title')
-      .populate('leader', 'fullName email')
-      .sort({ createdAt: -1 });
+    /*
+     * FIX: Added pagination to prevent fetching all documents at once.
+     */
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
 
-    log.success('ADMIN_TEAMS', `Returning ${teams.length} teams`);
+    const [teams, total] = await Promise.all([
+      Team.find()
+        .populate('hackathonId', 'title')
+        .populate('leader', 'fullName email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Team.countDocuments(),
+    ]);
+
+    log.success('ADMIN_TEAMS', `Returning ${teams.length} of ${total} teams`);
     res.status(200).json({
       success: true,
       data: teams,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (err) {
     log.error('ADMIN_TEAMS', 'Failed to fetch teams', err);
-    next(err);
+    next({
+      statusCode: 500,
+      message: 'Failed to fetch teams',
+      error: err.message,
+    });
   }
 };
 
-// fetch all judges for admin dropdown
+/* ================= GET ALL JUDGES ================= */
 export const getAllJudges = async (req, res, next) => {
   try {
     log.info('GET_JUDGES', 'Fetching all judges', { by: req.user?.email });
 
+    /*
+     * FIX: Previously queried `systemRole: 'judge'` but 'judge' was not in the
+     * systemRole enum, so this always returned 0 results.
+     * Now that 'judge' is added to the systemRole enum in user.model.js, this works correctly.
+     */
     const judges = await User.find({
       systemRole: 'judge',
     }).select('_id fullName email');
@@ -157,21 +233,65 @@ export const getAllJudges = async (req, res, next) => {
     });
   } catch (err) {
     log.error('GET_JUDGES', 'Failed to fetch judges', err);
-    next(err);
+    next({
+      statusCode: 500,
+      message: 'Failed to fetch judges',
+      error: err.message,
+    });
   }
 };
 
+/* ================= ASSIGN JUDGES TO HACKATHON ================= */
 export const assignJudgesToHackathon = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { judgeIds } = req.body;
-    log.info('ASSIGN_JUDGES_BULK', 'Bulk assigning judges', { hackathonId: id, judgeCount: judgeIds?.length, by: req.user?.email });
 
-    if (!Array.isArray(judgeIds)) {
-      log.warn('ASSIGN_JUDGES_BULK', 'judgeIds is not an array');
+    log.info('ASSIGN_JUDGES_BULK', 'Bulk assigning judges', {
+      hackathonId: id,
+      judgeCount: judgeIds?.length,
+      by: req.user?.email,
+    });
+
+    // FIX: Validate the hackathon ID format before hitting the database
+    if (!mongoose.isValidObjectId(id)) {
+      return next({ statusCode: 400, message: 'Invalid hackathon ID' });
+    }
+
+    // Validate judgeIds is a non-empty array
+    if (!Array.isArray(judgeIds) || judgeIds.length === 0) {
+      log.warn('ASSIGN_JUDGES_BULK', 'judgeIds is not a valid non-empty array');
       return next({
         statusCode: 400,
-        message: 'judgeIds must be an array',
+        message: 'judgeIds must be a non-empty array',
+      });
+    }
+
+    // FIX: Cap the number of judges that can be assigned in one request
+    if (judgeIds.length > 50) {
+      return next({
+        statusCode: 400,
+        message: 'Cannot assign more than 50 judges at once',
+      });
+    }
+
+    // FIX: Validate every ID in the array is a proper MongoDB ObjectId
+    const invalidIds = judgeIds.filter((jid) => !mongoose.isValidObjectId(jid));
+    if (invalidIds.length > 0) {
+      log.warn('ASSIGN_JUDGES_BULK', 'Invalid ObjectIds detected', { invalidIds });
+      return next({
+        statusCode: 400,
+        message: `Invalid judge IDs provided: ${invalidIds.join(', ')}`,
+      });
+    }
+
+    // FIX: Verify every provided judge ID actually exists in the database
+    const existingUsers = await User.find({ _id: { $in: judgeIds } }).select('_id');
+    if (existingUsers.length !== judgeIds.length) {
+      log.warn('ASSIGN_JUDGES_BULK', 'Some judgeIds do not match existing users');
+      return next({
+        statusCode: 400,
+        message: 'One or more judgeIds do not correspond to existing users',
       });
     }
 
@@ -184,15 +304,15 @@ export const assignJudgesToHackathon = async (req, res, next) => {
       });
     }
 
-    // 1. Filter out IDs that are already judges for this hackathon
+    // Filter out judges that are already assigned to this hackathon
     const existingJudgeIds = new Set(
-      hackathon.judges.map(j => j.judgeUserId.toString())
+      hackathon.judges.map((j) => j.judgeUserId.toString())
     );
-    const newJudgeIds = judgeIds.filter(judgeId => !existingJudgeIds.has(judgeId));
+    const newJudgeIds = judgeIds.filter((judgeId) => !existingJudgeIds.has(judgeId));
 
     if (newJudgeIds.length > 0) {
-      // 2. UPDATE HACKATHON: Push new judges into the array
-      newJudgeIds.forEach(judgeId => {
+      // Push new judges into the hackathon's judges array
+      newJudgeIds.forEach((judgeId) => {
         hackathon.judges.push({
           judgeUserId: judgeId,
           assignedAt: new Date(),
@@ -200,28 +320,50 @@ export const assignJudgesToHackathon = async (req, res, next) => {
       });
       await hackathon.save();
 
-      // 3. SYNC USERS: Add the 'judge' role to each User's hackathonRoles array
-      // This is the part that was missing and causing the 403 error
+      /*
+       * FIX: Use $push with a conditional $elemMatch filter instead of $addToSet.
+       * $addToSet compares whole objects and can be unreliable with mixed ObjectId/string types.
+       * This approach explicitly checks for an existing entry before pushing.
+       */
       await User.updateMany(
-        { _id: { $in: newJudgeIds } },
-        { 
-          $addToSet: { 
-            hackathonRoles: { 
-              hackathonId: id, 
-              role: 'judge' 
-            } 
-          } 
+        {
+          _id: { $in: newJudgeIds },
+          hackathonRoles: {
+            $not: {
+              $elemMatch: { hackathonId: id, role: 'judge' },
+            },
+          },
+        },
+        {
+          $push: {
+            hackathonRoles: {
+              hackathonId: id,
+              role: 'judge',
+            },
+          },
         }
       );
     }
 
-    log.success('ASSIGN_JUDGES_BULK', `Judges assigned: ${newJudgeIds.length} new, ${judgeIds.length - newJudgeIds.length} already existed`);
+    log.success(
+      'ASSIGN_JUDGES_BULK',
+      `Judges assigned: ${newJudgeIds.length} new, ${judgeIds.length - newJudgeIds.length} already existed`
+    );
+
     res.status(200).json({
       success: true,
-      message: `${newJudgeIds.length} new judges assigned and roles synchronized.`,
+      message: `${newJudgeIds.length} new judge(s) assigned and roles synchronized.`,
+      data: {
+        newlyAssigned: newJudgeIds.length,
+        alreadyExisted: judgeIds.length - newJudgeIds.length,
+      },
     });
   } catch (err) {
     log.error('ASSIGN_JUDGES_BULK', 'Failed to assign judges', err);
-    next(err);
+    next({
+      statusCode: 500,
+      message: 'Failed to assign judges',
+      error: err.message,
+    });
   }
 };
