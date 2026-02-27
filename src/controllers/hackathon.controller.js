@@ -12,6 +12,15 @@ export const createHackathon = async (req, res, next) => {
   try {
     log.info('CREATE_HACKATHON', 'Creating hackathon', { title: req.body.title, by: req.user?.email || 'unauthenticated' });
 
+    // 🔥 NEW: Validate Team Sizes
+    const { minTeamSize, maxTeamSize } = req.body;
+    if (minTeamSize && maxTeamSize && Number(minTeamSize) > Number(maxTeamSize)) {
+      return next({
+        statusCode: 400,
+        message: "Minimum team size cannot be greater than maximum team size.",
+      });
+    }
+
     const hackathon = await Hackathon.create({
       ...req.body,
     });
@@ -263,8 +272,19 @@ export const updateHackathon = async (req, res, next) => {
   try {
     log.info('UPDATE_HACKATHON', 'Updating hackathon', { id: req.params.id, fields: Object.keys(req.body), by: req.user?.email });
 
-    // 1. Separate the simple string array of judges from the rest of the data
-    const { judges: newJudgeIds, ...updateData } = req.body;
+    // 🔥 NEW: Validate Team Sizes during update
+    const { minTeamSize, maxTeamSize, judges: newJudgeIds, ...updateData } = req.body;
+    
+    if (minTeamSize && maxTeamSize && Number(minTeamSize) > Number(maxTeamSize)) {
+      return next({
+        statusCode: 400,
+        message: "Minimum team size cannot be greater than maximum team size.",
+      });
+    }
+
+    // Include min/max team sizes in updateData
+    if (minTeamSize) updateData.minTeamSize = minTeamSize;
+    if (maxTeamSize) updateData.maxTeamSize = maxTeamSize;
 
     // 2. Format strings into the exact object structure Mongoose demands
     if (newJudgeIds && Array.isArray(newJudgeIds)) {
@@ -286,18 +306,15 @@ export const updateHackathon = async (req, res, next) => {
       return next({ statusCode: 404, message: 'Hackathon not found' });
     }
 
-    // 4. BULLETPROOF SYNC: Force the User collection to match the incoming list
+    // 4. BULLETPROOF SYNC: Judge roles synchronization
     if (newJudgeIds && Array.isArray(newJudgeIds)) {
       const incomingIds = newJudgeIds.map(id => id.toString());
 
-      // STEP A: Clean Slate. Pull this specific hackathon's judge role from EVERYONE.
-      // This prevents duplicates and clears out anyone who was un-checked.
       await User.updateMany(
         { 'hackathonRoles.hackathonId': hackathon._id, 'hackathonRoles.role': 'judge' },
         { $pull: { hackathonRoles: { hackathonId: hackathon._id, role: 'judge' } } }
       );
 
-      // STEP B: Re-apply the role ONLY to the incoming IDs.
       if (incomingIds.length > 0) {
         await User.updateMany(
           { _id: { $in: incomingIds } },
@@ -321,7 +338,6 @@ export const updateHackathon = async (req, res, next) => {
     });
   }
 };
-
 /* ================= UPDATE HACKATHON STATUS ================= */
 /* Admin / Mentor */
 export const updateHackathonStatus = async (req, res, next) => {

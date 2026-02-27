@@ -130,15 +130,28 @@ REMOVE_JUDGE: ({ user, hackathon }) => {
 ===================================================== */
 CREATE_SUBMISSION: ({ user, team, hackathon, existingSubmission }) => {
   if (!user || !team || !hackathon) return false;
+  
+  // 1. Only the leader can submit
   if (!team.leader.equals(user._id)) return false;
   
-  // 🔥 NEW: Check for minimum members (e.g., 3 members)
+  // 2. 🔥 DYNAMIC CHECK: Compare against the Hackathon's specific min requirement
+  // We use the new minTeamSize field we added to the model
   const acceptedMembers = team.members.filter(m => m.status === 'accepted');
-  if (acceptedMembers.length < 3) return false; 
+  const minRequired = hackathon.minTeamSize || 1; // Fallback to 1 if not set
+  
+  if (acceptedMembers.length < minRequired) {
+    console.error(`Submission blocked: Team has ${acceptedMembers.length} members, but ${minRequired} are required.`);
+    return false; 
+  }
 
+  // 3. Ensure the team belongs to this hackathon
   if (!team.hackathonId.equals(hackathon._id)) return false;
+  
+  // 4. Time and Status checks
   if (hackathon.status !== 'ongoing') return false;
   if (new Date() > new Date(hackathon.endDate)) return false;
+  
+  // 5. Prevent double submissions
   if (existingSubmission) return false;
 
   return true;

@@ -14,11 +14,9 @@ const SingleHackathon = () => {
   const [error, setError] = useState(null);
 
   const [activeTab, setActiveTab] = useState('About');
-  const [lookingForTeam, setLookingForTeam] = useState(true);
-  
   const [isRegistered, setIsRegistered] = useState(false); 
-  const [isJudge, setIsJudge] = useState(false); // Detects if user is a judge
-  const [userTeam, setUserTeam] = useState(null); // Stores team data for criteria check
+  const [isJudge, setIsJudge] = useState(false); 
+  const [userTeam, setUserTeam] = useState(null); 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   // --- 2. FETCH DATA & AUTH SYNC ---
@@ -27,28 +25,24 @@ const SingleHackathon = () => {
       try {
         setLoading(true);
         
-        // Fetch hackathon details
+        // Fetch hackathon details (now includes minTeamSize and maxTeamSize)
         const response = await getHackathonById(id);
         const hackData = response.data?.data || response.data;
         setHackathon(hackData);
 
-        // Fetch current user and verify roles
         const userRes = await API.get('/users/me', getAuthHeaders());
         const userData = userRes.data?.data || userRes.data;
         
         if (userData) {
-          // Verify if user is a Judge
           const judgeRole = userData.hackathonRoles?.some(
             (role) => String(role.hackathonId) === String(id) && role.role === 'judge'
           );
           setIsJudge(judgeRole);
 
-          // Verify if user is a Participant
           const participantRole = userData.hackathonRoles?.some(
             (role) => String(role.hackathonId) === String(id) && role.role === 'participant'
           );
 
-          // Deep sync with Team database to handle Admin/Join edge cases
           let teamDetails = null;
           try {
             const teamsRes = await API.get(`/hackathons/${id}/teams`, getAuthHeaders());
@@ -96,15 +90,11 @@ const SingleHackathon = () => {
     return () => clearInterval(timer);
   }, [hackathon]);
 
-  // --- 4. NAVIGATION HANDLERS ---
   const scrollToSection = (sectionId) => {
     setActiveTab(sectionId); 
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -113,33 +103,26 @@ const SingleHackathon = () => {
       month: 'short', day: 'numeric', year: 'numeric' 
     }) : "TBD";
   };
-  
-  const getDuration = (start, end) => {
-    if(!start || !end) return "TBD";
-    const diff = Math.ceil(Math.abs(new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24));
-    return `${diff} Days`;
-  };
 
-  // --- 5. RENDER STATES ---
   if (loading) return <div className="sh-loading"><h2>Initializing Portal...</h2></div>;
   if (error) return <div className="sh-error"><h2>{error}</h2></div>;
   if (!hackathon) return null;
 
-  // Logic Helpers
+  // --- DYNAMIC LOGIC HELPERS ---
   const isOngoing = hackathon.status === 'ongoing';
-  const isRegistrationOpen = hackathon.status === 'open'; //
+  const isRegistrationOpen = hackathon.status === 'open';
   const isSubmissionClosed = new Date() > new Date(hackathon.endDate);
+  
+  // Dynamic Team Size Logic
+  const minRequired = hackathon.minTeamSize || 1; 
+  const maxAllowed = hackathon.maxTeamSize || 4;
   const acceptedMembers = userTeam?.members?.filter(m => m.status === 'accepted') || [];
-  const meetsCriteria = acceptedMembers.length >= 3; // Minimum size check
+  const meetsCriteria = acceptedMembers.length >= minRequired;
 
   return (
     <div className="sh-wrapper">
-      
-      {/* HEADER SECTION */}
       <div className="sh-topbar">
-        <button className="sh-back-btn" onClick={() => navigate(-1)}>
-          &larr; Back
-        </button>
+        <button className="sh-back-btn" onClick={() => navigate(-1)}> &larr; Back </button>
       </div>
 
       <div className="sh-hero-container">
@@ -155,17 +138,11 @@ const SingleHackathon = () => {
         </div>
       </div>
 
-      {/* MAIN CONTENT AREA */}
       <div className="sh-layout">
         <div className="sh-main">
-          
           <div className="sh-tabs-container">
             {['About', 'Timeline', 'Prizes', 'Rules'].map((tab) => (
-              <button 
-                key={tab}
-                className={`sh-tab ${activeTab === tab ? 'active' : ''}`} 
-                onClick={() => scrollToSection(tab)}
-              >
+              <button key={tab} className={`sh-tab ${activeTab === tab ? 'active' : ''}`} onClick={() => scrollToSection(tab)}>
                   {tab}
               </button>
             ))}
@@ -173,9 +150,7 @@ const SingleHackathon = () => {
           
           <div id="About" className="sh-content-card">
             <h2 className="sh-card-title">About the Hackathon</h2>
-            <div className="sh-card-content about-text">
-              {hackathon.description}
-            </div>
+            <div className="sh-card-content about-text">{hackathon.description}</div>
           </div>
 
           <div id="Timeline" className="sh-content-card">
@@ -226,25 +201,21 @@ const SingleHackathon = () => {
           </div>
         </div>
 
-        {/* SIDEBAR ACTIONS */}
         <div className="sh-sidebar">
           <div className="sh-sidebar-card action-card">
             
             {isJudge ? (
-              /* CASE 1: JUDGE UI */
               <div className="sh-judge-view" style={{ textAlign: 'center', padding: '10px' }}>
                 <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>⚖️</div>
                 <h3 className="dashboard-title">Judge Panel</h3>
-                <p style={{ fontSize: '0.85rem', color: '#64748B', marginTop: '10px', lineHeight: '1.5' }}>
-                  You are a registered judge for this event. 
-                  <strong> Judges cannot participate as hackers </strong> in events they are evaluating.
+                <p style={{ fontSize: '0.85rem', color: '#64748B', marginTop: '10px' }}>
+                  Evaluation portal is active for registered judges.
                 </p>
-                <button className="btn-primary" style={{ marginTop: '20px' }} onClick={() => navigate('/judge/dashboard')}>
+                <button className="btn-primary" style={{ marginTop: '20px' }} onClick={() => navigate('/judge/hackathons')}>
                   Go to Judge Panel
                 </button>
               </div>
             ) : isRegistered ? (
-              /* CASE 2: REGISTERED PARTICIPANT UI */
               <div className="dashboard-view">
                 <div className="dashboard-header">
                   <div className="registered-badge-pill"><span className="dot"></span>REGISTERED</div>
@@ -263,9 +234,12 @@ const SingleHackathon = () => {
                       </div>
                     </>
                   ) : !meetsCriteria && !isSubmissionClosed ? (
+                    /* DYNAMIC WARNING BOX */
                     <div className="sh-warning-box" style={{ padding: '15px', background: '#FFFBEB', borderRadius: '10px', border: '1px solid #FDE68A', textAlign: 'center' }}>
                       <p style={{ margin: 0, color: '#92400E', fontWeight: '700', fontSize: '0.85rem' }}>⚠️ Action Required</p>
-                      <p style={{ margin: '5px 0 0', color: '#B45309', fontSize: '0.75rem' }}>Your team needs 3 accepted members to submit. Currently: {acceptedMembers.length}.</p>
+                      <p style={{ margin: '5px 0 0', color: '#B45309', fontSize: '0.75rem' }}>
+                        Need {minRequired} accepted members to submit. Current: {acceptedMembers.length}.
+                      </p>
                     </div>
                   ) : (
                     <p className="countdown-text">{isSubmissionClosed ? "Hackathon Ended" : "Submissions not yet open"}</p>
@@ -279,21 +253,17 @@ const SingleHackathon = () => {
                 )}
               </div>
             ) : (
-              /* CASE 3: NON-REGISTERED USER UI */
               <div className="join-view">
                 <h3 className="dashboard-title">Registration</h3>
                 {isRegistrationOpen ? (
-                  <>
-                    <div className="action-buttons">
-                      <button className="btn-primary" onClick={() => navigate(`/user/hackathon/${id}/register`)}>Register Now</button>
-                      <button className="btn-secondary" onClick={() => navigate(`/user/hackathon/${id}/JoinTeam`)}>Join a Team</button>
-                    </div>
-                  </>
+                  <div className="action-buttons">
+                    <button className="btn-primary" onClick={() => navigate(`/user/hackathon/${id}/register`)}>Register Now</button>
+                    <button className="btn-secondary" onClick={() => navigate(`/user/hackathon/${id}/JoinTeam`)}>Join a Team</button>
+                  </div>
                 ) : (
                   <div className="sh-closed-box" style={{ textAlign: 'center', padding: '20px' }}>
                     <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>⌛</div>
                     <p style={{ fontWeight: '800', color: '#64748B', margin: 0 }}>Registration Closed</p>
-                    <p style={{ fontSize: '0.8rem', color: '#94A3B8', marginTop: '5px' }}>This event is already {hackathon.status}. New teams cannot join.</p>
                   </div>
                 )}
               </div>
@@ -302,8 +272,15 @@ const SingleHackathon = () => {
 
           <div className="sh-sidebar-card">
             <h3 className="sidebar-title">Requirements</h3>
-            <div className="detail-row"><span className="detail-label">Min Team Size</span><span className="detail-value">3 Members</span></div>
-            <div className="detail-row"><span className="detail-label">Status</span><span className="detail-value" style={{textTransform:'capitalize'}}>{hackathon.status}</span></div>
+            <div className="detail-row">
+              <span className="detail-label">Team Size</span>
+              {/* DISPLAY DYNAMIC RANGE */}
+              <span className="detail-value">{minRequired} - {maxAllowed} Members</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Status</span>
+              <span className="detail-value" style={{textTransform:'capitalize'}}>{hackathon.status}</span>
+            </div>
           </div>
         </div>
       </div>

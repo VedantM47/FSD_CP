@@ -14,6 +14,7 @@ const SubmitProject = () => {
   const [success, setSuccess] = useState(false);
   
   const [hackathon, setHackathon] = useState(null);
+  const [userTeam, setUserTeam] = useState(null); // Stores full team object for criteria check
   const [userTeamId, setUserTeamId] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -30,12 +31,12 @@ const SubmitProject = () => {
       try {
         setLoading(true);
         
-        // 1. Get Hackathon Details
+        // 1. Get Hackathon Details (includes minTeamSize/maxTeamSize)
         const hackRes = await getHackathonById(hackathonId);
         const hackData = hackRes.data?.data || hackRes.data;
         setHackathon(hackData);
 
-        // 2. Immediate Status Check - If not ongoing, we stop here.
+        // 2. Immediate Status Check
         if (hackData.status !== 'ongoing') {
             setLoading(false);
             return; 
@@ -56,8 +57,9 @@ const SubmitProject = () => {
 
         if (myTeam) {
           setUserTeamId(myTeam._id);
+          setUserTeam(myTeam); // Storing for dynamic size validation
         } else {
-          setError("Access Denied: You must be the Team Leader to submit a project.");
+          setError("Access Denied: Only the Team Leader can submit a project.");
         }
 
       } catch (err) {
@@ -101,7 +103,7 @@ const SubmitProject = () => {
         setSuccess(true);
       }
     } catch (err) {
-      const msg = err.response?.data?.message || "Submission failed. Ensure hackathon status is 'ongoing'.";
+      const msg = err.response?.data?.message || "Submission failed. Ensure team meets minimum size and hackathon is ongoing.";
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -110,20 +112,50 @@ const SubmitProject = () => {
 
   if (loading) return <div className="sp-loading"><h2>Initializing Portal...</h2></div>;
 
-  // --- LOCKED STATE UI ---
-  // This prevents users from even seeing the form if the status is wrong
+  // --- 5. DYNAMIC CRITERIA CHECK ---
+  const minRequired = hackathon?.minTeamSize || 1;
+  const acceptedMembers = userTeam?.members?.filter(m => m.status === 'accepted') || [];
+  const meetsCriteria = acceptedMembers.length >= minRequired;
+
+  // --- LOCKED STATE UI: STATUS CHECK ---
   if (hackathon && hackathon.status !== 'ongoing') {
     return (
       <div className="sp-wrapper">
         <div className="sp-container">
           <div className="sp-form-card locked-state">
             <div className="locked-icon">🔒</div>
-            <h2 className="sp-section-title">Submission Portal Locked</h2>
+            <h2 className="sp-section-title">Portal Locked</h2>
             <p className="locked-msg">
-              The hacking phase for <strong>{hackathon.title}</strong> has not started or has already ended.
-              Submissions are only accepted when the status is <strong>'ongoing'</strong>.
+              Submissions are only accepted when the status is <strong>'ongoing'</strong>. 
+              Current status of <strong>{hackathon.title}</strong> is <strong>{hackathon.status}</strong>.
             </p>
-            <button className="sp-btn-secondary" onClick={() => navigate(-1)}>
+            <button className="sp-btn-secondary" onClick={() => navigate(-1)}>Go Back</button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // --- LOCKED STATE UI: MIN TEAM SIZE CHECK ---
+  if (!meetsCriteria && !success) {
+    return (
+      <div className="sp-wrapper">
+        <div className="sp-container">
+          <div className="sp-form-card locked-state">
+            <div className="locked-icon">⚠️</div>
+            <h2 className="sp-section-title">Ineligible for Submission</h2>
+            <p className="locked-msg">
+              Your team <strong>{userTeam?.name}</strong> does not meet the minimum requirements for this hackathon.
+              <br/><br/>
+              Required: <strong>{minRequired} accepted members</strong>. 
+              <br/>
+              Current: <strong>{acceptedMembers.length} accepted members</strong>.
+            </p>
+            <button className="sp-btn-primary" onClick={() => navigate(`/user/hackathon/${hackathonId}/manage-team`)}>
+              Manage Team Members
+            </button>
+            <button className="sp-btn-secondary" style={{marginTop: '10px'}} onClick={() => navigate(-1)}>
               Go Back
             </button>
           </div>
@@ -157,7 +189,7 @@ const SubmitProject = () => {
         <div className="sp-header-glow"></div>
         <div className="sp-header-content">
           <span className="sp-badge">Active Submission</span>
-          <h1 className="sp-title">Submit {hackathon?.title}</h1>
+          <h1 className="sp-title">Submit Project for {hackathon?.title}</h1>
         </div>
       </div>
 
