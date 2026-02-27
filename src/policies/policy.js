@@ -128,10 +128,14 @@ REMOVE_JUDGE: ({ user, hackathon }) => {
 /* =====================================================
    SUBMISSION POLICIES
 ===================================================== */
-
 CREATE_SUBMISSION: ({ user, team, hackathon, existingSubmission }) => {
   if (!user || !team || !hackathon) return false;
   if (!team.leader.equals(user._id)) return false;
+  
+  // 🔥 NEW: Check for minimum members (e.g., 3 members)
+  const acceptedMembers = team.members.filter(m => m.status === 'accepted');
+  if (acceptedMembers.length < 3) return false; 
+
   if (!team.hackathonId.equals(hackathon._id)) return false;
   if (hackathon.status !== 'ongoing') return false;
   if (new Date() > new Date(hackathon.endDate)) return false;
@@ -139,7 +143,6 @@ CREATE_SUBMISSION: ({ user, team, hackathon, existingSubmission }) => {
 
   return true;
 },
-
 UPDATE_SUBMISSION: ({ user, team, hackathon, submission }) => {
   if (!user || !team || !hackathon || !submission) return false;
   if (!team.leader.equals(user._id)) return false;

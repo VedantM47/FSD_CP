@@ -1,82 +1,114 @@
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import Hero from "../../components/user/Hero";
 import FilterBar from "../../components/user/FilterBar";
 import HackathonCard from "../../components/user/cards/HackathonCard";
 import Footer from "../../components/common/Footer";
-import API from "../../services/api";
+import API, { getAuthHeaders } from "../../services/api";
 import "../../styles/discovery.css";
-
-/* ── Map backend hackathon → shape HackathonCard expects ── */
-const toCardShape = (h) => ({
-  _id: h._id,
-  name: h.title,
-  organization: "HackathonHub", // backend has no org field yet
-  description: h.description || "No description provided.",
-  image: h.image || `https://picsum.photos/seed/${h._id}/600/300`,
-  status: h.status,
-  teamSize: h.maxTeamSize ? `1–${h.maxTeamSize}` : "Open",
-  mode: "Online", // backend has no mode field yet
-  deadline: h.registrationDeadline
-    ? new Date(h.registrationDeadline).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : h.endDate
-      ? new Date(h.endDate).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })
-      : "TBD",
-  prizePool: h.prizePool || "TBA",
-  // derive tags from status so FilterBar can filter
-  tags: [h.status],
-});
 
 const Discovery = () => {
   const navigate = useNavigate();
 
-  const [activeFilter, setActiveFilter] = React.useState("All");
-  const [allHackathons, setAllHackathons] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState(null);
-  const [visibleCount, setVisibleCount] = React.useState(6);
+  // --- STATE ---
+  const [activeFilter, setActiveFilter] = useState("All");
+  const [allHackathons, setAllHackathons] = useState([]);
+  const [userRoles, setUserRoles] = useState([]); 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(6);
 
-  /* ── Fetch ── */
-  React.useEffect(() => {
-    const load = async () => {
+  /**
+   * ── Map backend hackathon → shape HackathonCard expects ──
+   * Includes a robust comparison to handle both hId and hackathonId fields
+   */
+  const toCardShape = (h) => {
+    // ROBUST ID CHECK: We convert everything to String to avoid Object vs String mismatches
+    const registrationRecord = userRoles.find((role) => {
+      const roleHackathonId = String(role.hId || role.hackathonId || "");
+      const currentHackathonId = String(h._id || "");
+      
+      return roleHackathonId === currentHackathonId && role.role === 'participant';
+    });
+
+    const isUserRegistered = !!registrationRecord;
+
+    return {
+      _id: h._id,
+      name: h.title,
+      organization: "HackathonHub", 
+      description: h.description || "No description provided.",
+      image: h.image || `https://picsum.photos/seed/${h._id}/600/300`,
+      status: h.status,
+      isRegistered: isUserRegistered, // This flag controls the button state
+      teamSize: h.maxTeamSize ? `1–${h.maxTeamSize}` : "Open",
+      mode: "Online", 
+      deadline: h.registrationDeadline
+        ? new Date(h.registrationDeadline).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : h.endDate
+          ? new Date(h.endDate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : "TBD",
+      prizePool: h.prizePool || "TBA",
+      tags: [h.status],
+    };
+  };
+
+  /* ── Load User Context and Hackathons ── */
+  useEffect(() => {
+    const loadDiscoveryData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await API.get("/hackathons");
-        const raw = res.data?.data ?? [];
-        setAllHackathons(raw.map(toCardShape));
+
+        // 1. Fetch User Data to check which hackathons they are in
+        try {
+          const userRes = await API.get("/users/me", getAuthHeaders());
+          const userData = userRes.data?.data || userRes.data;
+          setUserRoles(userData?.hackathonRoles || []);
+        } catch (authErr) {
+          console.log("Visitor mode: Proceeding without user roles.");
+        }
+
+        // 2. Fetch All Hackathons
+        const hackRes = await API.get("/hackathons");
+        const raw = hackRes.data?.data ?? [];
+        setAllHackathons(raw);
+
       } catch (err) {
         setError(err?.response?.data?.message || "Failed to load hackathons.");
       } finally {
         setLoading(false);
       }
     };
-    load();
+    loadDiscoveryData();
   }, []);
 
-  /* ── Filter ── */
-  const filteredHackathons = React.useMemo(() => {
-    if (activeFilter === "All") return allHackathons;
-    return allHackathons.filter((h) =>
-      h.tags.some((tag) => tag.toLowerCase() === activeFilter.toLowerCase()),
+  /* ── Memoized Filtering and Mapping ── */
+  const filteredHackathons = useMemo(() => {
+    // Map data only when both roles and hackathons are loaded
+    const shaped = allHackathons.map(toCardShape);
+    
+    if (activeFilter === "All") return shaped;
+    return shaped.filter((h) =>
+      h.tags.some((tag) => tag.toLowerCase() === activeFilter.toLowerCase())
     );
-  }, [activeFilter, allHackathons]);
+  }, [activeFilter, allHackathons, userRoles]);
 
   const visibleHackathons = filteredHackathons.slice(0, visibleCount);
   const hasMore = visibleCount < filteredHackathons.length;
 
   const handleFilterChange = (f) => {
     setActiveFilter(f);
-    setVisibleCount(6); // reset pagination on filter change
+    setVisibleCount(6); 
   };
 
   return (
@@ -89,55 +121,49 @@ const Discovery = () => {
       <Hero />
 
       <main className="hackathon-grid">
-        {/* Loading */}
         {loading && (
           <div className="empty-state-message">
-            <p>Loading hackathons…</p>
+            <p>Scanning for hackathons…</p>
           </div>
         )}
 
-        {/* Error */}
         {!loading && error && (
           <div className="empty-state-message">
             <p>⚠️ {error}</p>
-            <button
-              className="btn-secondary"
-              onClick={() => window.location.reload()}
-            >
+            <button className="btn-secondary" onClick={() => window.location.reload()}>
               Retry
             </button>
           </div>
         )}
 
-        {/* Cards */}
         {!loading &&
           !error &&
           visibleHackathons.map((hackathon) => (
             <HackathonCard
               key={hackathon._id}
               hackathon={hackathon}
-              onRegister={() =>
-                navigate(`/user/hackathon/${hackathon._id}/register`)
-              }
+              onRegister={() => {
+                  // Direct registered or ongoing users to the dashboard
+                  if (hackathon.isRegistered || hackathon.status !== 'open') {
+                    navigate(`/user/hackathon/${hackathon._id}`);
+                  } else {
+                    navigate(`/user/hackathon/${hackathon._id}/register`);
+                  }
+              }}
               onViewDetails={() => navigate(`/user/hackathon/${hackathon._id}`)}
             />
           ))}
 
-        {/* Empty */}
         {!loading && !error && filteredHackathons.length === 0 && (
           <div className="empty-state-message">
-            <p>No hackathons found matching "{activeFilter}".</p>
-            <button
-              className="btn-secondary"
-              onClick={() => setActiveFilter("All")}
-            >
-              Clear Filter
+            <p>No hackathons match "{activeFilter}".</p>
+            <button className="btn-secondary" onClick={() => setActiveFilter("All")}>
+              Show All
             </button>
           </div>
         )}
       </main>
 
-      {/* Load More */}
       {!loading && hasMore && (
         <div className="load-more-container">
           <button

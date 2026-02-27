@@ -8,6 +8,7 @@ const SingleHackathon = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  // --- 1. FULL STATE MANAGEMENT ---
   const [hackathon, setHackathon] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,44 +16,55 @@ const SingleHackathon = () => {
   const [activeTab, setActiveTab] = useState('About');
   const [lookingForTeam, setLookingForTeam] = useState(true);
   
-  // State to track if the user is registered
   const [isRegistered, setIsRegistered] = useState(false); 
+  const [isJudge, setIsJudge] = useState(false); // Detects if user is a judge
+  const [userTeam, setUserTeam] = useState(null); // Stores team data for criteria check
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-  // --- FETCH DATA & REGISTRATION STATUS ---
+  // --- 2. FETCH DATA & AUTH SYNC ---
   useEffect(() => {
     const fetchHackathonData = async () => {
       try {
         setLoading(true);
         
-        // 1. Fetch the hackathon details
+        // Fetch hackathon details
         const response = await getHackathonById(id);
-        if (response.data && response.data.success) {
-            setHackathon(response.data.data);
-        } else if (response.success) {
-            setHackathon(response.data);
-        } else {
-            setError("Failed to load details.");
-        }
+        const hackData = response.data?.data || response.data;
+        setHackathon(hackData);
 
-        // 2. Fetch current user to check if they are registered for this hackathon
-        try {
-          const userRes = await API.get('/users/me', getAuthHeaders());
-          const userData = userRes.data?.data || userRes.data;
-          
-          if (userData && userData.hackathonRoles) {
-            // Check if this hackathon ID exists in the user's roles array AS A PARTICIPANT
-            const isReg = userData.hackathonRoles.some(
-              (role) => String(role.hackathonId) === String(id) && role.role === 'participant'
+        // Fetch current user and verify roles
+        const userRes = await API.get('/users/me', getAuthHeaders());
+        const userData = userRes.data?.data || userRes.data;
+        
+        if (userData) {
+          // Verify if user is a Judge
+          const judgeRole = userData.hackathonRoles?.some(
+            (role) => String(role.hackathonId) === String(id) && role.role === 'judge'
+          );
+          setIsJudge(judgeRole);
+
+          // Verify if user is a Participant
+          const participantRole = userData.hackathonRoles?.some(
+            (role) => String(role.hackathonId) === String(id) && role.role === 'participant'
+          );
+
+          // Deep sync with Team database to handle Admin/Join edge cases
+          let teamDetails = null;
+          try {
+            const teamsRes = await API.get(`/hackathons/${id}/teams`, getAuthHeaders());
+            const allTeams = teamsRes.data?.data || [];
+            teamDetails = allTeams.find(team => 
+              team.members.some(m => String(m.userId._id || m.userId) === String(userData._id))
             );
-            setIsRegistered(isReg);
+          } catch (teamErr) {
+            console.error("Team sync lookup failed.");
           }
-        } catch (authErr) {
-          console.log("Could not verify user registration status:", authErr);
-        }
 
+          setIsRegistered(participantRole || !!teamDetails);
+          setUserTeam(teamDetails);
+        }
       } catch (err) {
-        setError("Error loading hackathon.");
+        setError("Error loading hackathon details. Please refresh.");
       } finally {
         setLoading(false);
       }
@@ -61,7 +73,7 @@ const SingleHackathon = () => {
     if (id) fetchHackathonData();
   }, [id]);
 
-  // --- LIVE COUNTDOWN LOGIC ---
+  // --- 3. COUNTDOWN TIMER LOGIC ---
   useEffect(() => {
     if (!hackathon?.endDate) return;
 
@@ -79,24 +91,28 @@ const SingleHackathon = () => {
       }
     };
 
-    calculateTimeLeft(); // Run immediately
-    const timer = setInterval(calculateTimeLeft, 1000); // Update every second
-
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(timer);
   }, [hackathon]);
 
-  // --- FIXED SCROLL LOGIC ---
+  // --- 4. NAVIGATION HANDLERS ---
   const scrollToSection = (sectionId) => {
-    setActiveTab(sectionId);
-    setTimeout(() => {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 10);
+    setActiveTab(sectionId); 
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
   };
 
-  const formatDate = (date) => date ? new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "TBD";
+  const formatDate = (date) => {
+    return date ? new Date(date).toLocaleDateString('en-US', { 
+      month: 'short', day: 'numeric', year: 'numeric' 
+    }) : "TBD";
+  };
   
   const getDuration = (start, end) => {
     if(!start || !end) return "TBD";
@@ -104,92 +120,95 @@ const SingleHackathon = () => {
     return `${diff} Days`;
   };
 
-  if (loading) return <div className="sh-loading"><h2>Loading Event Details...</h2></div>;
+  // --- 5. RENDER STATES ---
+  if (loading) return <div className="sh-loading"><h2>Initializing Portal...</h2></div>;
   if (error) return <div className="sh-error"><h2>{error}</h2></div>;
   if (!hackathon) return null;
 
-  const isHackingStarted = new Date() >= new Date(hackathon.startDate);
+  // Logic Helpers
+  const isOngoing = hackathon.status === 'ongoing';
+  const isRegistrationOpen = hackathon.status === 'open'; //
   const isSubmissionClosed = new Date() > new Date(hackathon.endDate);
+  const acceptedMembers = userTeam?.members?.filter(m => m.status === 'accepted') || [];
+  const meetsCriteria = acceptedMembers.length >= 3; // Minimum size check
 
   return (
     <div className="sh-wrapper">
       
-      {/* 1. HERO SECTION */}
-      <div className="sh-hero">
-        <div className="sh-hero-glow"></div>
-        <div className="sh-hero-inner">
+      {/* HEADER SECTION */}
+      <div className="sh-topbar">
+        <button className="sh-back-btn" onClick={() => navigate(-1)}>
+          &larr; Back
+        </button>
+      </div>
+
+      <div className="sh-hero-container">
+        <div className="sh-hero-card">
           <div className="sh-badges">
              <span className={`sh-badge status-${hackathon.status?.toLowerCase() || 'default'}`}>
                 {hackathon.status}
              </span>
-             <span className="sh-badge mode">🌎 Online Event</span>
+             <span className="sh-badge mode">Online Event</span>
           </div>
           <h1 className="sh-title">{hackathon.title}</h1>
-          <p className="sh-subtitle">Join developers and creators to build the future.</p>
+          <p className="sh-subtitle">Collaborate with developers and build the future.</p>
         </div>
       </div>
 
-      {/* 2. STICKY NAVBAR */}
-      <div className="sh-nav">
-        <div className="sh-nav-container">
+      {/* MAIN CONTENT AREA */}
+      <div className="sh-layout">
+        <div className="sh-main">
+          
+          <div className="sh-tabs-container">
             {['About', 'Timeline', 'Prizes', 'Rules'].map((tab) => (
               <button 
                 key={tab}
-                className={`sh-nav-link ${activeTab === tab ? 'active' : ''}`} 
+                className={`sh-tab ${activeTab === tab ? 'active' : ''}`} 
                 onClick={() => scrollToSection(tab)}
               >
                   {tab}
               </button>
             ))}
-        </div>
-      </div>
-
-      {/* 3. MAIN LAYOUT */}
-      <div className="sh-layout">
-        
-        {/* LEFT COLUMN: Main Content */}
-        <div className="sh-main">
+          </div>
           
-          <div id="About" className="sh-card">
-            <h2 className="sh-card-title"><span className="title-icon">ℹ️</span> About the Hackathon</h2>
+          <div id="About" className="sh-content-card">
+            <h2 className="sh-card-title">About the Hackathon</h2>
             <div className="sh-card-content about-text">
               {hackathon.description}
             </div>
           </div>
 
-          <div id="Timeline" className="sh-card">
-            <h2 className="sh-card-title"><span className="title-icon">🗓️</span> Timeline</h2>
-            <div className="sh-timeline-container">
-              <div className="sh-timeline-item">
-                <div className="t-marker start"></div>
-                <div className="t-content">
-                  <h4 className="t-date">{formatDate(hackathon.registrationDeadline)}</h4>
-                  <p className="t-label">Registration Closes</p>
+          <div id="Timeline" className="sh-content-card">
+            <h2 className="sh-card-title">Timeline</h2>
+            <div className="modern-timeline">
+              <div className="timeline-step">
+                <div className="timeline-indicator"></div>
+                <div className="timeline-content">
+                  <h4 className="timeline-date">{formatDate(hackathon.registrationDeadline)}</h4>
+                  <p className="timeline-event">Registration Closes</p>
                 </div>
               </div>
-              <div className="sh-timeline-item">
-                <div className="t-marker active"></div>
-                <div className="t-content">
-                  <h4 className="t-date">{formatDate(hackathon.startDate)}</h4>
-                  <p className="t-label">Hacking Begins</p>
+              <div className="timeline-step active">
+                <div className="timeline-indicator"></div>
+                <div className="timeline-content">
+                  <h4 className="timeline-date">{formatDate(hackathon.startDate)}</h4>
+                  <p className="timeline-event">Hacking Begins</p>
                 </div>
               </div>
-              <div className="sh-timeline-item">
-                <div className="t-marker end"></div>
-                <div className="t-content">
-                  <h4 className="t-date">{formatDate(hackathon.endDate)}</h4>
-                  <p className="t-label">Submission Deadline</p>
+              <div className="timeline-step">
+                <div className="timeline-indicator"></div>
+                <div className="timeline-content">
+                  <h4 className="timeline-date">{formatDate(hackathon.endDate)}</h4>
+                  <p className="timeline-event">Submission Deadline</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div id="Prizes" className="sh-card">
-            <h2 className="sh-card-title"><span className="title-icon">🏆</span> Prizes & Rewards</h2>
-            <div className="sh-prize-box">
-                <div className="prize-icon-wrapper">
-                  <div className="prize-icon">🏅</div>
-                </div>
+          <div id="Prizes" className="sh-content-card">
+            <h2 className="sh-card-title">Prizes & Rewards</h2>
+            <div className="prize-banner">
+                <div className="prize-icon">🏆</div>
                 <div className="prize-details">
                   <span className="prize-label">Total Prize Pool</span>
                   <span className="prize-amount">{hackathon.prizePool || "Coming Soon"}</span>
@@ -197,142 +216,95 @@ const SingleHackathon = () => {
             </div>
           </div>
 
-          <div id="Rules" className="sh-card">
-            <h2 className="sh-card-title"><span className="title-icon">📋</span> Rules & Eligibility</h2>
+          <div id="Rules" className="sh-content-card">
+            <h2 className="sh-card-title">Rules & Eligibility</h2>
             <ul className="sh-rules-list">
                {hackathon.rules ? hackathon.rules.split('.').map((rule, i) => (
-                 rule.trim() && <li key={i}><span className="bullet"></span>{rule.trim()}.</li>
-               )) : <li><span className="bullet"></span>Standard hackathon platform rules apply. Please respect code of conduct.</li>}
+                 rule.trim() && <li key={i}>{rule.trim()}.</li>
+               )) : <li>Standard platform rules apply.</li>}
             </ul>
           </div>
-
         </div>
 
-        {/* RIGHT COLUMN: Sidebar (Sticky) */}
+        {/* SIDEBAR ACTIONS */}
         <div className="sh-sidebar">
-          
-          {/* THE CONDITIONAL ACTION CARD */}
-          <div className="sh-action-card">
+          <div className="sh-sidebar-card action-card">
             
-            {isRegistered ? (
-              // --- PREMIUM PARTICIPANT DASHBOARD VIEW ---
+            {isJudge ? (
+              /* CASE 1: JUDGE UI */
+              <div className="sh-judge-view" style={{ textAlign: 'center', padding: '10px' }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>⚖️</div>
+                <h3 className="dashboard-title">Judge Panel</h3>
+                <p style={{ fontSize: '0.85rem', color: '#64748B', marginTop: '10px', lineHeight: '1.5' }}>
+                  You are a registered judge for this event. 
+                  <strong> Judges cannot participate as hackers </strong> in events they are evaluating.
+                </p>
+                <button className="btn-primary" style={{ marginTop: '20px' }} onClick={() => navigate('/judge/dashboard')}>
+                  Go to Judge Panel
+                </button>
+              </div>
+            ) : isRegistered ? (
+              /* CASE 2: REGISTERED PARTICIPANT UI */
               <div className="dashboard-view">
-                
-                {/* --- THE BULLETPROOF DASHBOARD HEADER --- */}
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'flex-start', 
-                  gap: '16px', 
-                  marginBottom: '24px', 
-                  paddingBottom: '20px', 
-                  borderBottom: '1px solid #E2E8F0' 
-                }}>
-                  <div className="status-badge" style={{ 
-                    position: 'static', 
-                    margin: '0', 
-                    transform: 'none' 
-                  }}>
-                    <span className="status-dot"></span>
-                    Registered
-                  </div>
-                  <h3 className="sidebar-title" style={{ 
-                    margin: '0', 
-                    padding: '0', 
-                    lineHeight: '1' 
-                  }}>
-                    Your Dashboard
-                  </h3>
+                <div className="dashboard-header">
+                  <div className="registered-badge-pill"><span className="dot"></span>REGISTERED</div>
+                  <h3 className="dashboard-title">Your Dashboard</h3>
                 </div>
-                {/* -------------------------------------- */}
                 
-                <div className="countdown-container">
-                  <p className="countdown-label">
-                    {isSubmissionClosed ? "Submissions Closed" : (isHackingStarted ? "Time Left to Submit" : "Hacking Starts In")}
-                  </p>
-                  
-                  {!isSubmissionClosed && (
-                    <div className="countdown-grid">
-                      <div className="time-box"><span>{timeLeft.days.toString().padStart(2, '0')}</span><small>Days</small></div>
-                      <div className="time-box"><span>{timeLeft.hours.toString().padStart(2, '0')}</span><small>Hours</small></div>
-                      <div className="time-box"><span>{timeLeft.minutes.toString().padStart(2, '0')}</span><small>Mins</small></div>
-                      <div className="time-box"><span>{timeLeft.seconds.toString().padStart(2, '0')}</span><small>Secs</small></div>
+                <div className="countdown-section">
+                  {meetsCriteria && isOngoing && !isSubmissionClosed ? (
+                    <>
+                      <p className="countdown-text">Time Left to Submit</p>
+                      <div className="time-blocks">
+                        <div className="time-block"><span>{timeLeft.days.toString().padStart(2, '0')}</span><small>Days</small></div>
+                        <div className="time-block"><span>{timeLeft.hours.toString().padStart(2, '0')}</span><small>Hrs</small></div>
+                        <div className="time-block"><span>{timeLeft.minutes.toString().padStart(2, '0')}</span><small>Mins</small></div>
+                        <div className="time-block"><span>{timeLeft.seconds.toString().padStart(2, '0')}</span><small>Secs</small></div>
+                      </div>
+                    </>
+                  ) : !meetsCriteria && !isSubmissionClosed ? (
+                    <div className="sh-warning-box" style={{ padding: '15px', background: '#FFFBEB', borderRadius: '10px', border: '1px solid #FDE68A', textAlign: 'center' }}>
+                      <p style={{ margin: 0, color: '#92400E', fontWeight: '700', fontSize: '0.85rem' }}>⚠️ Action Required</p>
+                      <p style={{ margin: '5px 0 0', color: '#B45309', fontSize: '0.75rem' }}>Your team needs 3 accepted members to submit. Currently: {acceptedMembers.length}.</p>
                     </div>
+                  ) : (
+                    <p className="countdown-text">{isSubmissionClosed ? "Hackathon Ended" : "Submissions not yet open"}</p>
                   )}
                 </div>
 
-                {isHackingStarted && !isSubmissionClosed ? (
-                  <button className="btn-primary-gradient" onClick={() => navigate(`/user/hackathon/${id}/submit`)}>
-                    Open Submission Portal &rarr;
-                  </button>
-                ) : !isHackingStarted ? (
-                  <button className="btn-disabled" disabled>Submission Opens Soon</button>
+                {meetsCriteria && isOngoing && !isSubmissionClosed ? (
+                  <button className="btn-primary" onClick={() => navigate(`/user/hackathon/${id}/submit`)}>Open Submission Portal</button>
                 ) : (
-                  <button className="btn-disabled" disabled>Hackathon Ended</button>
+                  <button className="btn-secondary" onClick={() => navigate(`/user/hackathon/${id}/manage-team`)}>Manage Team Members</button>
                 )}
               </div>
             ) : (
-              // --- GUEST / UNREGISTERED VIEW ---
-              <>
-                <h3 className="sidebar-title">Join the Hackathon</h3>
-                {hackathon.status !== 'closed' ? (
+              /* CASE 3: NON-REGISTERED USER UI */
+              <div className="join-view">
+                <h3 className="dashboard-title">Registration</h3>
+                {isRegistrationOpen ? (
+                  <>
                     <div className="action-buttons">
-                      <button className="btn-primary-gradient" onClick={() => navigate(`/user/hackathon/${id}/register`)}>
-                        Register Now
-                      </button>
-                      <button className="btn-outline" onClick={() => navigate(`/user/hackathon/${id}/JoinTeam`)}>
-                        Join a Team
-                      </button>
+                      <button className="btn-primary" onClick={() => navigate(`/user/hackathon/${id}/register`)}>Register Now</button>
+                      <button className="btn-secondary" onClick={() => navigate(`/user/hackathon/${id}/JoinTeam`)}>Join a Team</button>
                     </div>
+                  </>
                 ) : (
-                    <button className="btn-disabled" disabled>Registration Closed</button>
-                )}
-
-                <div className="team-toggle-box">
-                  <span className="toggle-text">Looking for Teammates</span>
-                  <div className={`custom-toggle ${lookingForTeam ? 'on' : 'off'}`} onClick={() => setLookingForTeam(!lookingForTeam)}>
-                    <div className="toggle-knob"></div>
+                  <div className="sh-closed-box" style={{ textAlign: 'center', padding: '20px' }}>
+                    <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>⌛</div>
+                    <p style={{ fontWeight: '800', color: '#64748B', margin: 0 }}>Registration Closed</p>
+                    <p style={{ fontSize: '0.8rem', color: '#94A3B8', marginTop: '5px' }}>This event is already {hackathon.status}. New teams cannot join.</p>
                   </div>
-                </div>
-              </>
+                )}
+              </div>
             )}
           </div>
 
-          {/* Details Card */}
-          <div className="sh-details-card">
-            <h3 className="sidebar-title">Event Details</h3>
-            <ul className="details-list">
-              <li>
-                <div className="d-icon-wrapper"><span className="d-icon">📅</span></div>
-                <div className="d-text">
-                  <span className="d-label">Dates</span>
-                  <span className="d-val">{formatDate(hackathon.startDate)} - {formatDate(hackathon.endDate)}</span>
-                </div>
-              </li>
-              <li>
-                <div className="d-icon-wrapper"><span className="d-icon">⏳</span></div>
-                <div className="d-text">
-                  <span className="d-label">Duration</span>
-                  <span className="d-val">{getDuration(hackathon.startDate, hackathon.endDate)}</span>
-                </div>
-              </li>
-              <li>
-                <div className="d-icon-wrapper"><span className="d-icon">👥</span></div>
-                <div className="d-text">
-                  <span className="d-label">Team Size</span>
-                  <span className="d-val">1 - {hackathon.maxTeamSize} Members</span>
-                </div>
-              </li>
-              <li>
-                <div className="d-icon-wrapper"><span className="d-icon">💲</span></div>
-                <div className="d-text">
-                  <span className="d-label">Cost</span>
-                  <span className="d-val">Free to Enter</span>
-                </div>
-              </li>
-            </ul>
+          <div className="sh-sidebar-card">
+            <h3 className="sidebar-title">Requirements</h3>
+            <div className="detail-row"><span className="detail-label">Min Team Size</span><span className="detail-value">3 Members</span></div>
+            <div className="detail-row"><span className="detail-label">Status</span><span className="detail-value" style={{textTransform:'capitalize'}}>{hackathon.status}</span></div>
           </div>
-
         </div>
       </div>
       

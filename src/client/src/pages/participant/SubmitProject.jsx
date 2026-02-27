@@ -35,11 +35,17 @@ const SubmitProject = () => {
         const hackData = hackRes.data?.data || hackRes.data;
         setHackathon(hackData);
 
-        // 2. Get Current User Data
+        // 2. Immediate Status Check - If not ongoing, we stop here.
+        if (hackData.status !== 'ongoing') {
+            setLoading(false);
+            return; 
+        }
+
+        // 3. Get Current User Data
         const userRes = await getMe();
         const userData = userRes.data?.data || userRes.data;
 
-        // 3. Find the team where current user is the leader for THIS hackathon
+        // 4. Find the team where current user is the leader
         const teamsRes = await API.get(`/hackathons/${hackathonId}/teams`, getAuthHeaders());
         const teams = teamsRes.data?.data || teamsRes.data || [];
         
@@ -90,9 +96,7 @@ const SubmitProject = () => {
         track: formData.track
       };
 
-      // Ensure your api.js has submitProject or use API.post directly
       const response = await API.post("/submissions", payload, getAuthHeaders());
-      
       if (response.data?.success) {
         setSuccess(true);
       }
@@ -105,6 +109,29 @@ const SubmitProject = () => {
   };
 
   if (loading) return <div className="sp-loading"><h2>Initializing Portal...</h2></div>;
+
+  // --- LOCKED STATE UI ---
+  // This prevents users from even seeing the form if the status is wrong
+  if (hackathon && hackathon.status !== 'ongoing') {
+    return (
+      <div className="sp-wrapper">
+        <div className="sp-container">
+          <div className="sp-form-card locked-state">
+            <div className="locked-icon">🔒</div>
+            <h2 className="sp-section-title">Submission Portal Locked</h2>
+            <p className="locked-msg">
+              The hacking phase for <strong>{hackathon.title}</strong> has not started or has already ended.
+              Submissions are only accepted when the status is <strong>'ongoing'</strong>.
+            </p>
+            <button className="sp-btn-secondary" onClick={() => navigate(-1)}>
+              Go Back
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (success) {
     return (

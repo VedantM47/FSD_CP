@@ -1,268 +1,155 @@
-/* GLOBAL LAYOUT */
-.join-team-wrapper {
+.jt-wrapper {
   min-height: 100vh;
-  background-color: #F8FAFC;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #1E293B;
   padding-bottom: 80px;
 }
 
-/* ================= STEP 1: INTAKE FORM (CENTERED CARD) ================= */
-.intake-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 90vh;
-  padding: 20px;
-  background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
-}
+.jt-intake-bg { background-color: #F8FAFC; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.jt-browse-bg { background-color: #F4F7F9; }
 
-.intake-card {
+/* Intake Card */
+.jt-intake-card {
   background: white;
-  width: 100%;
-  max-width: 500px;
   padding: 40px;
-  border-radius: 24px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
   text-align: center;
+  border: 1px solid #E2E8F0;
 }
 
-.intake-icon {
-  width: 60px; height: 60px;
-  background: #EFF6FF;
-  color: #3B82F6;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.8rem;
-  margin: 0 auto 20px;
-}
+.jt-intake-icon { font-size: 3rem; margin-bottom: 20px; }
+.jt-intake-title { font-size: 1.8rem; font-weight: 800; color: #0F172A; margin-bottom: 10px; }
+.jt-intake-subtitle { color: #64748B; margin-bottom: 30px; font-size: 0.95rem; }
 
-.intake-title { font-size: 1.8rem; font-weight: 800; color: #111827; margin-bottom: 8px; }
-.intake-subtitle { color: #6B7280; margin-bottom: 30px; font-size: 0.95rem; }
+.jt-form-group { text-align: left; margin-bottom: 20px; }
+.jt-form-group label { display: block; font-weight: 700; font-size: 0.85rem; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-.intake-form .form-group { margin-bottom: 20px; text-align: left; }
-.intake-form label { display: block; font-weight: 600; font-size: 0.9rem; color: #374151; margin-bottom: 6px; }
-
-.intake-input, .intake-select, .intake-textarea {
+.jt-input, .jt-select, .jt-textarea {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #D1D5DB;
-  border-radius: 12px;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
   font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  background: #F9FAFB;
+  transition: border-color 0.2s;
+  background-color: #F8FAFC;
 }
 
-.intake-input:focus, .intake-select:focus, .intake-textarea:focus {
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  outline: none;
-  background: white;
-}
+.jt-input:focus, .jt-textarea:focus { border-color: #2563EB; outline: none; background-color: white; }
 
-.btn-continue {
+.jt-btn-primary {
   width: 100%;
-  padding: 14px;
-  background: #3B82F6;
+  background: #2563EB;
   color: white;
   border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 1rem;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: 700;
   cursor: pointer;
+  transition: background 0.2s;
   margin-top: 10px;
-  transition: transform 0.1s;
 }
-.btn-continue:hover { background: #2563EB; transform: translateY(-1px); }
+.jt-btn-primary:hover { background: #1D4ED8; }
+.jt-btn-ghost { background: none; border: none; color: #94A3B8; margin-top: 15px; cursor: pointer; font-size: 0.9rem; }
 
-/* ================= STEP 2: TEAM BROWSER ================= */
-.browse-header {
+/* Browse Header */
+.jt-browse-header {
   background: white;
-  border-bottom: 1px solid #E5E7EB;
-  padding: 20px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 20px 0;
   position: sticky;
   top: 0;
-  z-index: 10;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  z-index: 100;
 }
 
-.browse-title h2 { font-size: 1.5rem; font-weight: 700; color: #111827; margin: 0; }
-.browse-subtitle { color: #6B7280; font-size: 0.9rem; margin-top: 4px; }
-
-.search-bar-wrapper {
-  position: relative;
-  width: 300px;
-}
-.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9CA3AF; }
-.browse-search {
-  width: 100%;
-  padding: 10px 10px 10px 36px;
-  border-radius: 20px;
-  border: 1px solid #E5E7EB;
-  background: #F3F4F6;
-}
-
-/* TEAM GRID */
-.teams-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 24px;
-  padding: 40px;
-  max-width: 1400px;
+.jt-header-content {
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
 }
 
-.team-card {
+.jt-back-nav { display: flex; align-items: center; gap: 15px; }
+.jt-icon-btn { background: #F1F5F9; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; color: #475569; }
+
+.jt-browse-title { font-size: 1.4rem; font-weight: 800; color: #0F172A; margin: 0; }
+.jt-browse-subtitle { margin: 0; font-size: 0.9rem; color: #64748B; }
+
+.jt-search-wrapper { position: relative; width: 350px; }
+.jt-search-icon { position: absolute; left: 14px; top: 11px; color: #94A3B8; }
+.jt-search-input { width: 100%; padding: 10px 15px 10px 40px; border-radius: 20px; border: 1px solid #E2E8F0; background: #F8FAFC; }
+
+/* Teams Grid */
+.jt-teams-grid {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+}
+
+.jt-card {
   background: white;
-  border-radius: 16px;
-  border: 1px solid #E5E7EB;
+  border-radius: 12px;
   padding: 24px;
-  display: flex;
-  flex-direction: column;
+  border: 1px solid #E2E8F0;
   transition: transform 0.2s, box-shadow 0.2s;
-  position: relative;
-  overflow: hidden;
-  height: 100%; /* Ensures equal height in grid */
-}
-
-.team-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
-  border-color: #BFDBFE;
-}
-
-/* Card Header */
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-}
-.t-name { font-size: 1.25rem; font-weight: 700; color: #1F2937; }
-.t-status { 
-  font-size: 0.75rem; 
-  font-weight: 700; 
-  padding: 4px 10px; 
-  border-radius: 20px; 
-  background: #ECFDF5; 
-  color: #059669; 
-}
-
-/* Card Body */
-.t-desc {
-  font-size: 0.95rem;
-  color: #4B5563;
-  line-height: 1.5;
-  margin-bottom: 20px;
-  flex-grow: 1; /* Pushes footer down */
-}
-
-/* Progress Bar */
-.member-progress {
-  margin-bottom: 20px;
-}
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 6px;
-}
-.progress-track {
-  width: 100%;
-  height: 8px;
-  background: #F3F4F6;
-  border-radius: 4px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: #3B82F6;
-  border-radius: 4px;
-}
-
-/* --- FOOTER FIXES --- */
-.card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center; /* Vertically center items */
-  border-top: 1px solid #F3F4F6;
-  padding-top: 20px;
-  margin-top: auto;
-}
-
-.leader-badge {
-  display: flex;
-  align-items: center;
-  gap: 12px; /* Space between avatar and text */
-}
-
-.leader-pic {
-  width: 42px; 
-  height: 42px; 
-  background: #EEF2FF;
-  color: #4F46E5;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.1rem;
-  font-weight: 700;
-  border: 2px solid white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.leader-text { 
   display: flex;
   flex-direction: column;
-  line-height: 1.3;
+}
+.jt-card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px rgba(0,0,0,0.04); }
+
+.jt-card-top { margin-bottom: 16px; }
+.jt-team-info { display: flex; justify-content: space-between; align-items: flex-start; }
+.jt-team-name { font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0; }
+
+.jt-status-tag { padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
+.jt-status-tag.open { background: #ECFDF5; color: #047857; }
+.jt-status-tag.full { background: #FEF2F2; color: #B91C1C; }
+
+.jt-team-desc { color: #475569; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; flex-grow: 1; }
+
+.jt-progress-section { margin-bottom: 24px; }
+.jt-progress-meta { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: #64748B; margin-bottom: 8px; }
+.jt-progress-bar { height: 8px; background: #F1F5F9; border-radius: 4px; overflow: hidden; }
+.jt-progress-fill { height: 100%; background: #2563EB; border-radius: 4px; transition: width 0.3s ease; }
+
+.jt-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #F1F5F9;
 }
 
-.leader-label {
-  font-size: 0.75rem;
-  color: #9CA3AF;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+.jt-leader-info { display: flex; align-items: center; gap: 10px; }
+.jt-leader-avatar { width: 36px; height: 36px; background: #DBEAFE; color: #2563EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; }
+.jt-leader-label { display: block; font-size: 0.7rem; color: #94A3B8; font-weight: 600; text-transform: uppercase; }
+.jt-leader-name { font-size: 0.9rem; font-weight: 700; color: #1E293B; }
 
-.leader-name {
-  font-size: 0.95rem;
-  color: #1F2937;
-  font-weight: 600;
-}
-
-.btn-join {
-  padding: 10px 24px;
-  background: #111827;
+.jt-btn-join {
+  background: #2563EB;
   color: white;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
   border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  /* Prevent full width stretching */
-  width: auto; 
-  min-width: 100px;
 }
+.jt-btn-join:hover:not(.disabled) { background: #1D4ED8; }
+.jt-btn-join.disabled { background: #F1F5F9; color: #94A3B8; cursor: not-allowed; }
 
-.btn-join:hover { 
-  background: #374151; 
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15);
-}
+.jt-state-msg { grid-column: 1/-1; text-align: center; padding: 60px; color: #94A3B8; font-weight: 500; }
 
-.btn-join:disabled { 
-  background: #E5E7EB; 
-  color: #9CA3AF; 
-  cursor: not-allowed; 
-  transform: none;
-  box-shadow: none;
+@media (max-width: 768px) {
+  .jt-header-content { flex-direction: column; align-items: flex-start; }
+  .jt-search-wrapper { width: 100%; }
 }

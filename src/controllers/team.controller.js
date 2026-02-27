@@ -9,27 +9,44 @@ export const createTeam = async (req, res, next) => {
     const { name, hackathonId, members = [] } = req.body; 
     log.info('CREATE_TEAM', `User creating team`, { name, hackathonId, memberCount: members.length, by: req.user?.email });
 
+    // 1. Verify Hackathon exists
     const hackathon = await Hackathon.findById(hackathonId);
     if (!hackathon) {
       log.warn('CREATE_TEAM', `Hackathon not found: ${hackathonId}`);
       return next({ statusCode: 404, message: 'Hackathon not found' });
     }
 
+    // 2. CHECK FOR EXISTING TEAM (Prevention for 403 error)
+    // Checks if current user is already a member or leader in ANY team for THIS hackathon
+    const isAlreadyInTeam = await Team.findOne({
+      hackathonId,
+      "members.userId": req.user._id
+    });
+
+    if (isAlreadyInTeam) {
+      log.warn('CREATE_TEAM', `Blocked: User ${req.user.email} is already in team "${isAlreadyInTeam.name}"`);
+      return next({ 
+        statusCode: 400, 
+        message: "You are already a member of a team in this hackathon. Use the dashboard to manage your team." 
+      });
+    }
+
     const maxTeamSize = hackathon.maxTeamSize ?? 4;
 
+    // 3. Prepare initial member list (Leader is automatically accepted)
     const initialMembers = [
       {
         userId: req.user._id,
         status: 'accepted',
-        role: 'leader' 
+        // role: 'leader' // Ensure your Team model supports 'role' inside members array
       }
     ];
 
+    // Handle invites
     if (members.length > 0) {
       const uniqueInvites = [...new Set(members)].filter(
         id => id !== req.user._id.toString()
       );
-      log.info('CREATE_TEAM', `Inviting ${uniqueInvites.length} members`);
       
       uniqueInvites.forEach(invitedUserId => {
         initialMembers.push({
@@ -44,6 +61,7 @@ export const createTeam = async (req, res, next) => {
       return next({ statusCode: 400, message: `Max team size is ${maxTeamSize}` });
     }
 
+    // 4. Create the Team
     const team = await Team.create({
       name,
       hackathonId,
@@ -53,17 +71,26 @@ export const createTeam = async (req, res, next) => {
       isOpenToJoin: true,
     });
 
-    req.user.hackathonRoles.push({
-      hackathonId,
-      role: "participant",
+    // 5. CRITICAL SYNC: Update User Document
+    // We use $addToSet to ensure we don't create duplicate role entries
+    // This ensures the "Register" button on SingleHackathon changes to "Registered"
+    await User.findByIdAndUpdate(req.user._id, {
+      $addToSet: { 
+        hackathonRoles: { 
+          hackathonId: hackathonId, 
+          role: "participant" 
+        },
+        teams: team._id // Store reference in the user's teams array
+      }
     });
-    await req.user.save();
 
-    log.success('CREATE_TEAM', `Team created: "${name}" (id=${team._id})`);
+    log.success('CREATE_TEAM', `Team created and User role synced: "${name}" (id=${team._id})`);
+    
     res.status(201).json({
       success: true,
       data: team,
     });
+
   } catch (err) {
     if (err.code === 11000) {
       log.warn('CREATE_TEAM', 'Duplicate team name in this hackathon');
