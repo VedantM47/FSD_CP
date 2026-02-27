@@ -4,7 +4,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
-
+import LoginSuccess from "./components/auth/LoginSuccess"; // Check path
 /* Judge Pages */
 import AssignedHackathons from "./pages/judge/AssignedHackathons";
 import HackathonOverview from "./pages/judge/HackathonOverview";
@@ -37,6 +37,7 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/login-success" element={<LoginSuccess />} />
 
       {/* ===== ADMIN-ONLY ROUTES ===== */}
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>

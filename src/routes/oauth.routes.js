@@ -12,6 +12,13 @@ router.get(
     session: false,
   })
 );
+router.get('/debug-env', (req, res) => {
+  res.json({
+    ALLOWED_ORIGIN: process.env.ALLOWED_ORIGIN || "NOT_FOUND",
+    JWT_SECRET: process.env.JWT_SECRET ? "LOADED" : "NOT_FOUND",
+    PORT: process.env.PORT
+  });
+});
 
 router.get(
   '/google/callback',

@@ -2,6 +2,16 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../models/user.model.js';
 
+// Serializing user into the session
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+// Deserializing user from the session
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
 passport.use(
   new GoogleStrategy(
     {
@@ -23,9 +33,9 @@ passport.use(
           });
         }
 
-        done(null, user);
+        return done(null, user);
       } catch (err) {
-        done(err, null);
+        return done(err, null);
       }
     }
   )
