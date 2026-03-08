@@ -69,7 +69,7 @@ export const getAllHackathons = () => API.get("/hackathons");
 // Requires auth — supports ?q=<text>&status=<open|ongoing|closed|draft>
 export const searchHackathons = (query = '', status = '') => {
   const params = new URLSearchParams();
-  if (query)  params.set('q', query);
+  if (query) params.set('q', query);
   if (status) params.set('status', status);
   return API.get(`/hackathons/search?${params.toString()}`);
 };
@@ -82,7 +82,8 @@ export const registerTeam = (data) => API.post("/teams", data);
 export const requestJoinTeam = (teamId) => API.post(`/teams/${teamId}/join`);
 
 /* ================= CALENDAR ================= */
-export const getCalendarEvents = () => API.get("/calendar");
+export const getCalendarEvents = () => API.get('/calendar');
+export const getMyCalendarEvents = () => API.get('/calendar/my-events');
 
 /* ================= JUDGE APIs ================= */
 export const getAllJudges = () => API.get("/admin/judges");
@@ -93,7 +94,7 @@ export const assignJudgesToHackathon = (hackathonId, judgeIds) =>
     getAuthHeaders()
   );
 
-export const submitProject = (submissionData) => 
+export const submitProject = (submissionData) =>
   API.post("/submissions", submissionData, getAuthHeaders());
 /* ================= ERROR HANDLER ================= */
 export const handleApiError = (error) => {

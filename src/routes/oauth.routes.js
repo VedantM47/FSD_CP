@@ -11,40 +11,49 @@ const router = express.Router();
  * Hum yahan strategy ko manually 'github' naam de rahe hain. 
  * Isse "Unknown authentication strategy" error 100% solve ho jayega.
  */
-passport.use('github', new GitHubStrategy(
-  {
-    clientID: process.env.GITHUB_CLIENT_ID,
-    clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: 'http://localhost:8080/api/oauth/github/callback',
-    scope: ['user:email'],
-  },
-  async (accessToken, refreshToken, profile, done) => {
-    try {
-      console.log("📥 GitHub Login Attempt:", profile.username);
-      const email = profile.emails?.[0]?.value || null;
-      
-      let user = await User.findOne({ 
-        $or: [{ githubId: profile.id }, { email: email }] 
-      });
+const githubClientId = process.env.GITHUB_CLIENT_ID;
+const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
+const githubCredentialsPresent = githubClientId && githubClientSecret;
 
-      if (!user) {
-        user = await User.create({
-          fullName: profile.displayName || profile.username,
-          email: email,
-          githubId: profile.id,
-          authProvider: 'github',
-          systemRole: 'user',
-          isVerified: true
+if (githubCredentialsPresent) {
+  passport.use('github', new GitHubStrategy(
+    {
+      clientID: githubClientId,
+      clientSecret: githubClientSecret,
+      callbackURL: '/api/oauth/github/callback',
+      scope: ['user:email'],
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        console.log("📥 GitHub Login Attempt:", profile.username);
+        const email = profile.emails?.[0]?.value || null;
+
+        let user = await User.findOne({
+          $or: [{ githubId: profile.id }, { email: email }]
         });
-        console.log("✅ New User Created via GitHub");
+
+        if (!user) {
+          user = await User.create({
+            fullName: profile.displayName || profile.username,
+            email: email,
+            githubId: profile.id,
+            authProvider: 'github',
+            systemRole: 'user',
+            isVerified: true
+          });
+          console.log("✅ New User Created via GitHub");
+        }
+        return done(null, user);
+      } catch (error) {
+        console.error("❌ GitHub Strategy Error:", error);
+        return done(error, null);
       }
-      return done(null, user);
-    } catch (error) {
-      console.error("❌ GitHub Strategy Error:", error);
-      return done(error, null);
     }
-  }
-));
+  ));
+  console.log('✅ GitHub OAuth strategy registered');
+} else {
+  console.warn('⚠️  GitHub OAuth credentials not set — GitHub login will be disabled');
+}
 
 /* ================= DEBUG ROUTE ================= */
 router.get('/debug-env', (req, res) => {
@@ -59,7 +68,7 @@ router.get('/debug-env', (req, res) => {
 /* ================= GOOGLE ================= */
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
 
-router.get('/google/callback', 
+router.get('/google/callback',
   passport.authenticate('google', { session: false, failureRedirect: '/test' }),
   oauthCallback
 );
@@ -72,10 +81,10 @@ router.get('/github', (req, res, next) => {
 });
 
 // 📥 Handle GitHub Callback
-router.get('/github/callback', 
-  passport.authenticate('github', { 
-    session: false, 
-    failureRedirect: 'http://localhost:5173/login?error=github_failed' 
+router.get('/github/callback',
+  passport.authenticate('github', {
+    session: false,
+    failureRedirect: 'http://localhost:5173/login?error=github_failed'
   }),
   oauthCallback
 );

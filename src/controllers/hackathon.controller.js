@@ -2,6 +2,18 @@ import Hackathon from '../models/hackathon.model.js';
 import Team from '../models/team.model.js';
 import User from '../models/user.model.js';
 import log from '../utils/logger.js';
+import { getIO } from '../utils/socket.js';
+
+// Helper — emit a calendar refresh signal to all connected clients
+const emitCalendarUpdate = (action, hackathonId) => {
+  try {
+    getIO().emit('calendar:update', { action, hackathonId: hackathonId?.toString() });
+    log.info('SOCKET', `Emitted calendar:update [${action}] for hackathon ${hackathonId}`);
+  } catch (err) {
+    // Socket not yet initialised (e.g. in tests) — safe to ignore
+    log.warn('SOCKET', 'Could not emit calendar:update: ' + err.message);
+  }
+};
 
 
 const MAX_JUDGES = 10;
@@ -26,6 +38,10 @@ export const createHackathon = async (req, res, next) => {
     });
 
     log.success('CREATE_HACKATHON', `Hackathon created: "${hackathon.title}" (id=${hackathon._id})`);
+
+    // 🔔 Real-time: notify all calendar clients that new hackathon events exist
+    emitCalendarUpdate('created', hackathon._id);
+
     res.status(201).json({
       success: true,
       data: hackathon,
@@ -99,7 +115,7 @@ export const assignJudgeToHackathon = async (req, res, next) => {
     const { judgeUserId } = req.body;
     log.info('ASSIGN_JUDGE', 'Assigning judge', { hackathonId, judgeUserId, by: req.user?.email });
 
-    
+
     const hackathon = await Hackathon.findById(hackathonId);
     if (!hackathon) {
       log.warn('ASSIGN_JUDGE', `Hackathon not found: ${hackathonId}`);
@@ -116,7 +132,7 @@ export const assignJudgeToHackathon = async (req, res, next) => {
         message: `Maximum ${MAX_JUDGES} judges allowed for a hackathon`,
       });
     }
-    
+
     const judgeUser = await User.findById(judgeUserId);
     if (!judgeUser) {
       log.warn('ASSIGN_JUDGE', `Judge user not found: ${judgeUserId}`);
@@ -125,7 +141,7 @@ export const assignJudgeToHackathon = async (req, res, next) => {
         message: 'User not found',
       });
     }
-    
+
     // Prevent duplicate assignment
     const alreadyJudge = hackathon.judges.some(
       (j) => j.judgeUserId.toString() === judgeUserId
@@ -140,7 +156,7 @@ export const assignJudgeToHackathon = async (req, res, next) => {
     }
 
     // Add judge to hackathon
-    hackathon.judges.push({judgeUserId: judgeUserId, assignedAt: new Date()});
+    hackathon.judges.push({ judgeUserId: judgeUserId, assignedAt: new Date() });
     await hackathon.save();
 
     // Add hackathon role to user
@@ -274,7 +290,7 @@ export const updateHackathon = async (req, res, next) => {
 
     // 🔥 NEW: Validate Team Sizes during update
     const { minTeamSize, maxTeamSize, judges: newJudgeIds, ...updateData } = req.body;
-    
+
     if (minTeamSize && maxTeamSize && Number(minTeamSize) > Number(maxTeamSize)) {
       return next({
         statusCode: 400,
@@ -321,11 +337,15 @@ export const updateHackathon = async (req, res, next) => {
           { $push: { hackathonRoles: { hackathonId: hackathon._id, role: 'judge' } } }
         );
       }
-      
+
       log.info('UPDATE_HACKATHON', `Force-synced judge roles. Active judges: ${incomingIds.length}`);
     }
 
     log.success('UPDATE_HACKATHON', `Updated: "${hackathon.title}"`);
+
+    // 🔔 Real-time: notify calendar clients that hackathon dates may have changed
+    emitCalendarUpdate('updated', hackathon._id);
+
     res.status(200).json({
       success: true,
       data: hackathon,
@@ -368,6 +388,10 @@ export const updateHackathonStatus = async (req, res, next) => {
     }
 
     log.success('UPDATE_STATUS', `Status changed: "${hackathon.title}" ${oldStatus} → ${status}`);
+
+    // 🔔 Real-time: status changes may make hackathon visible/invisible on the calendar
+    emitCalendarUpdate('status_changed', hackathon._id);
+
     res.status(200).json({
       success: true,
       message: `Hackathon status updated to ${status}`,

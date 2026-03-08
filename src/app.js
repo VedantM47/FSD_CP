@@ -1,5 +1,4 @@
 import express from 'express';
-import 'dotenv/config';
 import log from './utils/logger.js';
 import passport from 'passport';
 import rateLimit from 'express-rate-limit';
