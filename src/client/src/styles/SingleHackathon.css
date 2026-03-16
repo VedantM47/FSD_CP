@@ -1,322 +1,560 @@
-/* --- SingleHackathon.css --- */
-
-:root {
-  --primary-navy: #0B2545;       /* Header Background */
-  --accent-blue: #3B82F6;        /* Primary Actions */
-  --success-green: #10B981;      /* Success Status */
-  --bg-gray: #F9FAFB;            /* Page Background */
-  --card-white: #FFFFFF;
-  --text-main: #111827;          /* Almost Black */
-  --text-muted: #6B7280;         /* Gray */
-  --border-color: #E5E7EB;
-}
-
-/* --- PAGE RESET --- */
-.hackathon-page {
-  background-color: var(--bg-gray);
+/* --- Global Wrapper --- */
+.sh-wrapper {
+  background-color: #F4F7F9; /* Matches profile light background */
   min-height: 100vh;
-  width: 100%;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: var(--text-main);
-  padding-bottom: 80px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1E293B;
+  padding-bottom: 60px;
 }
 
-/* --- 1. HERO HEADER (Fixed Dark Blue) --- */
-.hackathon-hero {
-  /* High contrast dark blue gradient with radial glow */
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 25%),
-    radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 25%),
-    linear-gradient(135deg, #0B2545 0%, #061E3A 100%);
-  
-  position: relative;
-  padding: 80px 20px 100px;
-  text-align: center;
-  color: white;
-  overflow: hidden;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.hero-content {
-  max-width: 900px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 2;
-}
-
-.hero-title {
-  font-size: 3.5rem;
-  font-weight: 800;
-  margin-bottom: 24px;
-  letter-spacing: -1px;
-  line-height: 1.1;
-  text-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-.hero-badges {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 24px;
-}
-
-.hero-badge {
-  padding: 8px 16px;
-  border-radius: 30px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-transform: capitalize;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  backdrop-filter: blur(4px);
-}
-
-.hero-badge.status {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #E0F2FE;
-}
-
-.hero-badge.mode {
-  background: #10B981;
-  color: white;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-}
-
-/* --- 2. FIXED NAVBAR (Robust & Visible) --- */
-.hackathon-nav {
-  background-color: #FFFFFF; /* Solid White */
-  border-bottom: 1px solid #E5E7EB;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  padding: 12px 0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-}
-
-.nav-container {
-  max-width: 900px; /* Constrain width */
-  margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-}
-
-/* Base Style for Tabs */
-.nav-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px; /* Space between Icon and Text */
-  padding: 10px 24px;
-  border-radius: 50px; /* Pill Shape */
-  border: 1px solid transparent; 
-  
-  font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  
-  /* FORCE DEFAULT COLORS (Overrides global button styles) */
-  background-color: transparent !important;
-  color: #4B5563 !important; /* Dark Gray - Always visible */
-}
-
-/* Hover State */
-.nav-link:hover {
-  background-color: #F3F4F6 !important; 
-  color: #111827 !important; /* Black */
-}
-
-/* ACTIVE STATE (High Contrast) */
-.nav-link.active {
-  background-color: #EFF6FF !important; /* Light Blue */
-  color: #2563EB !important; /* Blue Text */
-  border-color: #BFDBFE;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+/* Remove ugly black outline on click globally for this component */
+.sh-wrapper button:focus, 
+.sh-wrapper a:focus,
+.sh-wrapper input:focus,
+.sh-wrapper .switch input:focus {
   outline: none !important;
 }
 
-/* Helper for the icon */
-.nav-icon {
-  font-size: 1.1rem;
-  line-height: 1;
-  display: flex;
+/* --- Top Bar & Back Button --- */
+.sh-topbar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 0;
+  display: flex; /* Ensures alignment */
   align-items: center;
 }
 
-/* --- 3. MAIN LAYOUT GRID --- */
-.hackathon-container {
-  max-width: 1150px;
-  margin: 40px auto;
-  padding: 0 24px;
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 40px;
-  align-items: start;
-}
-
-@media (max-width: 1024px) {
-  .hackathon-container { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 640px) {
-  .nav-container { justify-content: flex-start; }
-  .nav-link { padding: 8px 16px; font-size: 0.9rem; }
-}
-
-/* --- STATS GRID --- */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 20px;
-  margin-bottom: 32px;
-}
-
-.stat-card {
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
+.sh-back-btn {
+  background: none;
+  border: none;
+  color: #64748B;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease, transform 0.2s ease;
+  padding: 0;
+}
+
+.sh-back-btn:hover {
+  color: #1E293B;
+  transform: translateX(-4px); 
+}
+
+/* --- Hero Section --- */
+.sh-hero-container {
+  max-width: 1200px;
+  margin: 16px auto 30px; /* Reduced margin to fix uneven top */
+  padding: 0 20px;
+}
+
+.sh-hero-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #E2E8F0;
+}
+
+.sh-badges {
+  display: flex;
   gap: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-  transition: transform 0.2s;
+  margin-bottom: 16px;
 }
 
-.stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
-
-.stat-icon {
-  width: 40px; height: 40px;
-  background: #EFF6FF;
-  color: var(--accent-blue);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-}
-
-.stat-info { display: flex; flex-direction: column; }
-.stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-.stat-value { font-size: 1rem; font-weight: 700; color: var(--text-main); margin-top: 4px; }
-
-/* --- CONTENT CARDS --- */
-.section-card {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  margin-bottom: 24px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  scroll-margin-top: 100px;
-}
-
-.card-title {
-  font-size: 1.5rem;
+.sh-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
   font-weight: 700;
-  margin-bottom: 20px;
-  color: var(--primary-navy);
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}
+
+.sh-badge.status-open, .sh-badge.status-ongoing {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.sh-badge.mode {
+  background: #F1F5F9;
+  color: #475569;
+}
+
+.sh-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 10px 0;
   letter-spacing: -0.5px;
 }
 
-.about-text {
-  line-height: 1.7;
-  font-size: 1rem;
-  color: #374151;
+.sh-subtitle {
+  font-size: 1.1rem;
+  color: #64748B;
+  margin: 0;
 }
 
-/* Timeline */
-.timeline-row {
+/* --- Layout --- */
+.sh-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 2.5fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .sh-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Main Content (Left) --- */
+.sh-main {
   display: flex;
-  justify-content: space-between;
-  position: relative;
-  margin-top: 40px;
-  padding: 0 10px;
+  flex-direction: column;
+  gap: 24px;
 }
 
-/* The Line */
-.timeline-row::before {
-  content: "";
+/* Profile-Style Tabs */
+.sh-tabs-container {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 2px;
+  position: sticky;
+  top: 0;
+  background: #F4F7F9; 
+  z-index: 10;
+  padding-top: 15px;
+}
+
+.sh-tab {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #64748B;
+  padding: 10px 4px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.sh-tab:hover {
+  color: #1E293B;
+}
+
+.sh-tab.active {
+  color: #2563EB;
+  border-bottom: 3px solid #2563EB;
+}
+
+/* Content Cards */
+.sh-content-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E2E8F0;
+  scroll-margin-top: 120px; /* INCREASED to fix navbar cutting off headers */
+}
+
+.sh-card-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 24px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.about-text {
+  color: #475569;
+  line-height: 1.8;
+  font-size: 1.05rem;
+  white-space: pre-line;
+}
+
+/* --- NEW MODERN TIMELINE (Vertical Stepper) --- */
+.modern-timeline {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-left: 32px; 
+  margin-top: 10px;
+}
+
+.modern-timeline::before {
+  content: '';
   position: absolute;
-  top: 12px; left: 20px; right: 20px;
-  height: 2px;
-  background: #E5E7EB;
-  z-index: 0;
+  top: 8px;
+  bottom: 10px;
+  left: 9px;
+  width: 2px;
+  background: #E2E8F0;
 }
 
-.t-block {
+.timeline-step {
   position: relative;
-  z-index: 1;
-  text-align: center;
-  background: transparent;
-  flex: 1;
+  padding-bottom: 32px;
 }
 
-.t-dot {
-  width: 24px; height: 24px;
+.timeline-step:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-indicator {
+  position: absolute;
+  left: -32px;
+  top: 4px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: 4px solid white;
-  margin: 0 auto 16px;
-  box-shadow: 0 0 0 2px #E5E7EB;
-  background: white; 
+  background: #FFFFFF;
+  border: 4px solid #CBD5E1;
+  z-index: 2;
+  transition: all 0.3s ease;
 }
-.t-dot.warning { background: #F59E0B; box-shadow: 0 0 0 2px #F59E0B; }
-.t-dot.success { background: var(--success-green); box-shadow: 0 0 0 2px var(--success-green); }
-.t-dot.danger { background: #EF4444; box-shadow: 0 0 0 2px #EF4444; }
 
-.t-date { font-weight: 700; color: var(--text-main); display: block; margin-bottom: 4px; }
-.t-label { font-size: 0.85rem; color: var(--text-muted); }
+.timeline-step.active .timeline-indicator {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 4px #DBEAFE; 
+}
 
-/* --- SIDEBAR --- */
-.sidebar-sticky { position: sticky; top: 100px; }
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-.sidebar-card {
-  background: white;
+.timeline-date {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.timeline-event {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.timeline-step.active .timeline-date,
+.timeline-step.active .timeline-event {
+  color: #2563EB;
+}
+
+/* --- Prizes --- */
+.prize-banner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: #EFF6FF;
+  padding: 24px 30px;
+  border-radius: 12px;
+  border: 1px solid #BFDBFE;
+}
+
+.prize-icon {
+  font-size: 3rem;
+}
+
+.prize-label {
+  display: block;
+  font-size: 0.95rem;
+  color: #1E40AF;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.prize-amount {
+  display: block;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #1E3A8A;
+  line-height: 1;
+}
+
+/* --- Rules --- */
+.sh-rules-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sh-rules-list li {
+  position: relative;
+  padding-left: 24px;
+  color: #475569;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.sh-rules-list li::before {
+  content: '•';
+  color: #2563EB;
+  font-weight: bold;
+  font-size: 1.5rem;
+  position: absolute;
+  left: 0;
+  top: -6px;
+}
+
+/* --- Sidebar (Right) --- */
+.sh-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 80px; 
+}
+
+.sh-sidebar-card {
+  background: #FFFFFF;
   border-radius: 16px;
   padding: 24px;
-  border: 1px solid var(--border-color);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E2E8F0;
 }
 
-.btn-register, .btn-join {
-  width: 100%;
-  padding: 14px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 12px;
+/* Exact Match Registered Badge */
+.dashboard-header {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.registered-badge-pill {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  background-color: #ECFDF5;
+  color: #047857; 
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
 }
 
-.btn-register {
-  background-color: var(--success-green);
+.registered-badge-pill .dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10B981; 
+  border-radius: 50%;
+}
+
+.dashboard-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+
+/* Countdown Blocks */
+.countdown-section {
+  margin-bottom: 24px;
+}
+
+.countdown-text {
+  font-size: 0.95rem;
+  color: #64748B;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.time-blocks {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.time-block {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 14px 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.time-block span {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.time-block small {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* Modernized Buttons (Fixes the "Antique" look) */
+.btn-primary {
+  width: 100%;
+  background: #2563EB; 
   color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: none; /* Removed heavy shadowing */
 }
-.btn-register:hover { background-color: #059669; transform: translateY(-2px); }
 
-.btn-join {
-  background-color: var(--accent-blue);
-  color: white;
+.btn-primary:hover {
+  background: #1D4ED8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
-.btn-join:hover { background-color: #2563EB; transform: translateY(-2px); }
 
-.btn-register.disabled {
-  background-color: #E5E7EB;
-  color: #9CA3AF;
+.btn-secondary {
+  width: 100%;
+  background: transparent;
+  color: #2563EB;
+  border: 2px solid #E2E8F0; /* Clean border instead of thick shadow */
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.btn-secondary:hover {
+  border-color: #2563EB;
+  background: #EFF6FF;
+}
+
+.btn-disabled {
+  width: 100%;
+  background: #F1F5F9;
+  color: #94A3B8;
+  border: none;
+  padding: 16px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
   cursor: not-allowed;
-  transform: none;
+}
+
+/* Join View */
+.sidebar-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.team-toggle-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.toggle-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* Toggle Switch (Modern Flat Style) */
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #E2E8F0; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+input:checked + .slider { background-color: #2563EB; }
+input:checked + .slider:before { transform: translateX(20px); }
+.slider.round { border-radius: 24px; }
+.slider.round:before { border-radius: 50%; }
+
+/* Sidebar Details */
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #F8FAFC;
+}
+.detail-row:last-child { border-bottom: none; }
+
+.detail-label { color: #64748B; font-weight: 500; font-size: 0.95rem; }
+.detail-value { color: #0F172A; font-weight: 700; font-size: 0.95rem; text-align: right;}
+
+/* Loading/Error states */
+.sh-loading, .sh-error {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F4F7F9;
+  color: #1E293B;
+}
+/* 1. Fix the Uneven Top Alignment */
+.sh-topbar {
+  display: flex !important;
+  align-items: center !important;
+  padding: 20px !important;
+  margin-bottom: 0 !important; /* Removes the gap before hero */
+}
+
+/* 2. Fix the Navbar "Antique" Buttons & Outlines */
+.sh-wrapper button, 
+.sh-tabs-container button {
+  outline: none !important;
+  box-shadow: none !important; /* Removes the heavy antique depth */
+}
+
+/* 3. The Navbar "Magic Fix" */
+.sh-content-card {
+  scroll-margin-top: 140px !important; /* Forces the browser to stop BEFORE the sticky nav */
+}
+
+.sh-tabs-container {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  background: #F4F7F9 !important;
+  padding-top: 10px !important;
+}
+.sh-tabs-container {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1100 !important; /* Higher than other cards */
+  background: #F4F7F9 !important;
+  padding: 15px 0 !important;
+  margin-bottom: 20px !important;
+  border-bottom: 2px solid #E2E8F0 !important;
+}
+
+/* Fix the offset so the headers don't hide under the nav */
+#About, #Timeline, #Prizes, #Rules {
+  scroll-margin-top: 100px !important;
 }

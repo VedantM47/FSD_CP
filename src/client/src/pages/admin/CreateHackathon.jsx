@@ -32,7 +32,8 @@ function CreateHackathon() {
     startDate: '',
     endDate: '',
     registrationDeadline: '',
-    maxTeamSize: '',
+    minTeamSize: 1, // ✅ Added dynamic min size
+    maxTeamSize: 4, // ✅ Added dynamic max size
     prizePool: '',
     rules: '',
     terms: '',
@@ -69,6 +70,7 @@ function CreateHackathon() {
           startDate: data.startDate?.slice(0, 10) || '',
           endDate: data.endDate?.slice(0, 10) || '',
           registrationDeadline: data.registrationDeadline?.slice(0, 10) || '',
+          minTeamSize: data.minTeamSize || 1, // ✅ Syncing minTeamSize from DB
           maxTeamSize: data.maxTeamSize || '',
           prizePool: data.prizePool || '',
           rules: data.rules || '',
@@ -94,7 +96,12 @@ function CreateHackathon() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    // Number validation for team size fields
+    const finalValue = (name === 'minTeamSize' || name === 'maxTeamSize') 
+      ? Math.max(1, parseInt(value) || 1) 
+      : value;
+
+    setFormData(prev => ({ ...prev, [name]: finalValue }));
   };
 
   const toggleJudge = (judgeId) => {
@@ -106,23 +113,33 @@ function CreateHackathon() {
   };
 
   const handleSubmit = async () => {
+    // 🔥 VALIDATION: Ensure logical team bounds
+    if (formData.maxTeamSize < formData.minTeamSize) {
+      setError(`Maximum team size (${formData.maxTeamSize}) cannot be less than minimum (${formData.minTeamSize}).`);
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
 
-      let hackathonId;
-
       if (isEditMode) {
-        await updateHackathon(id, formData);
-        hackathonId = id;
+        // 1. EDIT MODE: Merge formData and selectedJudges
+        const updatePayload = {
+          ...formData,
+          judges: selectedJudges 
+        };
+        await updateHackathon(id, updatePayload);
+        
       } else {
+        // 2. CREATE MODE: Create the hackathon first
         const res = await createHackathon(formData);
-        hackathonId = res.data.data._id;
-      }
+        const hackathonId = res.data.data._id;
 
-      // ✅ Assign judges AFTER save
-      if (selectedJudges.length > 0) {
-        await assignJudgesToHackathon(hackathonId, selectedJudges);
+        // Then assign the judges
+        if (selectedJudges.length > 0) {
+          await assignJudgesToHackathon(hackathonId, selectedJudges); 
+        }
       }
 
       navigate('/admin/dashboard');
@@ -142,7 +159,6 @@ function CreateHackathon() {
 
       <main className="admin-main">
         <div className="admin-container">
-          {/* HEADER */}
           <div className="page-header">
             <button
               className="back-btn"
@@ -156,13 +172,13 @@ function CreateHackathon() {
             </h1>
           </div>
 
-          {error && <p className="error-text">{error}</p>}
+          {error && <p className="error-text" style={{ color: '#ef4444', marginBottom: '20px', fontWeight: 'bold' }}>{error}</p>}
 
           {loading ? (
             <p>Loading...</p>
           ) : (
             <div className="hackathon-form">
-              {/* ================= BASIC DETAILS ================= */}
+              {/* BASIC DETAILS */}
               <section className="form-section">
                 <h2 className="form-section-title">Hackathon Details</h2>
 
@@ -204,7 +220,7 @@ function CreateHackathon() {
                 </div>
               </section>
 
-              {/* ================= DATES ================= */}
+              {/* DATES */}
               <section className="form-section">
                 <h2 className="form-section-title">Dates</h2>
 
@@ -244,19 +260,35 @@ function CreateHackathon() {
                 </div>
               </section>
 
-              {/* ================= RULES & REWARDS ================= */}
+              {/* RULES & REWARDS */}
               <section className="form-section">
-                <h2 className="form-section-title">Rules & Rewards</h2>
+                <h2 className="form-section-title">Rules & Requirements</h2>
 
-                <div className="form-group">
-                  <label className="form-label">Max Team Size</label>
-                  <input
-                    type="number"
-                    name="maxTeamSize"
-                    className="form-input"
-                    value={formData.maxTeamSize}
-                    onChange={handleChange}
-                  />
+                {/* ✅ UPDATED TEAM SIZE INPUTS */}
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Min Team Size</label>
+                    <input
+                      type="number"
+                      name="minTeamSize"
+                      className="form-input"
+                      value={formData.minTeamSize}
+                      onChange={handleChange}
+                      min="1"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Max Team Size</label>
+                    <input
+                      type="number"
+                      name="maxTeamSize"
+                      className="form-input"
+                      value={formData.maxTeamSize}
+                      onChange={handleChange}
+                      min="1"
+                    />
+                  </div>
                 </div>
 
                 <div className="form-group">
@@ -293,7 +325,7 @@ function CreateHackathon() {
                 </div>
               </section>
 
-              {/* ================= JUDGES ================= */}
+              {/* JUDGES */}
               <section className="form-section">
                 <h2 className="form-section-title">Assign Judges</h2>
 
@@ -317,7 +349,7 @@ function CreateHackathon() {
                 )}
               </section>
 
-              {/* ================= ACTIONS ================= */}
+              {/* ACTIONS */}
               <div className="form-actions">
                 <button
                   className="btn-secondary"
@@ -334,7 +366,6 @@ function CreateHackathon() {
                 </button>
               </div>
             </div>
-
           )}
         </div>
       </main>

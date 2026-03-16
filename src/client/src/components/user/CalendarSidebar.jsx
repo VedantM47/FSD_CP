@@ -1,8 +1,13 @@
 import React from 'react';
 
-const CalendarSidebar = ({ filters, onFilterChange }) => {
-    const statusOptions = ['Ongoing', 'Upcoming', 'Past'];
-    const typeOptions = ['Registration', 'Submission', 'Results', 'Evaluation'];
+const CalendarSidebar = ({ filters, onFilterChange, typeLabels = {} }) => {
+    const statusOptions = [
+        { value: 'upcoming', label: 'Upcoming' },
+        { value: 'past', label: 'Past' },
+    ];
+
+    // Build type options from the parent's TYPE_LABELS map
+    const typeOptions = Object.entries(typeLabels).map(([value, label]) => ({ value, label }));
 
     return (
         <aside className="calendar-sidebar">
@@ -15,37 +20,27 @@ const CalendarSidebar = ({ filters, onFilterChange }) => {
             </div>
 
             <div className="filter-group">
-                <label className="filter-label" htmlFor="hackathon-select">Select Hackathons</label>
-                <select id="hackathon-select" className="select-hackathon">
-                    <option value="all">All Hackathons</option>
-                    <option value="ai">AI Innovation Challenge</option>
-                    <option value="web3">Web3 Builder</option>
-                    <option value="iot">IoT Smart Cities</option>
-                </select>
-            </div>
-
-            <div className="filter-group">
                 <span className="filter-label">Status</span>
-                {statusOptions.map(status => (
-                    <label key={status} className="checkbox-item">
+                {statusOptions.map(({ value, label }) => (
+                    <label key={value} className="checkbox-item">
                         <input
                             type="checkbox"
-                            checked={filters.status.includes(status)}
-                            onChange={() => onFilterChange('status', status)}
-                        /> {status}
+                            checked={filters.status.includes(value)}
+                            onChange={() => onFilterChange('status', value)}
+                        /> {label}
                     </label>
                 ))}
             </div>
 
             <div className="filter-group">
                 <span className="filter-label">Event Type</span>
-                {typeOptions.map(type => (
-                    <label key={type} className="checkbox-item">
+                {typeOptions.map(({ value, label }) => (
+                    <label key={value} className="checkbox-item">
                         <input
                             type="checkbox"
-                            checked={filters.type.includes(type)}
-                            onChange={() => onFilterChange('type', type)}
-                        /> {type}
+                            checked={filters.type.includes(value)}
+                            onChange={() => onFilterChange('type', value)}
+                        /> {label}
                     </label>
                 ))}
             </div>

@@ -2,6 +2,18 @@ import Hackathon from '../models/hackathon.model.js';
 import Team from '../models/team.model.js';
 import User from '../models/user.model.js';
 import log from '../utils/logger.js';
+import { getIO } from '../utils/socket.js';
+
+// Helper — emit a calendar refresh signal to all connected clients
+const emitCalendarUpdate = (action, hackathonId) => {
+  try {
+    getIO().emit('calendar:update', { action, hackathonId: hackathonId?.toString() });
+    log.info('SOCKET', `Emitted calendar:update [${action}] for hackathon ${hackathonId}`);
+  } catch (err) {
+    // Socket not yet initialised (e.g. in tests) — safe to ignore
+    log.warn('SOCKET', 'Could not emit calendar:update: ' + err.message);
+  }
+};
 
 
 const MAX_JUDGES = 10;
@@ -12,11 +24,24 @@ export const createHackathon = async (req, res, next) => {
   try {
     log.info('CREATE_HACKATHON', 'Creating hackathon', { title: req.body.title, by: req.user?.email || 'unauthenticated' });
 
+    // 🔥 NEW: Validate Team Sizes
+    const { minTeamSize, maxTeamSize } = req.body;
+    if (minTeamSize && maxTeamSize && Number(minTeamSize) > Number(maxTeamSize)) {
+      return next({
+        statusCode: 400,
+        message: "Minimum team size cannot be greater than maximum team size.",
+      });
+    }
+
     const hackathon = await Hackathon.create({
       ...req.body,
     });
 
     log.success('CREATE_HACKATHON', `Hackathon created: "${hackathon.title}" (id=${hackathon._id})`);
+
+    // 🔔 Real-time: notify all calendar clients that new hackathon events exist
+    emitCalendarUpdate('created', hackathon._id);
+
     res.status(201).json({
       success: true,
       data: hackathon,
@@ -90,7 +115,7 @@ export const assignJudgeToHackathon = async (req, res, next) => {
     const { judgeUserId } = req.body;
     log.info('ASSIGN_JUDGE', 'Assigning judge', { hackathonId, judgeUserId, by: req.user?.email });
 
-    
+
     const hackathon = await Hackathon.findById(hackathonId);
     if (!hackathon) {
       log.warn('ASSIGN_JUDGE', `Hackathon not found: ${hackathonId}`);
@@ -107,7 +132,7 @@ export const assignJudgeToHackathon = async (req, res, next) => {
         message: `Maximum ${MAX_JUDGES} judges allowed for a hackathon`,
       });
     }
-    
+
     const judgeUser = await User.findById(judgeUserId);
     if (!judgeUser) {
       log.warn('ASSIGN_JUDGE', `Judge user not found: ${judgeUserId}`);
@@ -116,7 +141,7 @@ export const assignJudgeToHackathon = async (req, res, next) => {
         message: 'User not found',
       });
     }
-    
+
     // Prevent duplicate assignment
     const alreadyJudge = hackathon.judges.some(
       (j) => j.judgeUserId.toString() === judgeUserId
@@ -131,7 +156,7 @@ export const assignJudgeToHackathon = async (req, res, next) => {
     }
 
     // Add judge to hackathon
-    hackathon.judges.push({judgeUserId: judgeUserId, assignedAt: new Date()});
+    hackathon.judges.push({ judgeUserId: judgeUserId, assignedAt: new Date() });
     await hackathon.save();
 
     // Add hackathon role to user
@@ -257,24 +282,70 @@ export const searchHackathons = async (req, res, next) => {
 
 /* ================= UPDATE HACKATHON ================= */
 /* Admin / Mentor */
+/* ================= UPDATE HACKATHON ================= */
+/* Admin / Mentor */
 export const updateHackathon = async (req, res, next) => {
   try {
     log.info('UPDATE_HACKATHON', 'Updating hackathon', { id: req.params.id, fields: Object.keys(req.body), by: req.user?.email });
+
+    // 🔥 NEW: Validate Team Sizes during update
+    const { minTeamSize, maxTeamSize, judges: newJudgeIds, ...updateData } = req.body;
+
+    if (minTeamSize && maxTeamSize && Number(minTeamSize) > Number(maxTeamSize)) {
+      return next({
+        statusCode: 400,
+        message: "Minimum team size cannot be greater than maximum team size.",
+      });
+    }
+
+    // Include min/max team sizes in updateData
+    if (minTeamSize) updateData.minTeamSize = minTeamSize;
+    if (maxTeamSize) updateData.maxTeamSize = maxTeamSize;
+
+    // 2. Format strings into the exact object structure Mongoose demands
+    if (newJudgeIds && Array.isArray(newJudgeIds)) {
+      updateData.judges = newJudgeIds.map(id => ({
+        judgeUserId: id,
+        assignedAt: new Date()
+      }));
+    }
+
+    // 3. Save the Hackathon document
     const hackathon = await Hackathon.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
 
     if (!hackathon) {
       log.warn('UPDATE_HACKATHON', `Not found: ${req.params.id}`);
-      return next({
-        statusCode: 404,
-        message: 'Hackathon not found',
-      });
+      return next({ statusCode: 404, message: 'Hackathon not found' });
+    }
+
+    // 4. BULLETPROOF SYNC: Judge roles synchronization
+    if (newJudgeIds && Array.isArray(newJudgeIds)) {
+      const incomingIds = newJudgeIds.map(id => id.toString());
+
+      await User.updateMany(
+        { 'hackathonRoles.hackathonId': hackathon._id, 'hackathonRoles.role': 'judge' },
+        { $pull: { hackathonRoles: { hackathonId: hackathon._id, role: 'judge' } } }
+      );
+
+      if (incomingIds.length > 0) {
+        await User.updateMany(
+          { _id: { $in: incomingIds } },
+          { $push: { hackathonRoles: { hackathonId: hackathon._id, role: 'judge' } } }
+        );
+      }
+
+      log.info('UPDATE_HACKATHON', `Force-synced judge roles. Active judges: ${incomingIds.length}`);
     }
 
     log.success('UPDATE_HACKATHON', `Updated: "${hackathon.title}"`);
+
+    // 🔔 Real-time: notify calendar clients that hackathon dates may have changed
+    emitCalendarUpdate('updated', hackathon._id);
+
     res.status(200).json({
       success: true,
       data: hackathon,
@@ -287,7 +358,6 @@ export const updateHackathon = async (req, res, next) => {
     });
   }
 };
-
 /* ================= UPDATE HACKATHON STATUS ================= */
 /* Admin / Mentor */
 export const updateHackathonStatus = async (req, res, next) => {
@@ -318,6 +388,10 @@ export const updateHackathonStatus = async (req, res, next) => {
     }
 
     log.success('UPDATE_STATUS', `Status changed: "${hackathon.title}" ${oldStatus} → ${status}`);
+
+    // 🔔 Real-time: status changes may make hackathon visible/invisible on the calendar
+    emitCalendarUpdate('status_changed', hackathon._id);
+
     res.status(200).json({
       success: true,
       message: `Hackathon status updated to ${status}`,

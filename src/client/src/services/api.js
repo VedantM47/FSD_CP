@@ -1,23 +1,19 @@
 import axios from "axios";
 
 /* ================= 1. UNIFIED AXIOS INSTANCE ================= */
-// Using Port 8080 (Standardizing on your working backend)
-const API = axios.create({
+// Using Port 3000 (Standardizing on your working backend)
+
+
+export const API = axios.create({
   baseURL: "http://localhost:8080/api",
   withCredentials: true,
 });
 
 /* ================= 2. AUTH COMPATIBILITY LAYER ================= */
-// PROBLEM: You save token in 'profile', Vedant looks for 'authToken'.
-// SOLUTION: We make these helper functions look at YOUR 'profile' storage.
-// This ensures Vedant's components work even when logged in via your system.
-
 export const getAuthToken = () => {
-  // Primary: unified key
   const token = localStorage.getItem("authToken");
   if (token) return token;
 
-  // Legacy fallback: profile object
   try {
     const profile = localStorage.getItem("profile");
     if (profile) {
@@ -30,7 +26,6 @@ export const getAuthToken = () => {
   return null;
 };
 
-// Vedant's pages call this function manually. We keep it so they don't crash.
 export const getAuthHeaders = () => ({
   headers: {
     "Content-Type": "application/json",
@@ -38,8 +33,7 @@ export const getAuthHeaders = () => ({
   },
 });
 
-/* ================= 3. AUTOMATIC INTERCEPTOR (Best Practice) ================= */
-// This handles auth for all YOUR new requests automatically
+/* ================= 3. AUTOMATIC INTERCEPTOR ================= */
 API.interceptors.request.use((req) => {
   const token = getAuthToken();
   if (token) {
@@ -65,17 +59,33 @@ export const getAdminSubmissions = () => API.get("/admin/submissions");
 export const getAdminTeams = () => API.get("/admin/teams");
 export const getHackathonOverview = (id) => API.get(`/admin/hackathons/${id}/overview`);
 export const createHackathon = (data) => API.post("/hackathons", data);
-// We use API.patch directly, but if Vedant's code passed headers manually, the interceptor handles it now.
 export const updateHackathon = (id, data) => API.patch(`/hackathons/${id}`, data);
 export const updateHackathonStatus = (id, status) => API.patch(`/hackathons/${id}/status`, { status });
+
+/* ================= HACKATHON APIs ================= */
+// Public — no auth required
+export const getAllHackathons = () => API.get("/hackathons");
+
+// Requires auth — supports ?q=<text>&status=<open|ongoing|closed|draft>
+export const searchHackathons = (query = '', status = '') => {
+  const params = new URLSearchParams();
+  if (query) params.set('q', query);
+  if (status) params.set('status', status);
+  return API.get(`/hackathons/search?${params.toString()}`);
+};
+
 export const getHackathonById = (id) => API.get(`/hackathons/${id}`);
 export const getHackathonTeams = (id) => API.get(`/hackathons/${id}/teams`);
+
+/* ================= TEAM APIs ================= */
 export const registerTeam = (data) => API.post("/teams", data);
 export const requestJoinTeam = (teamId) => API.post(`/teams/${teamId}/join`);
-export const getCalendarEvents = () => API.get("/calendar");
 
-/* ================= JUDGE APIs (From Vedant) ================= */
-// We keep these exports so his Admin Dashboard works
+/* ================= CALENDAR ================= */
+export const getCalendarEvents = () => API.get('/calendar');
+export const getMyCalendarEvents = () => API.get('/calendar/my-events');
+
+/* ================= JUDGE APIs ================= */
 export const getAllJudges = () => API.get("/admin/judges");
 export const assignJudgesToHackathon = (hackathonId, judgeIds) =>
   API.post(
@@ -83,6 +93,9 @@ export const assignJudgesToHackathon = (hackathonId, judgeIds) =>
     { judgeIds },
     getAuthHeaders()
   );
+
+export const submitProject = (submissionData) =>
+  API.post("/submissions", submissionData, getAuthHeaders());
 /* ================= ERROR HANDLER ================= */
 export const handleApiError = (error) => {
   if (error.response) {

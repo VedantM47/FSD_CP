@@ -18,9 +18,13 @@ const CalendarGrid = ({ currentDate, events, onNavigate, onEventClick }) => {
     }
     // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-        const dayEvents = events.filter(e => e.date === dateStr);
-        days.push({ day: i, date: dateStr, events: dayEvents });
+        // Match events whose `start` date (ISO string from MongoDB) falls on this day
+        const dayEvents = events.filter(e => {
+            if (!e.start) return false;
+            const d = new Date(e.start);
+            return d.getFullYear() === year && d.getMonth() === month && d.getDate() === i;
+        });
+        days.push({ day: i, events: dayEvents });
     }
 
     const today = new Date();
@@ -67,16 +71,19 @@ const CalendarGrid = ({ currentDate, events, onNavigate, onEventClick }) => {
             <div className="calendar-legend">
                 <span className="legend-title">Legend:</span>
                 <div className="legend-item">
-                    <div className="legend-dot badge-registration"></div> Registration
+                    <div className="legend-dot badge-hackathon-start"></div> Hackathon Start
                 </div>
                 <div className="legend-item">
-                    <div className="legend-dot badge-submission"></div> Submission
+                    <div className="legend-dot badge-hackathon-end"></div> Hackathon End
+                </div>
+                <div className="legend-item">
+                    <div className="legend-dot badge-submission"></div> Deadline
+                </div>
+                <div className="legend-item">
+                    <div className="legend-dot badge-evaluation"></div> Presentation
                 </div>
                 <div className="legend-item">
                     <div className="legend-dot badge-results"></div> Results
-                </div>
-                <div className="legend-item">
-                    <div className="legend-dot badge-evaluation"></div> Evaluation
                 </div>
             </div>
         </section>

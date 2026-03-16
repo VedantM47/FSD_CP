@@ -1,3 +1,4 @@
+// src/models/hackathon.model.js
 import mongoose from 'mongoose';
 
 const hackathonSchema = new mongoose.Schema(
@@ -14,10 +15,17 @@ const hackathonSchema = new mongoose.Schema(
     presentationDate: Date,
     resultDate: Date,
 
-    maxTeamSize: Number,
+    // FIX: Adding Minimum and Defaulting Maximum
+    minTeamSize: {
+      type: Number,
+      default: 1, // Default 1 member (Solo allowed)
+    },
+    maxTeamSize: {
+      type: Number,
+      default: 4, 
+    },
 
     prizePool: String,
-
     rules: String,
     terms: String,
 
@@ -28,12 +36,13 @@ const hackathonSchema = new mongoose.Schema(
     },
 
     judges: [
-      {judgeUserId : {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+      {
+        judgeUserId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+        assignedAt: Date,
       },
-      assignedAt: Date,
-    },
     ],
 
     createdBy: {

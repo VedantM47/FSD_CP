@@ -21,6 +21,7 @@ const adminOnly = (req, res, next) => {
   next();
 };
 
+/* All routes below require authentication + admin role */
 router.use(auth, adminOnly);
 
 router.get('/dashboard', getAdminDashboard);

@@ -311,3 +311,56 @@
 .footer-link:hover {
     opacity: 1;
 }
+/* Premium Registered Button Style */
+.btn-registered {
+  flex: 1; /* Ensures same width as other buttons */
+  background: #ecfdf5; /* Very soft emerald background */
+  color: #059669; /* Deep emerald text */
+  border: 1.5px solid #10b981;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-registered:hover {
+  background: #d1fae5;
+  transform: translateY(-1px);
+}
+
+/* Sleek Tick Icon Animation */
+.tick-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: #10b981;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+/* Disabled/Ongoing Style */
+.btn-disabled {
+  background: #f1f5f9 !important;
+  color: #94a3b8 !important;
+  border: 1px solid #e2e8f0 !important;
+  cursor: not-allowed !important;
+  opacity: 0.8;
+}
+
+/* Ensure consistent action bar layout */
+.card-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+  padding: 20px;
+}

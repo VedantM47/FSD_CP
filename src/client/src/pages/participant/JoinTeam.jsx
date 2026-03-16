@@ -14,7 +14,6 @@ const JoinTeam = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [requesting, setRequesting] = useState(null);
 
-  // --- HANDLERS ---
   const handleIntakeSubmit = (e) => {
     e.preventDefault();
     setStep('browse');
@@ -47,31 +46,30 @@ const JoinTeam = () => {
     }
   };
 
-  // --- VIEW 1: INTAKE CARD ---
   if (step === 'intake') {
     return (
-      <div className="join-team-wrapper intake-container">
-        <div className="intake-card">
-          <div className="intake-icon">🚀</div>
-          <h1 className="intake-title">Build Your Profile</h1>
-          <p className="intake-subtitle">Before you browse, let teams know what you bring to the table.</p>
+      <div className="jt-wrapper jt-intake-bg">
+        <div className="jt-intake-card">
+          <div className="jt-intake-icon">🚀</div>
+          <h1 className="jt-intake-title">Build Your Profile</h1>
+          <p className="jt-intake-subtitle">Let teams know what skills you bring to the hackathon.</p>
           
-          <form onSubmit={handleIntakeSubmit} className="intake-form">
-            <div className="form-group">
-              <label>Top Skills (comma separated)</label>
+          <form onSubmit={handleIntakeSubmit} className="jt-intake-form">
+            <div className="jt-form-group">
+              <label>Top Skills</label>
               <input 
-                className="intake-input"
-                placeholder="React, Python, Design..." 
+                className="jt-input"
+                placeholder="React, C++, Machine Learning..." 
                 value={participantData.skills}
                 onChange={(e) => setParticipantData({...participantData, skills: e.target.value})}
                 required
               />
             </div>
 
-            <div className="form-group">
+            <div className="jt-form-group">
               <label>Experience Level</label>
               <select 
-                className="intake-select"
+                className="jt-select"
                 value={participantData.experience}
                 onChange={(e) => setParticipantData({...participantData, experience: e.target.value})}
               >
@@ -81,109 +79,118 @@ const JoinTeam = () => {
               </select>
             </div>
 
-            <div className="form-group">
-              <label>Short Bio / Pitch</label>
+            <div className="jt-form-group">
+              <label>Bio / Pitch</label>
               <textarea 
-                className="intake-textarea"
+                className="jt-textarea"
                 rows="3"
-                placeholder="I am a backend dev looking for a frontend partner..." 
+                placeholder="Tell teams why they should pick you..." 
                 value={participantData.bio}
                 onChange={(e) => setParticipantData({...participantData, bio: e.target.value})}
                 required
               />
             </div>
 
-            <button type="submit" className="btn-continue">Find Teams →</button>
-            <button type="button" onClick={() => navigate(-1)} style={{background:'none', border:'none', color:'#9CA3AF', marginTop:'15px', cursor:'pointer', fontSize:'0.9rem'}}>Cancel</button>
+            <button type="submit" className="jt-btn-primary">Find Your Team →</button>
+            <button type="button" onClick={() => navigate(-1)} className="jt-btn-ghost">Cancel</button>
           </form>
         </div>
       </div>
     );
   }
 
-  // --- VIEW 2: MODERN BROWSER ---
   const filteredTeams = teams.filter(team => {
     if(!team.isOpenToJoin) return false;
     return team.name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   return (
-    <div className="join-team-wrapper">
-      {/* Sticky Header */}
-      <div className="browse-header">
-        <div className="browse-title">
-          <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-             <button onClick={() => setStep('intake')} style={{border:'none', background:'none', fontSize:'1.2rem', cursor:'pointer'}}>←</button>
-             <h2>Join a Team</h2>
+    <div className="jt-wrapper jt-browse-bg">
+      <div className="jt-browse-header">
+        <div className="jt-header-content">
+          <div className="jt-back-nav">
+             <button onClick={() => setStep('intake')} className="jt-icon-btn">←</button>
+             <div>
+                <h2 className="jt-browse-title">Join a Team</h2>
+                <p className="jt-browse-subtitle">Browse teams looking for <strong>{participantData.skills || "talented members"}</strong></p>
+             </div>
           </div>
-          <p className="browse-subtitle">Showing open teams for <strong>{participantData.skills || "your skills"}</strong></p>
-        </div>
-        
-        <div className="search-bar-wrapper">
-          <span className="search-icon">🔍</span>
-          <input 
-            className="browse-search" 
-            placeholder="Search teams..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          
+          <div className="jt-search-wrapper">
+            <span className="jt-search-icon">🔍</span>
+            <input 
+              className="jt-search-input" 
+              placeholder="Search by team name..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="teams-grid">
-        {loading ? <p style={{textAlign:'center', gridColumn:'1/-1', color:'#6B7280'}}>Loading teams...</p> : 
-         filteredTeams.length === 0 ? <p style={{textAlign:'center', gridColumn:'1/-1', color:'#6B7280'}}>No teams found.</p> :
-         filteredTeams.map((team) => {
-           const memberCount = team.members.filter(m => m.status === 'accepted').length;
-           const max = team.maxSize || 4;
-           const percentage = (memberCount / max) * 100;
-           const isFull = memberCount >= max;
+      <div className="jt-teams-grid">
+        {loading ? (
+          <div className="jt-state-msg">Loading available teams...</div>
+        ) : filteredTeams.length === 0 ? (
+          <div className="jt-state-msg">No open teams found for this search.</div>
+        ) : (
+          filteredTeams.map((team) => {
+            const memberCount = team.members?.filter(m => m.status === 'accepted').length || 0;
+            const max = team.maxSize || 4;
+            const percentage = (memberCount / max) * 100;
+            const isFull = memberCount >= max;
 
-           return (
-             <div key={team._id} className="team-card">
-               <div className="card-header">
-                 <div className="t-name">{team.name}</div>
-                 <div className="t-status">OPEN</div>
-               </div>
+            return (
+              <div key={team._id} className="jt-card">
+                <div className="jt-card-top">
+                  <div className="jt-team-info">
+                    <h3 className="jt-team-name">{team.name}</h3>
+                    <span className={`jt-status-tag ${isFull ? 'full' : 'open'}`}>
+                      {isFull ? 'FULL' : 'OPEN'}
+                    </span>
+                  </div>
+                </div>
 
-               <p className="t-desc">
-                 {team.projectDescription || "No description provided. Join to help define the project!"}
-               </p>
+                <p className="jt-team-desc">
+                  {team.projectDescription || "This team is looking for creative minds to help shape their vision. Join to get started!"}
+                </p>
 
-               <div className="member-progress">
-                 <div className="progress-label">
-                   <span>Team Capacity</span>
-                   <span>{memberCount}/{max}</span>
-                 </div>
-                 <div className="progress-track">
-                   <div className="progress-fill" style={{width: `${percentage}%`, background: isFull ? '#EF4444' : '#3B82F6'}}></div>
-                 </div>
-               </div>
+                <div className="jt-progress-section">
+                  <div className="jt-progress-meta">
+                    <span>Capacity</span>
+                    <span>{memberCount} / {max}</span>
+                  </div>
+                  <div className="jt-progress-bar">
+                    <div 
+                      className="jt-progress-fill" 
+                      style={{ width: `${percentage}%` }}
+                    ></div>
+                  </div>
+                </div>
 
-               {/* UPDATED FOOTER SECTION */}
-               <div className="card-footer">
-                 <div className="leader-badge">
-                   <div className="leader-pic">
-                     {team.leader?.fullName?.charAt(0).toUpperCase() || "U"}
-                   </div>
-                   <div className="leader-text">
-                     <span className="leader-label">Team Lead</span>
-                     <span className="leader-name">{team.leader?.fullName || "Unknown"}</span>
-                   </div>
-                 </div>
-                 
-                 <button 
-                   className="btn-join"
-                   disabled={isFull || requesting === team._id}
-                   onClick={() => handleApply(team._id)}
-                 >
-                   {requesting === team._id ? 'Sending...' : (isFull ? 'Full' : 'Join Team')}
-                 </button>
-               </div>
-             </div>
-           );
-         })}
+                <div className="jt-card-footer">
+                  <div className="jt-leader-info">
+                    <div className="jt-leader-avatar">
+                      {team.leader?.fullName?.charAt(0).toUpperCase() || "L"}
+                    </div>
+                    <div className="jt-leader-details">
+                      <span className="jt-leader-label">Leader</span>
+                      <span className="jt-leader-name">{team.leader?.fullName || "Lead"}</span>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    className={`jt-btn-join ${isFull ? 'disabled' : ''}`}
+                    disabled={isFull || requesting === team._id}
+                    onClick={() => handleApply(team._id)}
+                  >
+                    {requesting === team._id ? '...' : (isFull ? 'Full' : 'Join')}
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

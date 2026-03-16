@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import Navbar from "../../components/judge/Navbar";
 import Footer from "../../components/judge/Footer";
@@ -8,7 +8,7 @@ import "../../styles/judge-additional.css";
 
 const TeamSubmissions = () => {
   const { id: hackathonId } = useParams();
-  
+
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,6 +17,8 @@ const TeamSubmissions = () => {
   const [evaluationFilter, setEvaluationFilter] = useState("All");
   const [currentUser, setCurrentUser] = useState(null);
   const [submitting, setSubmitting] = useState({});
+  // Synchronous guard — prevents double-submit before React re-renders the disabled button
+  const submittingRef = useRef({});
 
   useEffect(() => {
     fetchTeamsAndEvaluations();
@@ -33,9 +35,9 @@ const TeamSubmissions = () => {
 
       // Get all teams for this hackathon
       const teamsResponse = await judgeApi.getTeamsByHackathon(hackathonId);
-      
+
       if (!teamsResponse.success) {
-        throw new Error('Failed to load teams');
+        throw new Error("Failed to load teams");
       }
 
       // Enrich teams with evaluation data
@@ -44,31 +46,31 @@ const TeamSubmissions = () => {
           try {
             // Check if team has submitted
             const hasSubmission = team.project && team.project.title;
-            
+
             // Get evaluations for this team
             let currentJudgeEvaluation = null;
             let allEvaluations = [];
-            
+
             try {
               const evalResponse = await judgeApi.getEvaluationsByTeam(
                 hackathonId,
-                team._id
+                team._id,
               );
-              
+
               if (evalResponse.success) {
                 allEvaluations = evalResponse.data;
                 currentJudgeEvaluation = allEvaluations.find(
-                  evaluation => evaluation.judgeId === userData.data._id
+                  (evaluation) => evaluation.judgeId === userData.data._id,
                 );
               }
             } catch (evalErr) {
-              console.log('No evaluations found for team:', team._id);
+              console.log("No evaluations found for team:", team._id);
             }
 
             return {
               id: team._id,
               name: team.name,
-              ps: team.project?.description || 'Not submitted yet',
+              ps: team.project?.description || "Not submitted yet",
               pptLink: team.project?.driveUrl || null,
               repoLink: team.project?.repoUrl || null,
               demoLink: team.project?.demoUrl || null,
@@ -80,20 +82,22 @@ const TeamSubmissions = () => {
                 presentation: { score: 0, weight: 1 },
                 feasibility: { score: 0, weight: 1 },
               },
-              remarks: currentJudgeEvaluation?.remarks || '',
-              submissionStatus: hasSubmission 
-                ? (currentJudgeEvaluation ? 'Evaluated' : 'Submitted')
-                : 'Not Submitted',
+              remarks: currentJudgeEvaluation?.remarks || "",
+              submissionStatus: hasSubmission
+                ? currentJudgeEvaluation
+                  ? "Evaluated"
+                  : "Submitted"
+                : "Not Submitted",
               evaluated: !!currentJudgeEvaluation,
               evaluationId: currentJudgeEvaluation?._id || null,
               rawTeam: team,
             };
           } catch (err) {
-            console.error('Error enriching team:', err);
+            console.error("Error enriching team:", err);
             return {
               id: team._id,
               name: team.name,
-              ps: 'Error loading details',
+              ps: "Error loading details",
               pptLink: null,
               repoLink: null,
               demoLink: null,
@@ -105,20 +109,20 @@ const TeamSubmissions = () => {
                 presentation: { score: 0, weight: 1 },
                 feasibility: { score: 0, weight: 1 },
               },
-              remarks: '',
-              submissionStatus: 'Not Submitted',
+              remarks: "",
+              submissionStatus: "Not Submitted",
               evaluated: false,
               evaluationId: null,
               rawTeam: team,
             };
           }
-        })
+        }),
       );
 
       setTeams(enrichedTeams);
     } catch (err) {
-      console.error('Error fetching teams:', err);
-      setError(err.message || 'Failed to load team submissions');
+      console.error("Error fetching teams:", err);
+      setError(err.message || "Failed to load team submissions");
     } finally {
       setLoading(false);
     }
@@ -128,54 +132,58 @@ const TeamSubmissions = () => {
     const numValue = parseFloat(value) || 0;
     if (numValue < 0 || numValue > 10) return;
 
-    setTeams(prevTeams =>
-      prevTeams.map(team => {
+    setTeams((prevTeams) =>
+      prevTeams.map((team) => {
         if (team.id === teamId) {
           const updatedCriteria = {
             ...team.criteriaScores,
             [criterion]: {
               ...team.criteriaScores[criterion],
-              score: numValue
-            }
+              score: numValue,
+            },
           };
 
           // Calculate total score
           const totalScore = Object.values(updatedCriteria).reduce(
-            (sum, criteria) => sum + (criteria.score * criteria.weight),
-            0
+            (sum, criteria) => sum + criteria.score * criteria.weight,
+            0,
           );
 
           return {
             ...team,
             criteriaScores: updatedCriteria,
-            marks: totalScore
+            marks: totalScore,
           };
         }
         return team;
-      })
+      }),
     );
   };
 
   const handleRemarksChange = (teamId, value) => {
-    setTeams(prevTeams =>
-      prevTeams.map(team =>
-        team.id === teamId ? { ...team, remarks: value } : team
-      )
+    setTeams((prevTeams) =>
+      prevTeams.map((team) =>
+        team.id === teamId ? { ...team, remarks: value } : team,
+      ),
     );
   };
 
   const handleSubmit = async (teamId) => {
-    const team = teams.find(t => t.id === teamId);
+    // Synchronous guard: prevents double-submit before the re-render disables the button
+    if (submittingRef.current[teamId]) return;
+
+    const team = teams.find((t) => t.id === teamId);
     if (!team) return;
 
-    try {
-      setSubmitting(prev => ({ ...prev, [teamId]: true }));
+    submittingRef.current[teamId] = true;
+    setSubmitting((prev) => ({ ...prev, [teamId]: true }));
 
+    try {
       const evaluationData = {
         criteriaScores: team.criteriaScores,
         totalScore: team.marks,
         remarks: team.remarks,
-        round: 'final', // You can make this dynamic
+        round: "final",
       };
 
       let response;
@@ -183,37 +191,47 @@ const TeamSubmissions = () => {
         // Update existing evaluation
         response = await judgeApi.updateEvaluation(
           team.evaluationId,
-          evaluationData
+          evaluationData,
         );
       } else {
         // Create new evaluation
         response = await judgeApi.createEvaluation(
           hackathonId,
           teamId,
-          evaluationData
+          evaluationData,
         );
       }
 
       if (response.success) {
-        setTeams(prevTeams =>
-          prevTeams.map(t =>
+        // FIX: Sync all score fields from the server response so the UI
+        // always reflects what was actually persisted, not just the local draft.
+        const saved = response.data;
+        setTeams((prevTeams) =>
+          prevTeams.map((t) =>
             t.id === teamId
               ? {
                   ...t,
                   evaluated: true,
-                  submissionStatus: 'Evaluated',
-                  evaluationId: response.data._id
+                  submissionStatus: "Evaluated",
+                  evaluationId: saved._id,
+                  // Overwrite with server-confirmed values
+                  criteriaScores: saved.criteriaScores ?? t.criteriaScores,
+                  marks: saved.totalScore ?? t.marks,
+                  remarks: saved.remarks ?? t.remarks,
                 }
-              : t
-          )
+              : t,
+          ),
         );
-        alert('Evaluation submitted successfully!');
+        alert("Evaluation submitted successfully!");
+      } else {
+        alert(response.message || "Failed to submit evaluation");
       }
     } catch (err) {
-      console.error('Error submitting evaluation:', err);
-      alert(err.message || 'Failed to submit evaluation');
+      console.error("Error submitting evaluation:", err);
+      alert(err.message || "Failed to submit evaluation");
     } finally {
-      setSubmitting(prev => ({ ...prev, [teamId]: false }));
+      submittingRef.current[teamId] = false;
+      setSubmitting((prev) => ({ ...prev, [teamId]: false }));
     }
   };
 
@@ -231,14 +249,17 @@ const TeamSubmissions = () => {
   };
 
   // Filter teams based on search and filters
-  const filteredTeams = teams.filter(team => {
-    const matchesSearch = team.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSubmission = submissionFilter === 'All' || 
-      team.submissionStatus === submissionFilter;
-    const matchesEvaluation = evaluationFilter === 'All' ||
-      (evaluationFilter === 'Evaluated' && team.evaluated) ||
-      (evaluationFilter === 'Pending' && !team.evaluated);
-    
+  const filteredTeams = teams.filter((team) => {
+    const matchesSearch = team.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesSubmission =
+      submissionFilter === "All" || team.submissionStatus === submissionFilter;
+    const matchesEvaluation =
+      evaluationFilter === "All" ||
+      (evaluationFilter === "Evaluated" && team.evaluated) ||
+      (evaluationFilter === "Pending" && !team.evaluated);
+
     return matchesSearch && matchesSubmission && matchesEvaluation;
   });
 
@@ -272,8 +293,8 @@ const TeamSubmissions = () => {
             <div className="error-container">
               <h2>Error Loading Submissions</h2>
               <p>{error}</p>
-              <button 
-                className="btn-primary" 
+              <button
+                className="btn-primary"
                 onClick={fetchTeamsAndEvaluations}
               >
                 Retry
@@ -391,7 +412,10 @@ const TeamSubmissions = () => {
               <tbody>
                 {filteredTeams.length === 0 ? (
                   <tr>
-                    <td colSpan="11" style={{ textAlign: 'center', padding: '20px' }}>
+                    <td
+                      colSpan="11"
+                      style={{ textAlign: "center", padding: "20px" }}
+                    >
                       No teams found
                     </td>
                   </tr>
@@ -410,25 +434,48 @@ const TeamSubmissions = () => {
                         </div>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "8px",
+                            flexDirection: "column",
+                          }}
+                        >
                           {team.pptLink && (
-                            <a href={team.pptLink} target="_blank" rel="noopener noreferrer" className="view-link">
+                            <a
+                              href={team.pptLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="view-link"
+                            >
                               PPT
                             </a>
                           )}
                           {team.repoLink && (
-                            <a href={team.repoLink} target="_blank" rel="noopener noreferrer" className="view-link">
+                            <a
+                              href={team.repoLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="view-link"
+                            >
                               Repo
                             </a>
                           )}
                           {team.demoLink && (
-                            <a href={team.demoLink} target="_blank" rel="noopener noreferrer" className="view-link">
+                            <a
+                              href={team.demoLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="view-link"
+                            >
                               Demo
                             </a>
                           )}
-                          {!team.pptLink && !team.repoLink && !team.demoLink && (
-                            <span className="na-text">N/A</span>
-                          )}
+                          {!team.pptLink &&
+                            !team.repoLink &&
+                            !team.demoLink && (
+                              <span className="na-text">N/A</span>
+                            )}
                         </div>
                       </td>
                       <td>
@@ -440,7 +487,11 @@ const TeamSubmissions = () => {
                           step="0.5"
                           value={team.criteriaScores.innovation.score}
                           onChange={(e) =>
-                            handleCriteriaScoreChange(team.id, 'innovation', e.target.value)
+                            handleCriteriaScoreChange(
+                              team.id,
+                              "innovation",
+                              e.target.value,
+                            )
                           }
                           disabled={team.evaluated}
                         />
@@ -452,9 +503,15 @@ const TeamSubmissions = () => {
                           min="0"
                           max="10"
                           step="0.5"
-                          value={team.criteriaScores.technicalImplementation.score}
+                          value={
+                            team.criteriaScores.technicalImplementation.score
+                          }
                           onChange={(e) =>
-                            handleCriteriaScoreChange(team.id, 'technicalImplementation', e.target.value)
+                            handleCriteriaScoreChange(
+                              team.id,
+                              "technicalImplementation",
+                              e.target.value,
+                            )
                           }
                           disabled={team.evaluated}
                         />
@@ -468,7 +525,11 @@ const TeamSubmissions = () => {
                           step="0.5"
                           value={team.criteriaScores.problemRelevance.score}
                           onChange={(e) =>
-                            handleCriteriaScoreChange(team.id, 'problemRelevance', e.target.value)
+                            handleCriteriaScoreChange(
+                              team.id,
+                              "problemRelevance",
+                              e.target.value,
+                            )
                           }
                           disabled={team.evaluated}
                         />
@@ -482,7 +543,11 @@ const TeamSubmissions = () => {
                           step="0.5"
                           value={team.criteriaScores.presentation.score}
                           onChange={(e) =>
-                            handleCriteriaScoreChange(team.id, 'presentation', e.target.value)
+                            handleCriteriaScoreChange(
+                              team.id,
+                              "presentation",
+                              e.target.value,
+                            )
                           }
                           disabled={team.evaluated}
                         />
@@ -496,7 +561,11 @@ const TeamSubmissions = () => {
                           step="0.5"
                           value={team.criteriaScores.feasibility.score}
                           onChange={(e) =>
-                            handleCriteriaScoreChange(team.id, 'feasibility', e.target.value)
+                            handleCriteriaScoreChange(
+                              team.id,
+                              "feasibility",
+                              e.target.value,
+                            )
                           }
                           disabled={team.evaluated}
                         />
@@ -507,7 +576,7 @@ const TeamSubmissions = () => {
                       <td>
                         <span
                           className={`submission-badge ${getStatusClass(
-                            team.submissionStatus
+                            team.submissionStatus,
                           )}`}
                         >
                           {team.submissionStatus}
@@ -527,7 +596,7 @@ const TeamSubmissions = () => {
                               submitting[team.id]
                             }
                           >
-                            {submitting[team.id] ? 'Submitting...' : 'Submit'}
+                            {submitting[team.id] ? "Submitting..." : "Submit"}
                           </button>
                         )}
                       </td>

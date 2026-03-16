@@ -4,7 +4,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
-
+import LoginSuccess from "./components/auth/LoginSuccess"; // Check path
 /* Judge Pages */
 import AssignedHackathons from "./pages/judge/AssignedHackathons";
 import HackathonOverview from "./pages/judge/HackathonOverview";
@@ -25,6 +25,7 @@ import Calendar from "./pages/user/Calendar";
 import SingleHackathon from "./pages/participant/SingleHackathon";
 import RegisterHackathon from "./pages/participant/RegisterHackathon";
 import JoinTeam from "./pages/participant/JoinTeam";
+import SubmitProject from "./pages/participant/SubmitProject";
 
 import "./styles/auth.css";
 import "./styles/global.css";
@@ -36,6 +37,7 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/login-success" element={<LoginSuccess />} />
 
       {/* ===== ADMIN-ONLY ROUTES ===== */}
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
@@ -57,6 +59,7 @@ function App() {
         <Route path="/user/hackathon/:id" element={<SingleHackathon />} />
         <Route path="/user/hackathon/:id/register" element={<RegisterHackathon />} />
         <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
+        <Route path="/user/hackathon/:id/submit" element={<SubmitProject />} />
 
         {/* User Routes */}
         <Route path="/profile" element={<Profile />} />
