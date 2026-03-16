@@ -6,7 +6,7 @@ import { createServer } from 'http';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.resolve(__dirname, 'src', '.env') }); // 👈 Load from src/.env
+dotenv.config({ path: path.resolve(__dirname, '.', '.env') }); // 👈 Load from src/.env
 
 import app from './src/app.js';
 import connectDB from './src/config/db.js';
