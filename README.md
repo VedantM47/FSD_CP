@@ -4,17 +4,21 @@ A comprehensive platform for managing hackathons, teams, and user participation.
 
 ## Features
 
--   **User Management** : Registration, login, and profile management for Users, Judges, Mentors, and Organizers.
--   **Team Management** : Create, join, and manage teams with leader controls.
--   **Hackathon Management** : Full lifecycle management (Draft, Open, Ongoing, Closed).
+-   **User Management** : Registration, OAuth (Google/GitHub), login, and profile management for Users, Judges, Mentors, and Organizers. Includes Notification & Privacy preferences with Skills tagging.
+-   **Team Management** : Create, join, and manage teams with leader controls. Includes a "Manage Team" dashboard to accept/reject pending invites.
+-   **Hackathon Management** : Full lifecycle management (Draft, Open, Ongoing, Closed). Includes Cloudinary banner image uploads and precise `datetime-local` registration deadlines.
 -   **Submission System** : Submit projects and track status.
 -   **Access Control** : Secure API with RBAC (Role-Based Access Control) and policies.
+-   **Organizer System** : Users can apply to become Organizers, and Admins can review/approve these applications from the Admin Dashboard.
+-   **Discovery & Search** : Interactive search bar connected to the backend to filter hackathons in real-time.
 
 ## Prerequisites
 
--   **Node.js** : v24.9.0 (as specified in project requirements)
+-   **Node.js** : v20+ (recommended)
 -   **MongoDB** : v7.0.0 or higher
 -   **npm** : Installed with Node.js
+-   **Cloudinary Account**: Required for image uploads
+-   **Google/GitHub Developer Accounts**: Required for OAuth login
 
 ## Installation
 
@@ -34,23 +38,41 @@ A comprehensive platform for managing hackathons, teams, and user participation.
     ```bash
     cp .env.example .env
     ```
-    Open `.env` and configure :
-    -   `PORT` : Server port (default : 3000)
+    Open `.env` and configure essential variables:
+    -   `PORT` : Server port (default : 8080)
+    -   `FRONTEND_URL`: Usually `http://localhost:5173`
+    -   `BACKEND_URL`: Usually `http://localhost:8080`
     -   `MONGO_URI` : Your MongoDB connection string
     -   `JWT_SECRET` : Secret key for JWT signing
-    -   `JWT_EXPIRES_IN` : Token expiration duration (e.g., 7d)
+    -   `CLOUDINARY_*`: Cloudinary API keys for image uploads
+    -   `GOOGLE_CLIENT_*` & `GITHUB_CLIENT_*`: OAuth keys
 
 ## Running the Application
 
--   **Development Mode** (with nodemon) :
-    ```bash
-    npm run dev
-    ```
+This is a monolithic repository containing both the frontend (React/Vite) and backend (Express). You will need to run two terminal processes:
 
--   **Start Server** :
-    ```bash
-    node index.js
-    ```
+**Terminal 1 (Backend Server) :**
+```bash
+# Starts the backend API on port 8080
+npm run dev
+```
+
+**Terminal 2 (Frontend Client) :**
+```bash
+cd src/client
+npm install
+npm run dev
+```
+
+## Seeding Dummy Data
+
+To quickly test the platform without manually creating accounts and hackathons, you can run the seed script. This drops existing collections and generates an Admin, Judge, 3 Participants, 4 Hackathons, Teams, and Organizer Applications.
+
+```bash
+# From the root directory:
+node src/seed.js
+```
+*Note: Default accounts use the password `password123`. See script output for exact emails.*
 
 ## API Endpoints
 
@@ -104,12 +126,17 @@ A comprehensive platform for managing hackathons, teams, and user participation.
 -   `PATCH /:evaluationId/lock` : Lock evaluation (Admin/Faculty)
 -   `DELETE /:evaluationId` : Delete evaluation (Admin/Faculty)
 
+### Organizer Routes (`/api/organizer`)
+-   `POST /apply` : Apply to become an organizer (User)
+-   `GET /applications` : View pending organizer applications (Admin)
+-   `PATCH /applications/:id` : Approve or reject organizer application (Admin)
+
 ### System
 -   `GET /test` : Health check
 
-## Postman Collection
+## API Documentation & Testing
 
-A Postman collection `IEEE_Hackthon.postman_collection.json` is included in the repository. Import this file into Postman to test the API endpoints directly.
+A Postman collection is included or you can refer to `manual_testing.md` for cURL commands to test the endpoints locally.
 -   **Variables** : Pre-configured variables for `base_url`, `admin` token, and `user` token.
 
 ## Folder Structure
