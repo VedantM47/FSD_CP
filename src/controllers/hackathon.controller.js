@@ -33,9 +33,12 @@ export const createHackathon = async (req, res, next) => {
       });
     }
 
-    const hackathon = await Hackathon.create({
-      ...req.body,
-    });
+    const hackathonData = { ...req.body };
+    if (req.file) {
+      hackathonData.image = req.file.path;
+    }
+
+    const hackathon = await Hackathon.create(hackathonData);
 
     log.success('CREATE_HACKATHON', `Hackathon created: "${hackathon.title}" (id=${hackathon._id})`);
 
@@ -301,6 +304,10 @@ export const updateHackathon = async (req, res, next) => {
     // Include min/max team sizes in updateData
     if (minTeamSize) updateData.minTeamSize = minTeamSize;
     if (maxTeamSize) updateData.maxTeamSize = maxTeamSize;
+
+    if (req.file) {
+      updateData.image = req.file.path;
+    }
 
     // 2. Format strings into the exact object structure Mongoose demands
     if (newJudgeIds && Array.isArray(newJudgeIds)) {

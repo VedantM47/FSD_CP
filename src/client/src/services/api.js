@@ -96,6 +96,12 @@ export const assignJudgesToHackathon = (hackathonId, judgeIds) =>
 
 export const submitProject = (submissionData) =>
   API.post("/submissions", submissionData, getAuthHeaders());
+
+/* ================= ORGANIZER APIs ================= */
+export const applyForOrganizer = (data) => API.post('/organizer/apply', data);
+export const getOrganizerApplications = () => API.get('/organizer/applications');
+export const reviewOrganizerApplication = (id, status) => API.patch(`/organizer/applications/${id}`, { status });
+
 /* ================= ERROR HANDLER ================= */
 export const handleApiError = (error) => {
   if (error.response) {

@@ -20,7 +20,7 @@ if (githubCredentialsPresent) {
     {
       clientID: githubClientId,
       clientSecret: githubClientSecret,
-      callbackURL: '/api/oauth/github/callback',
+      callbackURL: `${process.env.BACKEND_URL || 'http://localhost:8080'}/api/oauth/github/callback`,
       scope: ['user:email'],
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -84,7 +84,7 @@ router.get('/github', (req, res, next) => {
 router.get('/github/callback',
   passport.authenticate('github', {
     session: false,
-    failureRedirect: 'http://localhost:5173/login?error=github_failed'
+    failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=github_failed`
   }),
   oauthCallback
 );

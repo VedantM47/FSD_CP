@@ -16,6 +16,16 @@ export const createTeam = async (req, res, next) => {
       return next({ statusCode: 404, message: 'Hackathon not found' });
     }
 
+    if (hackathon.registrationDeadline && new Date() > new Date(hackathon.registrationDeadline)) {
+      log.warn('CREATE_TEAM', `Registration deadline passed for hackathon: ${hackathonId}`);
+      return next({ statusCode: 400, message: 'Registration deadline has passed.' });
+    }
+
+    if (req.user && (req.user.systemRole === 'admin' || req.user.systemRole === 'judge')) {
+      log.warn('CREATE_TEAM', `Blocked: ${req.user.systemRole} trying to create team`);
+      return next({ statusCode: 403, message: 'Admins and Judges cannot participate in hackathons.' });
+    }
+
     // 2. CHECK FOR EXISTING TEAM (Prevention for 403 error)
     // Checks if current user is already a member or leader in ANY team for THIS hackathon
     const isAlreadyInTeam = await Team.findOne({

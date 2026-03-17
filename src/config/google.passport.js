@@ -25,7 +25,7 @@ if (credentialsPresent) {
       {
         clientID: googleClientId,
         clientSecret: googleClientSecret,
-        callbackURL: '/api/oauth/google/callback',
+        callbackURL: `${process.env.BACKEND_URL || 'http://localhost:8080'}/api/oauth/google/callback`,
       },
       async (accessToken, refreshToken, profile, done) => {
         try {

@@ -13,7 +13,7 @@ Most features require a JWT token.
 
 ### Register a User
 ```bash
-curl -X POST http://localhost:3000/api/users/register \
+curl -X POST http://localhost:8080/api/users/register \
 -H "Content-Type: application/json" \
 -d '{
   "fullName": "Test User",
@@ -29,7 +29,7 @@ curl -X POST http://localhost:3000/api/users/register \
 
 ### Get Personalized Calendar
 ```bash
-curl -X GET http://localhost:3000/api/calendar \
+curl -X GET http://localhost:8080/api/calendar \
 -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
 
@@ -44,13 +44,13 @@ curl -X GET http://localhost:3000/api/calendar \
 
 ### Get Notifications
 ```bash
-curl -X GET http://localhost:3000/api/notifications \
+curl -X GET http://localhost:8080/api/notifications \
 -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
 
 ### Mark as Read
 ```bash
-curl -X PATCH http://localhost:3000/api/notifications/<NOTIFICATION_ID>/read \
+curl -X PATCH http://localhost:8080/api/notifications/<NOTIFICATION_ID>/read \
 -H "Authorization: Bearer <YOUR_TOKEN>"
 ```
 
@@ -58,7 +58,7 @@ curl -X PATCH http://localhost:3000/api/notifications/<NOTIFICATION_ID>/read \
 *This requires an admin account or manually updating your role in the database.*
 
 ```bash
-curl -X POST http://localhost:3000/api/notifications/trigger \
+curl -X POST http://localhost:8080/api/notifications/trigger \
 -H "Authorization: Bearer <ADMIN_TOKEN>"
 ```
 

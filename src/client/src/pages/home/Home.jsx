@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
+import { useAuth } from "../../context/AuthContext";
 import "../../styles/home.css";
 
 /* =============== GATEWAY CARD DATA =============== */
@@ -85,6 +86,7 @@ const stats = [
 
 /* =============== HOME PAGE COMPONENT =============== */
 const Home = () => {
+    const { isAuthenticated } = useAuth();
     return (
         <div className="min-h-screen flex flex-col">
             <Navbar />
@@ -112,9 +114,15 @@ const Home = () => {
                         <Link to="/discovery" className="btn-hero-primary">
                             Explore Hackathons →
                         </Link>
-                        <Link to="/signup" className="btn-hero-secondary">
-                            Get Started — It's Free
-                        </Link>
+                        {isAuthenticated ? (
+                            <Link to="/profile" className="btn-hero-secondary">
+                                Go to My Profile
+                            </Link>
+                        ) : (
+                            <Link to="/signup" className="btn-hero-secondary">
+                                Get Started — It's Free
+                            </Link>
+                        )}
                     </div>
                 </div>
             </section>
@@ -193,9 +201,15 @@ const Home = () => {
                         Join thousands of developers, designers, and innovators building the
                         future — one hackathon at a time.
                     </p>
-                    <Link to="/signup" className="btn-cta">
-                        Create Your Account →
-                    </Link>
+                    {isAuthenticated ? (
+                        <Link to="/discovery" className="btn-cta">
+                            Go to Discovery →
+                        </Link>
+                    ) : (
+                        <Link to="/signup" className="btn-cta">
+                            Create Your Account →
+                        </Link>
+                    )}
                 </div>
             </section>
 

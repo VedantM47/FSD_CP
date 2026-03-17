@@ -239,7 +239,7 @@ The `authorize` middleware delegates decisions to `policy.js`, which contains **
 
 ## API Endpoints (All Routes)
 
-> Base URL: `http://localhost:3000/api`
+> Base URL: `http://localhost:8080/api`
 
 ### `/api/users` — `user.routes.js`
 

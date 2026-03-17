@@ -23,6 +23,12 @@ const AuthForm = ({ type }) => {
     // Check if fullName exists (only for signup)
     const fullName = isSignup ? form.fullName.value : null;
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert('❌ Error: Invalid email format.');
+      setLoading(false);
+      return;
+    }
+
     const payload = isSignup
       ? { fullName, email, password }
       : { email, password };

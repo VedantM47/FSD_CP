@@ -37,6 +37,7 @@ function CreateHackathon() {
     prizePool: '',
     rules: '',
     terms: '',
+    image: null,
   });
 
   /* ================= LOAD JUDGES ================= */
@@ -67,9 +68,9 @@ function CreateHackathon() {
           title: data.title || '',
           description: data.description || '',
           status: data.status || 'draft',
-          startDate: data.startDate?.slice(0, 10) || '',
-          endDate: data.endDate?.slice(0, 10) || '',
-          registrationDeadline: data.registrationDeadline?.slice(0, 10) || '',
+          startDate: data.startDate?.slice(0, 16) || '',
+          endDate: data.endDate?.slice(0, 16) || '',
+          registrationDeadline: data.registrationDeadline?.slice(0, 16) || '',
           minTeamSize: data.minTeamSize || 1, // ✅ Syncing minTeamSize from DB
           maxTeamSize: data.maxTeamSize || '',
           prizePool: data.prizePool || '',
@@ -95,11 +96,16 @@ function CreateHackathon() {
   /* ================= HANDLERS ================= */
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, files } = e.target;
     // Number validation for team size fields
     const finalValue = (name === 'minTeamSize' || name === 'maxTeamSize') 
       ? Math.max(1, parseInt(value) || 1) 
       : value;
+
+    if (type === 'file') {
+      setFormData(prev => ({ ...prev, [name]: files[0] }));
+      return;
+    }
 
     setFormData(prev => ({ ...prev, [name]: finalValue }));
   };
@@ -123,20 +129,19 @@ function CreateHackathon() {
       setLoading(true);
       setError('');
 
-      if (isEditMode) {
-        // 1. EDIT MODE: Merge formData and selectedJudges
-        const updatePayload = {
-          ...formData,
-          judges: selectedJudges 
-        };
-        await updateHackathon(id, updatePayload);
-        
-      } else {
-        // 2. CREATE MODE: Create the hackathon first
-        const res = await createHackathon(formData);
-        const hackathonId = res.data.data._id;
+      const payload = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (key === 'image' && !formData[key]) return; // don't append null
+        payload.append(key, formData[key]);
+      });
+      // Append manually for judges since it's an array
+      payload.append('judges', JSON.stringify(selectedJudges));
 
-        // Then assign the judges
+      if (isEditMode) {
+        await updateHackathon(id, payload);
+      } else {
+        const res = await createHackathon(payload);
+        const hackathonId = res.data.data._id;
         if (selectedJudges.length > 0) {
           await assignJudgesToHackathon(hackathonId, selectedJudges); 
         }
@@ -205,6 +210,18 @@ function CreateHackathon() {
                 </div>
 
                 <div className="form-group">
+                  <label className="form-label">Banner Image</label>
+                  <input
+                    type="file"
+                    name="image"
+                    className="form-input"
+                    accept="image/*"
+                    onChange={handleChange}
+                  />
+                  {isEditMode && <small className="text-gray-500">Leave blank to keep existing image</small>}
+                </div>
+
+                <div className="form-group">
                   <label className="form-label">Status</label>
                   <select
                     name="status"
@@ -228,7 +245,7 @@ function CreateHackathon() {
                   <div className="form-group">
                     <label className="form-label">Start Date</label>
                     <input
-                      type="date"
+                      type="datetime-local"
                       name="startDate"
                       className="form-input"
                       value={formData.startDate}
@@ -239,7 +256,7 @@ function CreateHackathon() {
                   <div className="form-group">
                     <label className="form-label">End Date</label>
                     <input
-                      type="date"
+                      type="datetime-local"
                       name="endDate"
                       className="form-input"
                       value={formData.endDate}
@@ -251,7 +268,7 @@ function CreateHackathon() {
                 <div className="form-group">
                   <label className="form-label">Registration Deadline</label>
                   <input
-                    type="date"
+                    type="datetime-local"
                     name="registrationDeadline"
                     className="form-input"
                     value={formData.registrationDeadline}

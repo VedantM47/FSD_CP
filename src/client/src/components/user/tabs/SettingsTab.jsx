@@ -17,17 +17,35 @@ const SettingsTab = ({ user, onUpdate }) => {
   const [error, setError] = useState("");
 
   const [notifications, setNotifications] = useState({
-    email: true,
-    reminders: true,
-    invites: true,
-    results: true,
+    email: user?.notificationPreferences?.email ?? true,
+    reminders: user?.notificationPreferences?.reminders ?? true,
+    invites: user?.notificationPreferences?.invites ?? true,
+    results: user?.notificationPreferences?.results ?? true,
   });
 
   const [privacy, setPrivacy] = useState({
-    publicProfile: true,
-    showAchievements: true,
-    allowInvites: true,
+    publicProfile: user?.privacySettings?.publicProfile ?? true,
+    showAchievements: user?.privacySettings?.showAchievements ?? true,
+    allowInvites: user?.privacySettings?.allowInvites ?? true,
   });
+
+  const [skills, setSkills] = useState(user?.skills || []);
+  const [skillInput, setSkillInput] = useState("");
+
+  const handleAddSkill = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const newSkill = skillInput.trim();
+      if (newSkill && (!skills.includes(newSkill))) {
+        setSkills([...skills, newSkill]);
+        setSkillInput("");
+      }
+    }
+  };
+
+  const removeSkill = (skillToRemove) => {
+    setSkills(skills.filter(s => s !== skillToRemove));
+  };
 
   const handleChange = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -39,7 +57,15 @@ const SettingsTab = ({ user, onUpdate }) => {
     try {
       setSaving(true);
       setError("");
-      await updateMyProfile(form);
+      
+      const payload = {
+        ...form,
+        notificationPreferences: notifications,
+        privacySettings: privacy,
+        skills
+      };
+
+      await updateMyProfile(payload);
       setSuccess(true);
       if (onUpdate) onUpdate();
     } catch (err) {
@@ -76,6 +102,27 @@ const SettingsTab = ({ user, onUpdate }) => {
             />
           </div>
         ))}
+
+        <div className="settings-field">
+          <label>
+            <span className="field-icon">🛠</span> Skills (press Enter)
+          </label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+            {skills.map(skill => (
+              <span key={skill} style={{ background: '#3b82f6', color: 'white', padding: '4px 10px', borderRadius: '15px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                {skill}
+                <button onClick={() => removeSkill(skill)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}>&times;</button>
+              </span>
+            ))}
+          </div>
+          <input
+            type="text"
+            value={skillInput}
+            onChange={(e) => setSkillInput(e.target.value)}
+            onKeyDown={handleAddSkill}
+            placeholder="e.g. React, Node.js, Python"
+          />
+        </div>
 
         <button
           className="btn-save"

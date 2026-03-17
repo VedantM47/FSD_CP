@@ -16,6 +16,8 @@ DELETE_USER: ({ user }) => user?.systemRole === 'admin',
 
 SEARCH_USERS: ({ user }) => Boolean(user),
 
+VIEW_ADMIN_DASHBOARD: ({ user }) => user?.systemRole === 'admin' || user?.systemRole === 'mentor',
+
 /* =====================================================
    TEAM POLICIES
 ===================================================== */

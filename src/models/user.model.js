@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       index: true,
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email format']
     },
 
     /*
@@ -61,6 +62,19 @@ const userSchema = new mongoose.Schema(
     college: {
       type: String,
       trim: true,
+    },
+
+    notificationPreferences: {
+      email: { type: Boolean, default: true },
+      reminders: { type: Boolean, default: true },
+      invites: { type: Boolean, default: true },
+      results: { type: Boolean, default: true }
+    },
+
+    privacySettings: {
+      publicProfile: { type: Boolean, default: true },
+      showAchievements: { type: Boolean, default: true },
+      allowInvites: { type: Boolean, default: true }
     },
 
     department: {

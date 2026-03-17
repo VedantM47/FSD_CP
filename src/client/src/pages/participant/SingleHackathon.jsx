@@ -110,7 +110,7 @@ const SingleHackathon = () => {
 
   // --- DYNAMIC LOGIC HELPERS ---
   const isOngoing = hackathon.status === 'ongoing';
-  const isRegistrationOpen = hackathon.status === 'open';
+  const isRegistrationOpen = hackathon.status === 'open' && (!hackathon.registrationDeadline || new Date() <= new Date(hackathon.registrationDeadline));
   const isSubmissionClosed = new Date() > new Date(hackathon.endDate);
   
   // Dynamic Team Size Logic

@@ -4,7 +4,7 @@ export const oauthCallback = async (req, res) => {
   try {
     if (!req.user) {
       console.error("❌ User not found");
-      return res.redirect('http://localhost:5173/login?error=no_user');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=no_user`);
     }
 
     const token = signToken({ 
@@ -12,8 +12,8 @@ export const oauthCallback = async (req, res) => {
       role: req.user.systemRole || 'user' 
     });
 
-    // Hardcoded URL for testing (Jab tak env fix nahi hota)
-    const targetURL = `http://localhost:5173/login-success?token=${token}`;
+    // Use env var for redirect
+    const targetURL = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login-success?token=${token}`;
     
     console.log("🚀 Redirecting to:", targetURL);
     
@@ -22,6 +22,6 @@ export const oauthCallback = async (req, res) => {
 
   } catch (error) {
     console.error("🔥 Error in Callback:", error.message);
-    return res.redirect('http://localhost:5173/login?error=server_error');
+    return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=server_error`);
   }
 };

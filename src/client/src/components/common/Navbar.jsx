@@ -39,6 +39,16 @@ const Navbar = () => {
         </span>
         <input
           placeholder="Search hackathons..."
+          defaultValue={new URLSearchParams(location.search).get('q') || ''}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              if (e.target.value.trim()) {
+                window.location.href = `/discovery?q=${encodeURIComponent(e.target.value.trim())}`;
+              } else {
+                window.location.href = `/discovery`;
+              }
+            }
+          }}
           className="w-full pl-10 pr-4 py-2 rounded-lg bg-white/5 text-white placeholder:text-white/40 text-sm border border-white/10 focus:outline-none focus:bg-white/10 focus:border-white/30 transition-all font-medium"
         />
       </div>
@@ -47,7 +57,7 @@ const Navbar = () => {
         {isAuthenticated ? (
           <>
             <button className="p-2 rounded-full hover:bg-white/10 transition-colors" title="Notifications">
-              <span className="text-xl">🏁</span>
+              <span className="text-xl">🔔</span>
             </button>
             <Link to="/profile" className="flex items-center gap-2 group">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-lg border-2 border-white/20 group-hover:border-white/50 transition-all overflow-hidden shadow-md">

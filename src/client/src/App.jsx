@@ -20,12 +20,14 @@ import HackathonDashboard from "./pages/admin/HackathonDashboard";
 import Profile from "./pages/user/Profile";
 import Discovery from "./pages/user/Discovery";
 import Calendar from "./pages/user/Calendar";
+import ApplyOrganizer from "./pages/user/ApplyOrganizer";
 
 /* participant pages */
 import SingleHackathon from "./pages/participant/SingleHackathon";
 import RegisterHackathon from "./pages/participant/RegisterHackathon";
 import JoinTeam from "./pages/participant/JoinTeam";
 import SubmitProject from "./pages/participant/SubmitProject";
+import ManageTeam from "./pages/participant/ManageTeam";
 
 import "./styles/auth.css";
 import "./styles/global.css";
@@ -38,6 +40,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login-success" element={<LoginSuccess />} />
+      <Route path="/calendar" element={<Calendar />} />
 
       {/* ===== ADMIN-ONLY ROUTES ===== */}
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
@@ -55,16 +58,20 @@ function App() {
         <Route path="/judge/hackathons/:id" element={<HackathonOverview />} />
         <Route path="/judge/hackathons/:id/submissions" element={<TeamSubmissions />} />
 
-        {/* Participant Routes */}
         <Route path="/user/hackathon/:id" element={<SingleHackathon />} />
-        <Route path="/user/hackathon/:id/register" element={<RegisterHackathon />} />
-        <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
-        <Route path="/user/hackathon/:id/submit" element={<SubmitProject />} />
 
         {/* User Routes */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/discovery" element={<Discovery />} />
-        <Route path="/calendar" element={<Calendar />} />
+        <Route path="/apply-organizer" element={<ApplyOrganizer />} />
+      </Route>
+
+      {/* Participant Routes (Blocked for Admins & Judges) */}
+      <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
+        <Route path="/user/hackathon/:id/register" element={<RegisterHackathon />} />
+        <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
+        <Route path="/user/hackathon/:id/submit" element={<SubmitProject />} />
+        <Route path="/user/hackathon/:id/manage-team" element={<ManageTeam />} />
       </Route>
 
       {/* Fallback */}

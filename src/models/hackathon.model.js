@@ -26,6 +26,7 @@ const hackathonSchema = new mongoose.Schema(
     },
 
     prizePool: String,
+    image: String, // Cloudinary URL
     rules: String,
     terms: String,
 

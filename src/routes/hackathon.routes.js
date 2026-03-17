@@ -1,6 +1,7 @@
 import express from 'express';
 import auth from '../middlewares/auth.middleware.js';
 import authorize from '../middlewares/authorize.js';
+import { upload } from '../utils/upload.js';
 
 import {
   createHackathon,
@@ -50,9 +51,9 @@ router.get(
 /* ================= PROTECTED ================= */
 
 // Create hackathon (admin / Mentor)
-router.post('/', createHackathon);
+router.post('/', upload.single('image'), createHackathon);
 
-router.patch('/:id', updateHackathon);
+router.patch('/:id', upload.single('image'), updateHackathon);
 
 
 // Update hackathon status (admin / organizer / Mentor)

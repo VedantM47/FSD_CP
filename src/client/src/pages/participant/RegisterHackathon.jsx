@@ -13,6 +13,27 @@ const RegisterHackathon = () => {
     teamName: '', projectIdea: '', lookingForMembers: true
   });
 
+  // Redirect if already registered
+  useEffect(() => {
+    const checkRegistration = async () => {
+      try {
+        const { getAuthHeaders } = await import('../../services/api');
+        const API = (await import('../../services/api')).default;
+        const res = await API.get('/users/me', getAuthHeaders());
+        const userData = res.data?.data || res.data;
+        const isParticipant = userData.hackathonRoles?.some(
+          role => String(role.hackathonId) === String(id) && role.role === 'participant'
+        );
+        if (isParticipant) {
+          navigate(`/user/hackathon/${id}`, { replace: true });
+        }
+      } catch (err) {
+        console.error("Failed to check registration status", err);
+      }
+    };
+    checkRegistration();
+  }, [id, navigate]);
+
   // SEARCH & MEMBER STATE
   const [members, setMembers] = useState([]); 
   const [searchQuery, setSearchQuery] = useState('');

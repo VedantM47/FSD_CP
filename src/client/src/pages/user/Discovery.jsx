@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import Hero from "../../components/user/Hero";
 import FilterBar from "../../components/user/FilterBar";
@@ -10,6 +10,8 @@ import "../../styles/discovery.css";
 
 const Discovery = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("q") || "";
 
   // --- STATE ---
   const [activeFilter, setActiveFilter] = useState("All");
@@ -39,7 +41,7 @@ const Discovery = () => {
       name: h.title,
       organization: "HackathonHub", 
       description: h.description || "No description provided.",
-      image: h.image || `https://picsum.photos/seed/${h._id}/600/300`,
+      image: h.image || `https://placehold.co/600x300/e2e8f0/475569?text=Hackathon`,
       status: h.status,
       isRegistered: isUserRegistered, // This flag controls the button state
       teamSize: h.maxTeamSize ? `1–${h.maxTeamSize}` : "Open",
@@ -78,8 +80,12 @@ const Discovery = () => {
           console.log("Visitor mode: Proceeding without user roles.");
         }
 
-        // 2. Fetch All Hackathons
-        const hackRes = await API.get("/hackathons");
+        // 2. Fetch All Hackathons or Search Results
+        let endpoint = "/hackathons";
+        if (query.trim()) {
+          endpoint = `/hackathons/search?q=${encodeURIComponent(query.trim())}`;
+        }
+        const hackRes = await API.get(endpoint);
         const raw = hackRes.data?.data ?? [];
         setAllHackathons(raw);
 

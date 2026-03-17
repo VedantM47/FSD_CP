@@ -134,10 +134,15 @@ export const searchUsers = async (req, res, next) => {
 
     const users = await User.find(
       {
-        $or: [
-          { fullName: { $regex: q, $options: 'i' } },
-          { email: { $regex: q, $options: 'i' } },
-        ],
+        $and: [
+          { systemRole: 'user' },
+          {
+            $or: [
+              { fullName: { $regex: q, $options: 'i' } },
+              { email: { $regex: q, $options: 'i' } },
+            ],
+          }
+        ]
       },
       'fullName email'
     ).limit(20);
