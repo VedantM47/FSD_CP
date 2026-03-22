@@ -11,11 +11,9 @@ const LoginSuccess = () => {
     const token = searchParams.get('token');
 
     if (token) {
-      // FIX: 'token' ki jagah 'authToken' use karo
-      // Ya phir seedha utility function call karo:
-      localStorage.setItem('authToken', token); 
+      saveAuthToken(token);
       
-      console.log("✓ OAuth Token Saved as 'authToken'. Redirecting...");
+      console.log("✓ OAuth Token Saved. Redirecting...");
       
       // Force reload taaki ProtectedRoute naya token dekh sake
       window.location.href = '/discovery'; 
