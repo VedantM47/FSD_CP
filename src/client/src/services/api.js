@@ -85,6 +85,9 @@ export const searchHackathons = (query = '', status = '') => {
 export const getHackathonById = (id) => API.get(`/hackathons/${id}`);
 export const getHackathonTeams = (id) => API.get(`/hackathons/${id}/teams`);
 
+/* ================= PARTICIPANT APIs ================= */
+export const getParticipantDashboard = (hackathonId) => API.get(`/participant/hackathon/${hackathonId}/dashboard`, getAuthHeaders());
+
 /* ================= TEAM APIs ================= */
 export const registerTeam = (data) => API.post("/teams", data);
 export const requestJoinTeam = (teamId) => API.post(`/teams/${teamId}/join`);

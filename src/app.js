@@ -17,6 +17,7 @@ import evaluationRoutes from './routes/evaluation.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import profileRoutes from './routes/profile.routes.js';
 import organizerRoutes from './routes/organizer.routes.js';
+import participantRoutes from './routes/participant.routes.js';
 
 const app = express();
 
@@ -71,6 +72,7 @@ app.use('/api/evaluations', evaluationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/organizer', organizerRoutes);
+app.use('/api/participant', participantRoutes);
 app.use('/api/oauth', oauthRoutes);
 
 /* ================= HEALTH CHECK ================= */
