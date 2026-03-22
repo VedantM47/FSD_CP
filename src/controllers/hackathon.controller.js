@@ -449,14 +449,30 @@ export const getTeamsByHackathon = async (req, res, next) => {
     log.info('GET_TEAMS_BY_HACKATHON', 'Fetching teams', { hackathonId });
 
     const teams = await Team.find({ hackathonId })
-      .populate('leader', 'fullName email')
-      .populate('members.userId', 'fullName email');
+      .populate('leader', 'fullName email privacySettings')
+      .populate('members.userId', 'fullName email privacySettings');
 
-    log.success('GET_TEAMS_BY_HACKATHON', `Found ${teams.length} teams`);
+    // Enforce privacy settings to hide emails where requested
+    const sanitizedTeams = teams.map((t) => {
+      const teamObj = t.toObject();
+      if (teamObj.leader && teamObj.leader.privacySettings?.showEmail === false) {
+        teamObj.leader.email = 'Hidden by User';
+      }
+      if (teamObj.members) {
+        teamObj.members.forEach((m) => {
+          if (m.userId && m.userId.privacySettings?.showEmail === false) {
+            m.userId.email = 'Hidden by User';
+          }
+        });
+      }
+      return teamObj;
+    });
+
+    log.success('GET_TEAMS_BY_HACKATHON', `Found ${sanitizedTeams.length} teams`);
     res.status(200).json({
       success: true,
-      count: teams.length,
-      data: teams,
+      count: sanitizedTeams.length,
+      data: sanitizedTeams,
     });
   } catch (err) {
     log.error('GET_TEAMS_BY_HACKATHON', 'Failed to fetch teams', err);

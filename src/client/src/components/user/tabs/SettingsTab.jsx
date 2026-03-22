@@ -17,15 +17,16 @@ const SettingsTab = ({ user, onUpdate }) => {
   const [error, setError] = useState("");
 
   const [notifications, setNotifications] = useState({
-    email: user?.notificationPreferences?.email ?? true,
-    reminders: user?.notificationPreferences?.reminders ?? true,
-    invites: user?.notificationPreferences?.invites ?? true,
-    results: user?.notificationPreferences?.results ?? true,
+    emailAlerts: user?.notificationPreferences?.emailAlerts ?? true,
+    teamInvites: user?.notificationPreferences?.teamInvites ?? true,
+    hackathonUpdates: user?.notificationPreferences?.hackathonUpdates ?? true,
   });
 
   const [privacy, setPrivacy] = useState({
-    publicProfile: user?.privacySettings?.publicProfile ?? true,
-    showAchievements: user?.privacySettings?.showAchievements ?? true,
+    showEmail: user?.privacySettings?.showEmail ?? false,
+    showPhone: user?.privacySettings?.showPhone ?? false,
+    showCollege: user?.privacySettings?.showCollege ?? true,
+    showTeams: user?.privacySettings?.showTeams ?? true,
     allowInvites: user?.privacySettings?.allowInvites ?? true,
   });
 
@@ -149,18 +150,9 @@ const SettingsTab = ({ user, onUpdate }) => {
           </h3>
 
           {[
-            ["Email Notifications", "Receive updates via email", "email"],
-            [
-              "Hackathon Reminders",
-              "Deadline and round reminders",
-              "reminders",
-            ],
-            ["Team Invitations", "Notify when invited to teams", "invites"],
-            [
-              "Result Announcements",
-              "Get notified of results",
-              "results",
-            ],
+            ["Email Alerts", "Receive general email updates", "emailAlerts"],
+            ["Team Invites", "Notify when invited to teams", "teamInvites"],
+            ["Hackathon Updates", "Deadline and round reminders", "hackathonUpdates"],
           ].map(([title, desc, key]) => (
             <div key={key} className="toggle-row">
               <div className="toggle-row__info">
@@ -182,21 +174,11 @@ const SettingsTab = ({ user, onUpdate }) => {
           <h3 className="settings-card__title">🔒 Privacy Settings</h3>
 
           {[
-            [
-              "Public Profile",
-              "Make profile visible to others",
-              "publicProfile",
-            ],
-            [
-              "Show Achievements",
-              "Display wins and rankings",
-              "showAchievements",
-            ],
-            [
-              "Allow Team Invites",
-              "Others can invite you to teams",
-              "allowInvites",
-            ],
+            ["Show Email", "Make email visible to other users", "showEmail"],
+            ["Show Phone", "Make phone visible to other users", "showPhone"],
+            ["Show College", "Display your college and department", "showCollege"],
+            ["Show Teams", "Display teams you have joined", "showTeams"],
+            ["Allow Team Invites", "Others can invite you to teams", "allowInvites"],
           ].map(([title, desc, key]) => (
             <div key={key} className="toggle-row">
               <div className="toggle-row__info">

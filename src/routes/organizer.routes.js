@@ -5,6 +5,7 @@ import {
   applyForOrganizer,
   getApplications,
   reviewApplication,
+  getOrganizerHackathons,
 } from '../controllers/organizer.controller.js';
 
 const router = express.Router();
@@ -15,5 +16,8 @@ router.post('/apply', auth, applyForOrganizer);
 // Admin routes for managing applications
 router.get('/applications', auth, authorize('VIEW_ADMIN_DASHBOARD', (req) => ({ user: req.user })), getApplications);
 router.patch('/applications/:id', auth, authorize('VIEW_ADMIN_DASHBOARD', (req) => ({ user: req.user })), reviewApplication);
+
+// Organizer routes
+router.get('/hackathons', auth, authorize('VIEW_ADMIN_DASHBOARD', (req) => ({ user: req.user })), getOrganizerHackathons);
 
 export default router;
