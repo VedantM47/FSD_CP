@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getParticipantDashboard } from '../../../services/api';
+import { getParticipantDashboard } from '../../services/api';
 
 const ParticipantDashboard = () => {
   const { id } = useParams();
@@ -8,7 +8,7 @@ const ParticipantDashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Countdown State
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
@@ -83,12 +83,12 @@ const ParticipantDashboard = () => {
       </div>
 
       <div style={styles.grid}>
-        
+
         {/* === LEFT COLUMN: Stats === */}
         <div style={styles.statsColumn}>
-          
+
           {/* Main Countdown Card */}
-          <div style={{...styles.card, ...styles.countdownCard}}>
+          <div style={{ ...styles.card, ...styles.countdownCard }}>
             <h3 style={styles.cardTitle}>{countdown.name} In</h3>
             <div style={styles.timerDisplay}>
               <div style={styles.timeBox}>
@@ -167,7 +167,7 @@ const ParticipantDashboard = () => {
 
         {/* === RIGHT COLUMN: Checklist & Timeline === */}
         <div style={styles.infoColumn}>
-          
+
           {/* Checklist Card */}
           <div style={styles.card}>
             <h3 style={styles.cardTitle}>Participant Checklist</h3>
