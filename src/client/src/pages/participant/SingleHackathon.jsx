@@ -222,6 +222,14 @@ const SingleHackathon = () => {
                   <h3 className="dashboard-title">Your Dashboard</h3>
                 </div>
                 
+                <button 
+                  className="btn-primary" 
+                  style={{ width: '100%', marginBottom: '1rem', backgroundColor: '#0f172a' }}
+                  onClick={() => navigate(`/user/hackathon/${id}/dashboard`)}
+                >
+                  🚀 Go To Full Dashboard
+                </button>
+                
                 <div className="countdown-section">
                   {meetsCriteria && isOngoing && !isSubmissionClosed ? (
                     <>

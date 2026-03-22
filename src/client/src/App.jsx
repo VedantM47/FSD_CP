@@ -26,6 +26,7 @@ import ApplyOrganizer from "./pages/user/ApplyOrganizer";
 
 /* participant pages */
 import SingleHackathon from "./pages/participant/SingleHackathon";
+import ParticipantDashboard from "./pages/participant/ParticipantDashboard";
 import RegisterHackathon from "./pages/participant/RegisterHackathon";
 import JoinTeam from "./pages/participant/JoinTeam";
 import SubmitProject from "./pages/participant/SubmitProject";
@@ -77,6 +78,7 @@ function App() {
       {/* Participant Routes (Blocked for Admins & Judges) */}
       <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
         <Route path="/user/hackathon/:id/register" element={<RegisterHackathon />} />
+        <Route path="/user/hackathon/:id/dashboard" element={<ParticipantDashboard />} />
         <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
         <Route path="/user/hackathon/:id/submit" element={<SubmitProject />} />
         <Route path="/user/hackathon/:id/manage-team" element={<ManageTeam />} />
