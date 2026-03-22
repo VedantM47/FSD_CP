@@ -19,6 +19,7 @@ import HackathonDashboard from "./pages/admin/HackathonDashboard";
 
 /* User Pages */
 import Profile from "./pages/user/Profile";
+import PublicProfile from "./pages/user/PublicProfile";
 import Discovery from "./pages/user/Discovery";
 import Calendar from "./pages/user/Calendar";
 import ApplyOrganizer from "./pages/user/ApplyOrganizer";
@@ -68,6 +69,7 @@ function App() {
 
         {/* User Routes */}
         <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:userId" element={<PublicProfile />} />
         <Route path="/discovery" element={<Discovery />} />
         <Route path="/apply-organizer" element={<ApplyOrganizer />} />
       </Route>

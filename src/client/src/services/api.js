@@ -51,6 +51,10 @@ export const searchUsers = (query) => API.get(`/users/search?q=${query}`);
 /* ================= PROFILE APIs ================= */
 export const getMyProfile = () => API.get("/profile/me");
 export const updateMyProfile = (data) => API.put("/users/me", data);
+export const getUserPublicProfile = (userId) => API.get(`/users/profile/${userId}`);
+export const uploadUserResume = (formData) => API.post("/users/upload-resume", formData, {
+  headers: { "Content-Type": "multipart/form-data", ...getAuthHeaders().headers }
+});
 
 /* ================= ADMIN APIs ================= */
 export const getAdminDashboard = () => API.get("/admin/dashboard");
