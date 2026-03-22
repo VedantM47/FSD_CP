@@ -9,6 +9,9 @@ import {
   getAdminTeams,
   getAllJudges,
   assignJudgesToHackathon,
+  broadcastEmail,
+  getEmailQueueStatus,
+  updateUserRole,
 } from '../controllers/admin.controller.js';
 
 const router = express.Router();
@@ -32,5 +35,17 @@ router.get('/teams', getAdminTeams);
 
 router.get('/judges', getAllJudges);
 router.post('/hackathons/:id/judges', assignJudgesToHackathon);
+router.post('/broadcast', broadcastEmail);
+router.get('/email-queue', getEmailQueueStatus);
+router.post('/users/role', updateUserRole);
+router.get('/users', async (req, res, next) => {
+  // Lightweight user list for the Role Management panel
+  const users = await (await import('../models/user.model.js')).default
+    .find({})
+    .select('fullName email systemRole hackathonRoles')
+    .sort({ createdAt: -1 })
+    .limit(200);
+  res.json({ success: true, data: users });
+});
 
 export default router;

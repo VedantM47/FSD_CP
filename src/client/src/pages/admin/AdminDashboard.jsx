@@ -5,8 +5,16 @@ import AdminNavbar from '../../components/admin/AdminNavbar';
 import StatsCard from '../../components/admin/StatsCard';
 import AlertBanner from '../../components/admin/AlertBanner';
 import HackathonCard from '../../components/admin/HackathonCard';
+import RoleManagement from '../../components/admin/RoleManagement';
 
-import { getAdminDashboard, getAdminHackathons, getOrganizerApplications, reviewOrganizerApplication } from '../../services/api';
+import { 
+  getAdminDashboard, 
+  getAdminHackathons, 
+  getOrganizerApplications, 
+  reviewOrganizerApplication,
+  sendAdminBroadcast,
+  getAdminEmailQueueStatus
+} from '../../services/api';
 
 import '../../styles/admin.css';
 
@@ -18,6 +26,14 @@ function AdminDashboard() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Broadcast state
+  const [broadcastTarget, setBroadcastTarget] = useState('all_users');
+  const [targetHackathon, setTargetHackathon] = useState('');
+  const [broadcastSubject, setBroadcastSubject] = useState('');
+  const [broadcastBody, setBroadcastBody] = useState('');
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [queueStatus, setQueueStatus] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -58,8 +74,14 @@ function AdminDashboard() {
 
     fetchAdminData();
 
+    // Poll queue status every 4 seconds
+    const queuePoll = setInterval(() => {
+      getAdminEmailQueueStatus().then(r => setQueueStatus(r.data.data)).catch(() => {});
+    }, 4000);
+
     return () => {
       isMounted = false;
+      clearInterval(queuePoll);
     };
   }, []);
 
@@ -73,6 +95,35 @@ function AdminDashboard() {
       alert(`Application ${status} successfully.`);
     } catch (err) {
       alert(err?.response?.data?.message || 'Failed to review application.');
+    }
+  };
+
+  const handleBroadcast = async (e) => {
+    e.preventDefault();
+    if (!broadcastSubject.trim() || !broadcastBody.trim()) {
+      return alert("Subject and body are required.");
+    }
+    if (broadcastTarget === "hackathon_participants" && !targetHackathon) {
+      return alert("Please select a hackathon to broadcast to its participants.");
+    }
+
+    if (!window.confirm("Are you sure you want to blast this email? It cannot be undone.")) return;
+
+    try {
+      setIsBroadcasting(true);
+      const res = await sendAdminBroadcast({
+        subject: broadcastSubject,
+        body: broadcastBody,
+        targetGroup: broadcastTarget,
+        hackathonId: targetHackathon || undefined
+      });
+      alert(res.data.message || "Broadcast successfully deployed!");
+      setBroadcastSubject('');
+      setBroadcastBody('');
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to broadcast email.");
+    } finally {
+      setIsBroadcasting(false);
     }
   };
 
@@ -144,6 +195,86 @@ function AdminDashboard() {
             <div className="alerts-list">
               <AlertBanner message="Some hackathons are nearing submission deadlines." />
             </div>
+
+            {/* EMAIL QUEUE STATUS */}
+            {queueStatus && (
+              <div style={{ marginTop: '15px', padding: '14px 20px', borderRadius: '10px', background: queueStatus.smtpConfigured ? '#ecfdf5' : '#fef3c7', border: `1px solid ${queueStatus.smtpConfigured ? '#6ee7b7' : '#fcd34d'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '600', color: queueStatus.smtpConfigured ? '#065f46' : '#92400e' }}>
+                  <span style={{ fontSize: '1.3rem' }}>{queueStatus.smtpConfigured ? '📡' : '⚠️'}</span>
+                  <span>Email {queueStatus.smtpConfigured ? 'SMTP Ready' : 'SMTP Not Configured — Add EMAIL_USER & EMAIL_PASS to .env'}</span>
+                </div>
+                <div style={{ display: 'flex', gap: '20px', fontSize: '0.85rem', color: '#4b5563' }}>
+                  <span>Queued: <strong>{queueStatus.queued}</strong></span>
+                  <span>Processing: <strong>{queueStatus.isProcessing ? 'Yes' : 'No'}</strong></span>
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* BROADCAST SECTION */}
+          <section className="applications-section" style={{ marginTop: '40px' }}>
+            <h2 className="section-title">📧 Communication & Broadcasts</h2>
+            <div style={{ background: '#fff', padding: '25px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+              <form onSubmit={handleBroadcast}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#374151' }}>Target Audience</label>
+                    <select
+                      value={broadcastTarget}
+                      onChange={(e) => setBroadcastTarget(e.target.value)}
+                      style={{ width: '100%', padding: '12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '1rem', background: '#f9fafb' }}
+                    >
+                      <option value="all_users">All Registered Users</option>
+                      <option value="hackathon_participants">Participants of a Specific Hackathon</option>
+                    </select>
+                  </div>
+                  {broadcastTarget === 'hackathon_participants' && (
+                    <div>
+                      <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#374151' }}>Select Hackathon</label>
+                      <select
+                        value={targetHackathon}
+                        onChange={(e) => setTargetHackathon(e.target.value)}
+                        style={{ width: '100%', padding: '12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '1rem', background: '#f9fafb' }}
+                      >
+                        <option value="">-- Choose Hackathon --</option>
+                        {hackathons.map((h) => (
+                          <option key={h._id} value={h._id}>{h.title} ({h.status})</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#374151' }}>Email Subject</label>
+                  <input
+                    type="text"
+                    value={broadcastSubject}
+                    onChange={(e) => setBroadcastSubject(e.target.value)}
+                    placeholder="Enter an engaging subject line..."
+                    style={{ width: '100%', padding: '12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '1rem' }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#374151' }}>Email Body (HTML supported)</label>
+                  <textarea
+                    rows="6"
+                    value={broadcastBody}
+                    onChange={(e) => setBroadcastBody(e.target.value)}
+                    placeholder="Type your email content here. You can use HTML tags like <b>bold</b> or <br>."
+                    style={{ width: '100%', padding: '12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '1rem', resize: 'vertical', fontFamily: 'monospace' }}
+                  ></textarea>
+                </div>
+
+                <button 
+                  type="submit" 
+                  disabled={isBroadcasting}
+                  style={{ background: isBroadcasting ? '#9ca3af' : '#2563eb', color: 'white', padding: '12px 24px', borderRadius: '6px', border: 'none', fontSize: '1rem', fontWeight: 'bold', cursor: isBroadcasting ? 'not-allowed' : 'pointer', width: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center', transition: 'background 0.2s' }}>
+                  {isBroadcasting ? 'Sending...' : '🚀 Send Broadcast'}
+                </button>
+              </form>
+            </div>
           </section>
 
           {/* HACKATHONS */}
@@ -200,6 +331,10 @@ function AdminDashboard() {
               </div>
             )}
           </section>
+
+          {/* ROLE MANAGEMENT */}
+          <RoleManagement />
+
         </div>
       </main>
 

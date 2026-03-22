@@ -4,6 +4,7 @@ import Team from '../models/team.model.js';
 import Submission from '../models/submission.model.js';
 import User from '../models/user.model.js';
 import log from '../utils/logger.js';
+import { sendEmail, getQueueStatus } from '../utils/email.js';
 
 /* ================= ADMIN DASHBOARD ================= */
 export const getAdminDashboard = async (req, res, next) => {
@@ -365,5 +366,137 @@ export const assignJudgesToHackathon = async (req, res, next) => {
       message: 'Failed to assign judges',
       error: err.message,
     });
+  }
+};
+
+/* ================= EMAIL BROADCAST ================= */
+export const broadcastEmail = async (req, res, next) => {
+  try {
+    const { subject, body, targetGroup, hackathonId } = req.body;
+    log.info('BROADCAST_EMAIL', 'Admin broadcasting email', { subject, targetGroup, hackathonId, by: req.user?.email });
+
+    if (!subject || !body || !targetGroup) {
+       return next({ statusCode: 400, message: "Subject, body, and targetGroup are required." });
+    }
+
+    let users = [];
+    if (targetGroup === 'all_users') {
+      // Find all valid users who haven't explicitly disabled emails
+      users = await User.find({ "notificationPreferences.emailAlerts": { $ne: false } }).select('email');
+    } else if (targetGroup === 'hackathon_participants') {
+      if (!hackathonId) return next({ statusCode: 400, message: "hackathonId is required for participants." });
+      users = await User.find({
+        "hackathonRoles.hackathonId": hackathonId,
+        "hackathonRoles.role": "participant",
+        "notificationPreferences.emailAlerts": { $ne: false }
+      }).select('email');
+    } else {
+      return next({ statusCode: 400, message: "Invalid target group" });
+    }
+
+    if (!users.length) {
+      log.warn('BROADCAST_EMAIL', 'No users found matching criteria to broadcast to.');
+      return res.status(200).json({ success: true, message: "No users found matching criteria or all users opted-out." });
+    }
+
+    // Send emails
+    const promises = users.map(user => 
+      sendEmail({
+        to: user.email,
+        subject: subject,
+        html: body
+      })
+    );
+
+    const results = await Promise.allSettled(promises);
+    const successfulCount = results.filter(r => r.status === 'fulfilled' && r.value !== false).length;
+
+    log.success('BROADCAST_EMAIL', `Successfully fired ${successfulCount} emails out of ${users.length} attempts.`);
+
+    res.status(200).json({ 
+      success: true, 
+      message: `Email broadcast dispatched securely to ${successfulCount} unique recipients.` 
+    });
+  } catch (err) {
+    log.error('BROADCAST_EMAIL', 'Broadcast failed', err);
+    next({ statusCode: 500, message: err.message });
+  }
+};
+
+/* ================= EMAIL QUEUE STATUS ================= */
+export const getEmailQueueStatus = async (req, res) => {
+  const status = getQueueStatus();
+  res.status(200).json({ success: true, data: status });
+};
+
+/* ================= UPDATE USER ROLE ================= */
+export const updateUserRole = async (req, res, next) => {
+  try {
+    const { userId, systemRole, hackathonId, hackathonRole } = req.body;
+    log.info('UPDATE_USER_ROLE', 'Role update request', { userId, systemRole, hackathonId, hackathonRole, by: req.user?.email });
+
+    if (!userId) {
+      return next({ statusCode: 400, message: 'userId is required.' });
+    }
+
+    const targetUser = await User.findById(userId);
+    if (!targetUser) {
+      return next({ statusCode: 404, message: 'User not found.' });
+    }
+
+    // Update systemRole if provided
+    if (systemRole) {
+      const validRoles = ['user', 'admin', 'mentor'];
+      if (!validRoles.includes(systemRole)) {
+        return next({ statusCode: 400, message: `Invalid systemRole. Must be one of: ${validRoles.join(', ')}` });
+      }
+      targetUser.systemRole = systemRole;
+    }
+
+    // Update hackathon-specific role if provided
+    if (hackathonId && hackathonRole) {
+      const validHackRoles = ['participant', 'judge', 'organizer'];
+      if (!validHackRoles.includes(hackathonRole)) {
+        return next({ statusCode: 400, message: `Invalid hackathonRole. Must be one of: ${validHackRoles.join(', ')}` });
+      }
+
+      const hackathon = await Hackathon.findById(hackathonId);
+      if (!hackathon) {
+        return next({ statusCode: 404, message: 'Hackathon not found.' });
+      }
+
+      // Remove any existing role for this hackathon
+      targetUser.hackathonRoles = targetUser.hackathonRoles.filter(
+        r => !r.hackathonId.equals(hackathonId)
+      );
+      targetUser.hackathonRoles.push({ hackathonId, role: hackathonRole });
+
+      // If assigning as judge, also update the hackathon.judges array
+      if (hackathonRole === 'judge') {
+        const alreadyJudge = hackathon.judges.some(j => j.judgeUserId.equals(userId));
+        if (!alreadyJudge) {
+          hackathon.judges.push({ judgeUserId: userId, assignedAt: new Date() });
+          await hackathon.save();
+        }
+      }
+    }
+
+    await targetUser.save();
+
+    log.success('UPDATE_USER_ROLE', `Role updated for ${targetUser.email}`);
+    res.status(200).json({
+      success: true,
+      message: 'User role updated successfully.',
+      data: {
+        _id: targetUser._id,
+        fullName: targetUser.fullName,
+        email: targetUser.email,
+        systemRole: targetUser.systemRole,
+        hackathonRoles: targetUser.hackathonRoles,
+      },
+    });
+  } catch (err) {
+    log.error('UPDATE_USER_ROLE', 'Failed to update role', err);
+    next({ statusCode: 500, message: err.message });
   }
 };

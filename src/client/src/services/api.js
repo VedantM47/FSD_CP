@@ -61,6 +61,10 @@ export const getHackathonOverview = (id) => API.get(`/admin/hackathons/${id}/ove
 export const createHackathon = (data) => API.post("/hackathons", data);
 export const updateHackathon = (id, data) => API.patch(`/hackathons/${id}`, data);
 export const updateHackathonStatus = (id, status) => API.patch(`/hackathons/${id}/status`, { status });
+export const sendAdminBroadcast = (data) => API.post("/admin/broadcast", data, getAuthHeaders());
+export const getAdminEmailQueueStatus = () => API.get('/admin/email-queue', getAuthHeaders());
+export const getAdminUsers = () => API.get('/admin/users', getAuthHeaders());
+export const updateAdminUserRole = (data) => API.post('/admin/users/role', data, getAuthHeaders());
 
 /* ================= HACKATHON APIs ================= */
 // Public — no auth required
@@ -98,9 +102,10 @@ export const submitProject = (submissionData) =>
   API.post("/submissions", submissionData, getAuthHeaders());
 
 /* ================= ORGANIZER APIs ================= */
-export const applyForOrganizer = (data) => API.post('/organizer/apply', data);
-export const getOrganizerApplications = () => API.get('/organizer/applications');
-export const reviewOrganizerApplication = (id, status) => API.patch(`/organizer/applications/${id}`, { status });
+export const applyForOrganizer = (data) => API.post('/organizer/apply', data, getAuthHeaders());
+export const getOrganizerApplications = () => API.get('/organizer/applications', getAuthHeaders());
+export const reviewOrganizerApplication = (id, data) => API.patch(`/organizer/applications/${id}`, data, getAuthHeaders());
+export const getOrganizerHackathons = () => API.get('/organizer/hackathons', getAuthHeaders());
 
 /* ================= ERROR HANDLER ================= */
 export const handleApiError = (error) => {
