@@ -86,6 +86,14 @@ const userSchema = new mongoose.Schema(
       type: Number,
     },
 
+    bio: { type: String, trim: true },
+    residence: { type: String, trim: true },
+    gender: { type: String, enum: ['Male', 'Female', 'Other', 'Prefer Not to Say'] },
+    degree: { type: String, trim: true },
+    graduationYear: { type: Number },
+    interests: [{ type: String }],
+    resumeUrl: { type: String },
+
     skills: [
       {
         type: String,

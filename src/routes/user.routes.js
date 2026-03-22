@@ -12,7 +12,11 @@ import {
   getUserById,
   deleteUser,
   searchUsers,
+  getPublicProfile,
+  uploadResume,
 } from "../controllers/user.controller.js";
+
+import { upload } from "../utils/upload.js";
 
 const router = express.Router();
 
@@ -33,6 +37,13 @@ router.get("/me", auth, getMe);
 router.put("/me", auth, updateMe);
 
 router.get("/search", auth, searchUsers);
+
+/* ======================================================
+   PUBLIC PROFILE ROUTES
+====================================================== */
+
+router.get("/profile/:userId", auth, getPublicProfile);
+router.post("/upload-resume", auth, upload.single('resume'), uploadResume);
 
 /* ======================================================
    ADMIN ROUTES (AUTH + AUTHORIZE)

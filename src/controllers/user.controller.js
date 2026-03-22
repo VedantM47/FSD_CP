@@ -223,3 +223,56 @@ export const deleteUser = async (req, res, next) => {
     next({ statusCode: 400, message: err.message });
   }
 };
+
+/* ================= PUBLIC PROFILE ================= */
+export const getPublicProfile = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    log.info('GET_PUBLIC_PROFILE', `Fetching public profile for ${userId}`);
+
+    const user = await User.findById(userId).select('-password');
+    if (!user) {
+      return next({ statusCode: 404, message: 'User not found' });
+    }
+
+    if (!user.privacySettings?.publicProfile) {
+      return next({ statusCode: 403, message: 'This profile is private.' });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (err) {
+    log.error('GET_PUBLIC_PROFILE', 'Failed to fetch public profile', err);
+    next({ statusCode: 400, message: err.message });
+  }
+};
+
+/* ================= UPLOAD RESUME ================= */
+export const uploadResume = async (req, res, next) => {
+  try {
+    log.info('UPLOAD_RESUME', `Uploading resume for ${req.user.email}`);
+
+    if (!req.file) {
+      return next({ statusCode: 400, message: 'Please upload a file' });
+    }
+
+    // req.file.path comes from Cloudinary via Multer
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { resumeUrl: req.file.path },
+      { new: true, runValidators: true }
+    );
+
+    log.success('UPLOAD_RESUME', `Resume uploaded successfully for ${user.email}`);
+    res.status(200).json({
+      success: true,
+      data: user,
+      message: 'Resume uploaded successfully'
+    });
+  } catch (err) {
+    log.error('UPLOAD_RESUME', 'Failed to upload resume', err);
+    next({ statusCode: 400, message: err.message });
+  }
+};

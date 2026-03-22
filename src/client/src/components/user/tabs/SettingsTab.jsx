@@ -10,6 +10,11 @@ const SettingsTab = ({ user, onUpdate }) => {
     year: user?.year || "",
     github: user?.github || "",
     linkedin: user?.linkedin || "",
+    bio: user?.bio || "",
+    residence: user?.residence || "",
+    gender: user?.gender || "Prefer Not to Say",
+    degree: user?.degree || "",
+    graduationYear: user?.graduationYear || "",
   });
 
   const [saving, setSaving] = useState(false);
@@ -85,9 +90,13 @@ const SettingsTab = ({ user, onUpdate }) => {
         {[
           ["👤", "Full Name", "fullName"],
           ["✉", "Email", "email"],
+          ["📝", "Short Bio", "bio"],
+          ["🏠", "Residence (City, State)", "residence"],
+          ["🚻", "Gender", "gender"],
+          ["🎓", "Degree (e.g. B.Tech)", "degree"],
           ["🏫", "College / Organization", "college"],
-          ["🎓", "Course & Specialization", "department"],
-          ["📍", "Location / Year", "year"],
+          ["📚", "Course & Specialization", "department"],
+          ["📅", "Graduation Year", "graduationYear"],
           ["🔗", "GitHub", "github"],
           ["🔗", "LinkedIn", "linkedin"],
         ].map(([icon, label, key]) => (
@@ -95,12 +104,32 @@ const SettingsTab = ({ user, onUpdate }) => {
             <label>
               <span className="field-icon">{icon}</span> {label}
             </label>
-            <input
-              type="text"
-              value={form[key]}
-              onChange={(e) => handleChange(key, e.target.value)}
-              disabled={key === "email"} /* email cannot be changed */
-            />
+            {key === "bio" ? (
+              <textarea
+                value={form[key]}
+                onChange={(e) => handleChange(key, e.target.value)}
+                rows={3}
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e5e7eb', fontFamily: 'inherit' }}
+              />
+            ) : key === "gender" ? (
+              <select
+                value={form[key]}
+                onChange={(e) => handleChange(key, e.target.value)}
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#f9fafb' }}
+              >
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Prefer Not to Say">Prefer Not to Say</option>
+              </select>
+            ) : (
+              <input
+                type={key === "graduationYear" ? "number" : "text"}
+                value={form[key]}
+                onChange={(e) => handleChange(key, e.target.value)}
+                disabled={key === "email"} /* email cannot be changed */
+              />
+            )}
           </div>
         ))}
 
