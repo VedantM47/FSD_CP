@@ -12,7 +12,7 @@ function AdminNavbar() {
       <div className="navbar-content">
         {/* Left */}
         <div className="navbar-left">
-          <span className="navbar-logo">HackPlatform</span>
+          <Link to="/" className="navbar-logo" style={{ textDecoration: 'none', color: 'inherit' }}>🚀 HackPlatform</Link>
         </div>
 
         {/* Center */}

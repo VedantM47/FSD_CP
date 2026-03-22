@@ -1,5 +1,8 @@
 import OrganizerApplication from '../models/organizerApplication.model.js';
+import Hackathon from '../models/hackathon.model.js';
 import User from '../models/user.model.js';
+import Team from '../models/team.model.js';
+import Submission from '../models/submission.model.js';
 import log from '../utils/logger.js';
 
 export const applyForOrganizer = async (req, res, next) => {
@@ -73,6 +76,29 @@ export const reviewApplication = async (req, res, next) => {
 
     res.status(200).json({ success: true, message: `Application ${status} successfully.` });
   } catch (err) {
+    next({ statusCode: 500, message: err.message });
+  }
+};
+
+export const getOrganizerHackathons = async (req, res, next) => {
+  try {
+    const hackathons = await Hackathon.find({ createdBy: req.user._id }).sort({ createdAt: -1 });
+
+    // Enrich each hackathon with team + submission counts
+    const enriched = await Promise.all(
+      hackathons.map(async (h) => {
+        const [teamCount, submissionCount] = await Promise.all([
+          Team.countDocuments({ hackathonId: h._id }),
+          Submission.countDocuments({ hackathonId: h._id }),
+        ]);
+        return { ...h.toObject(), teamCount, submissionCount };
+      })
+    );
+
+    log.success('ORGANIZER_HACKATHONS', `Returning ${enriched.length} hackathons for ${req.user.email}`);
+    res.status(200).json({ success: true, count: enriched.length, data: enriched });
+  } catch (err) {
+    log.error('ORGANIZER_HACKATHONS', 'Failed', err);
     next({ statusCode: 500, message: err.message });
   }
 };

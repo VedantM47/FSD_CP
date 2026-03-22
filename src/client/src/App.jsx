@@ -10,8 +10,9 @@ import AssignedHackathons from "./pages/judge/AssignedHackathons";
 import HackathonOverview from "./pages/judge/HackathonOverview";
 import TeamSubmissions from "./pages/judge/TeamSubmissions";
 
-/* Admin Pages */
+/* Admin/Organizer Pages */
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import OrganizerDashboard from "./pages/admin/OrganizerDashboard";
 import CreateHackathon from "./pages/admin/CreateHackathon";
 import ViewHackathon from "./pages/admin/ViewHackathon";
 import HackathonDashboard from "./pages/admin/HackathonDashboard";
@@ -45,6 +46,11 @@ function App() {
       {/* ===== ADMIN-ONLY ROUTES ===== */}
       <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      </Route>
+
+      {/* ===== ORGANIZER & ADMIN SHARED ROUTES ===== */}
+      <Route element={<ProtectedRoute allowedRoles={["admin", "mentor"]} />}>
+        <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
         <Route path="/admin/hackathons/create" element={<CreateHackathon />} />
         <Route path="/admin/hackathons/:id" element={<ViewHackathon />} />
         <Route path="/admin/hackathons/:id/edit" element={<CreateHackathon />} />

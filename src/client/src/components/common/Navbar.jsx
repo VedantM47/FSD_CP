@@ -13,14 +13,14 @@ const Navbar = () => {
     <div className="bg-[#002b5b] text-white px-8 py-4 flex items-center justify-between sticky top-0 z-[100] shadow-lg">
       <div className="flex items-center gap-12">
         <Link to="/" className="font-bold text-2xl tracking-tight text-white hover:text-blue-200 transition-colors">
-          Hackplatform
+          🚀 Hackplatform
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
           <Link
             to="/discovery"
             className={`text-xl transition-all hover:scale-110 active:scale-95 ${location.pathname === '/discovery' ? 'opacity-100' : 'opacity-60'}`}
-            title="Discovery"
+            title="Browse Hackathons"
           >
             🏠
           </Link>
@@ -30,6 +30,23 @@ const Navbar = () => {
           >
             Calendar
           </Link>
+          {/* Organizer / Admin quick-access links */}
+          {(user?.systemRole === 'mentor' || user?.systemRole === 'admin') && (
+            <Link
+              to="/organizer/dashboard"
+              className={`text-sm font-semibold transition-all hover:text-blue-200 ${location.pathname.startsWith('/organizer') ? 'text-white border-b-2 border-white pb-1' : 'text-white/70'}`}
+            >
+              🎛 My Hackathons
+            </Link>
+          )}
+          {user?.systemRole === 'admin' && (
+            <Link
+              to="/admin/dashboard"
+              className={`text-sm font-semibold transition-all hover:text-blue-200 ${location.pathname.startsWith('/admin') ? 'text-white border-b-2 border-white pb-1' : 'text-white/70'}`}
+            >
+              ⚙️ Admin
+            </Link>
+          )}
         </nav>
       </div>
 
