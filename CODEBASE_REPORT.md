@@ -317,7 +317,7 @@ The `authorize` middleware delegates decisions to `policy.js`, which contains **
 
 ### `/api/admin` — `admin.routes.js`
 
-All routes require `auth` + `adminOnly` middleware (checks `systemRole === 'admin'`).
+All `/api/admin` routes require `auth` + `adminOnly` middleware (checks `systemRole === 'admin'`).
 
 | Method | Endpoint | Purpose |
 |--------|----------|---------|
@@ -328,6 +328,19 @@ All routes require `auth` + `adminOnly` middleware (checks `systemRole === 'admi
 | `GET` | `/hackathons/:id/overview` | Hackathon overview (team/submission stats) |
 | `GET` | `/judges` | List all judges |
 | `POST` | `/hackathons/:hackathonId/judges` | Assign judges to hackathon |
+
+---
+
+### `/api/organizer` — `organizer.routes.js`
+
+Available to authenticated users and `mentor`/`organizer` roles.
+
+| Method | Endpoint | Auth | Purpose |
+|--------|----------|------|---------|
+| `POST` | `/apply` | Auth | User applies to be an organizer |
+| `GET` | `/applications` | Auth + Admin | Admin lists applications |
+| `PATCH` | `/applications/:id` | Auth + Admin | Admin approves/rejects application |
+| `GET` | `/hackathons` | Auth + Mentor | Organizers fetch hackathons they've created |
 
 ---
 
@@ -429,12 +442,13 @@ Judge-specific API wrapper with error handling. Methods: `getAssignedHackathons`
 | Login | `/login` | `pages/auth/Login.jsx` | Email/password login form, Google/GitHub OAuth buttons |
 | Signup | `/signup` | `pages/auth/Signup.jsx` | Registration form with validation |
 
-### Admin Pages (require `systemRole: 'admin'`)
+### Admin Pages (require `systemRole: 'admin'` or `'mentor'`)
 
 | Page | Path | File | Purpose |
 |------|------|------|---------|
-| Admin Dashboard | `/admin/dashboard` | `pages/admin/AdminDashboard.jsx` | Overview stats (total hackathons, teams, submissions, users), alerts, hackathon list with View/Dashboard/Edit actions |
-| Create Hackathon | `/admin/hackathons/create` | `pages/admin/CreateHackathon.jsx` | Form to create or edit a hackathon (reused for edit via `:id/edit` route) |
+| Admin Dashboard | `/admin/dashboard` | `pages/admin/AdminDashboard.jsx` | Basic admin stats (hackathons, users, teams) |
+| Organizer Dashboard | `/organizer/dashboard` | `pages/admin/OrganizerDashboard.jsx` | Organizer's portal to see and manage their own hackathons |
+| Create Hackathon | `/admin/hackathons/create` | `pages/admin/CreateHackathon.jsx` | Form to create or edit a hackathon |
 | View Hackathon | `/admin/hackathons/:id` | `pages/admin/ViewHackathon.jsx` | Detailed hackathon view with teams, submissions, judges |
 | Hackathon Dashboard | `/admin/hackathons/:id/dashboard` | `pages/admin/HackathonDashboard.jsx` | Management dashboard for a single hackathon |
 
@@ -581,12 +595,12 @@ sequenceDiagram
 
 ## How to Run
 
-### Backend
+### Backend / Full Stack Mode
 ```bash
 cd Hackathon_Project_2025-26
 npm install
 # Create .env with MONGO_URI, JWT_SECRET, JWT_EXPIRES_IN, PORT, GOOGLE/GITHUB OAuth keys
-npm run dev       # Starts Express on port 3000 (nodemon)
+npm run dev:all   # Starts BOTH Backend and Frontend concurrently
 ```
 
 ### Frontend
