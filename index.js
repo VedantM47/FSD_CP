@@ -24,24 +24,14 @@ const startServer = async () => {
     // Create an explicit HTTP server so Socket.IO can share it with Express
     const httpServer = createServer(app);
 
-    // Initialize Socket.IO
-    const io = new Server(httpServer, {
-      cors: { 
-        origin: process.env.ALLOWED_ORIGIN || 'http://localhost:5173',
-        methods: ["GET", "POST"] 
-      }
-    });
+    // Initialize Socket.IO using the helper so getIO() works elsewhere
+    const io = initSocket(httpServer, process.env.ALLOWED_ORIGIN || 'http://localhost:5173');
 
     io.use(socketAuth);
     
     io.on('connection', (socket) => {
-      console.log(`Socket Connected: ${socket.id}`);
       chatHandler(io, socket);
-      socket.on('disconnect', () => console.log('Socket Disconnected'));
     });
-
-    // Initialize Socket.IO helper
-    initSocket(httpServer, process.env.ALLOWED_ORIGIN || 'http://localhost:5173');
 
     // Start Server
     httpServer.listen(PORT, () => {

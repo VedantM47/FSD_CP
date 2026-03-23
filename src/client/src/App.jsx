@@ -32,6 +32,9 @@ import JoinTeam from "./pages/participant/JoinTeam";
 import SubmitProject from "./pages/participant/SubmitProject";
 import ManageTeam from "./pages/participant/ManageTeam";
 
+/* Hackathon Pages */
+import Discussion from "./pages/hackathon/Discussion";
+
 import "./styles/auth.css";
 import "./styles/global.css";
 
@@ -73,6 +76,9 @@ function App() {
         <Route path="/profile/:userId" element={<PublicProfile />} />
         <Route path="/discovery" element={<Discovery />} />
         <Route path="/apply-organizer" element={<ApplyOrganizer />} />
+
+        {/* Hackathon Routes */}
+        <Route path="/hackathon/:id/discussion" element={<Discussion />} />
       </Route>
 
       {/* Participant Routes (Blocked for Admins & Judges) */}

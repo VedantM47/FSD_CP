@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Footer from '../../components/judge/Footer'; 
 import API, { getAuthHeaders, getHackathonById } from '../../services/api'; 
+import DiscussionLink from '../../components/common/DiscussionLink';
 import '../../styles/SingleHackathon.css';
 
 const SingleHackathon = () => {
@@ -229,6 +230,10 @@ const SingleHackathon = () => {
                 >
                   🚀 Go To Full Dashboard
                 </button>
+                
+                <div style={{ display: 'flex', width: '100%', marginBottom: '1rem' }}>
+                  <DiscussionLink hackathonId={id} className="btn-secondary" />
+                </div>
                 
                 <div className="countdown-section">
                   {meetsCriteria && isOngoing && !isSubmissionClosed ? (

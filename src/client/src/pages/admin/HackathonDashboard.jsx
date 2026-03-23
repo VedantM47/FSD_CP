@@ -75,6 +75,14 @@ function HackathonDashboard() {
               >
                 View Page
               </button>
+              
+              <button
+                className="btn-secondary"
+                onClick={() => navigate(`/hackathon/${id}/discussion`)}
+                style={{ marginLeft: '10px', marginRight: '10px' }}
+              >
+                View Discussion
+              </button>
 
               <button
                 className="btn-primary"

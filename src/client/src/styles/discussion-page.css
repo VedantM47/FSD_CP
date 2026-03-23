@@ -1,0 +1,315 @@
+/* ============================================
+   DISCUSSION PAGE STYLES
+   ============================================ */
+
+.discussion-page-wrapper {
+  background-color: #F4F7F9;
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+.discussion-page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* --- Header Section --- */
+.discussion-page-header {
+  margin-bottom: 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.back-button {
+  padding: 10px 16px;
+  border: 1px solid #E2E8F0;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  color: #64748B;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+.back-button:hover {
+  background-color: #F8FAFC;
+  color: #1E293B;
+  border-color: #CBD5E0;
+}
+
+.back-button:active {
+  transform: scale(0.98);
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.discussion-description {
+  margin: 8px 0 0 0;
+  font-size: 1rem;
+  color: #64748B;
+}
+
+/* --- Main Layout --- */
+.discussion-page-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* --- Sidebar --- */
+.discussion-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #E2E8F0;
+}
+
+.sidebar-card h3 {
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.sidebar-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+/* --- Sidebar Info Items --- */
+.sidebar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 0;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-item .label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-item .value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1E293B;
+}
+
+/* --- Stats Card --- */
+.stats-card {
+  background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+  color: #FFFFFF;
+  padding: 20px;
+}
+
+.stats-card h3 {
+  color: #FFFFFF;
+  margin: 0 0 16px 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --- Main Content --- */
+.discussion-main {
+  grid-column: 2;
+}
+
+/* --- Loading Container --- */
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 20px;
+}
+
+.loading-container p,
+.error-container p {
+  font-size: 1rem;
+  color: #64748B;
+  text-align: center;
+}
+
+.error-container h2 {
+  font-size: 1.5rem;
+  color: #EF4444;
+  margin: 0;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #E2E8F0;
+  border-top-color: #3B82F6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .discussion-page-layout {
+    grid-template-columns: 250px 1fr;
+    gap: 20px;
+  }
+
+  .discussion-page-header {
+    flex-direction: column;
+  }
+
+  .back-button {
+    width: 100%;
+    text-align: left;
+  }
+}
+
+@media (max-width: 768px) {
+  .discussion-page-wrapper {
+    padding: 16px;
+  }
+
+  .discussion-page-container {
+    padding: 0;
+  }
+
+  .discussion-page-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .discussion-main {
+    grid-column: 1;
+  }
+
+  .sidebar-card {
+    padding: 16px;
+  }
+
+  .sidebar-image {
+    height: 150px;
+  }
+
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .discussion-description {
+    font-size: 0.9rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .discussion-page-wrapper {
+    padding: 12px;
+  }
+
+  .discussion-page-header {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .back-button {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .header-content h1 {
+    font-size: 1.25rem;
+  }
+
+  .sidebar-card {
+    padding: 12px;
+  }
+
+  .sidebar-image {
+    height: 120px;
+    margin-bottom: 12px;
+  }
+
+  .info-item {
+    padding: 6px 0;
+    gap: 2px;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+  }
+}
