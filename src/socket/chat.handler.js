@@ -40,7 +40,7 @@ export default (io, socket) => {
       });
 
       // Populate sender details so the UI can display names immediately
-      await newDiscussion.populate('senderId', 'fullName email');
+      await newDiscussion.populate('senderId', 'fullName email systemRole');
 
       // Broadcast the new message to all users in this hackathon's room
       const room = `hackathon_${hackathonId}`;

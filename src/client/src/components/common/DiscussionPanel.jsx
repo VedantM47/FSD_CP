@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { joinHackathonRoom, sendMessage, onReceiveMessage, offReceiveMessage } from '../../services/socket';
+import { getHackathonDiscussions } from '../../services/api';
 import '../../styles/discussion.css';
 
 const DiscussionPanel = ({ hackathonId, currentUser }) => {
@@ -9,22 +10,38 @@ const DiscussionPanel = ({ hackathonId, currentUser }) => {
   const messagesEndRef = useRef(null);
   const messageCallbackRef = useRef(null);
 
-  // Auto-scroll to latest message
+  // Auto-scroll to latest message securely within its own container to prevent whole-page jumping
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = messagesEndRef.current?.parentElement;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
   };
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  // Join room and listen for messages
+  // Fetch initial messages and set up socket
   useEffect(() => {
     if (!hackathonId) return;
 
-    setLoading(true);
+    const fetchMessages = async () => {
+      try {
+        setLoading(true);
+        const res = await getHackathonDiscussions(hackathonId);
+        if (res.data?.success) {
+          setMessages(res.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to load discussion history", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMessages();
     joinHackathonRoom(hackathonId);
-    setLoading(false);
 
     // Create callback function
     const handleMessage = (message) => {
