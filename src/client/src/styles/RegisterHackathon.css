@@ -1,0 +1,282 @@
+/* --- RegisterHackathon.css --- */
+
+/* 1. SCROLLING FIX (The Wrapper) */
+.register-page-wrapper {
+  position: fixed; /* Breaks out of any locked parent */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto; /* Forces scroll bar */
+  background-color: #F8F9FA; /* Light gray background */
+  z-index: 9999; /* sits on top of everything */
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* 2. HEADER STYLES */
+.register-header {
+  background-color: #003465; /* Deep Navy Blue from screenshot */
+  padding: 40px 0 60px; /* Taller padding */
+  color: white;
+}
+
+.header-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.back-btn {
+  background: transparent;
+  border: none;
+  color: #E5E7EB;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+  padding: 0;
+}
+
+.back-btn:hover { text-decoration: underline; color: white; }
+
+.reg-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.reg-subtitle {
+  font-size: 1rem;
+  color: #D1D5DB;
+  margin: 0;
+}
+
+/* 3. FORM LAYOUT */
+.register-form-container {
+  max-width: 800px;
+  margin: -30px auto 60px; /* Pulls form up nicely */
+  padding: 0 24px;
+  position: relative;
+  z-index: 10;
+}
+
+.step-card {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Step Header (Circle + Title) */
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.step-circle {
+  width: 32px;
+  height: 32px;
+  background-color: #3B82F6; /* Bright Blue */
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.step-label {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827; /* Dark Text */
+  margin: 0;
+}
+
+/* 4. INPUTS - FORCE WHITE THEME */
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.input-full {
+  grid-column: span 2;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151; /* Dark Grey Label */
+}
+
+/* CRITICAL FIX: !important forces white background overriding dark mode */
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+  background-color: #FFFFFF !important; 
+  color: #1F2937 !important;
+  border: 1px solid #D1D5DB !important;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #9CA3AF !important;
+}
+
+.form-group input:focus, 
+.form-group select:focus, 
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* 5. TOGGLE BOX */
+.toggle-box {
+  background-color: #EFF6FF; /* Light Blue */
+  border: none;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.toggle-box input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #3B82F6;
+}
+
+.toggle-text strong {
+  display: block;
+  color: #1E3A8A;
+  font-size: 0.95rem;
+}
+
+.toggle-text span {
+  font-size: 0.85rem;
+  color: #60A5FA;
+}
+
+/* 6. MEMBERS SECTION */
+.members-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.member-count {
+  font-size: 0.9rem;
+  color: #6B7280;
+}
+
+.add-member-btn {
+  background: none;
+  border: none;
+  color: #3B82F6;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.add-member-btn:hover { text-decoration: underline; }
+
+.warning-box {
+  background-color: #FEFCE8; /* Yellow Bg */
+  border: 1px solid #FEF08A;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  color: #854D0E;
+  font-size: 0.9rem;
+  margin-top: 16px;
+}
+
+/* Dynamic Member Row */
+.member-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: end;
+}
+
+.remove-btn {
+  color: #EF4444;
+  background: none;
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* 7. FOOTER */
+.form-footer {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.btn-cancel {
+  background: #FFFFFF;
+  border: 1px solid #D1D5DB;
+  color: #374151;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-submit {
+  background: #3B82F6;
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  flex: 1;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.btn-submit:hover { background: #2563EB; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .input-grid { grid-template-columns: 1fr; }
+  .input-full { grid-column: span 1; }
+  .member-row { grid-template-columns: 1fr; }
+}

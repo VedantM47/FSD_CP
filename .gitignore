@@ -6,4 +6,10 @@ dist/
 build/
 .vscode/
 .idea/
-
+package-lock.json
+data.json
+./vscode/c_cpp_properties.json
+/logs
+changes.txt
+Idea 2.0 user dashboard.mov
+test

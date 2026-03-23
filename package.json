@@ -1,13 +1,18 @@
 {
-  "name": "hackathon-ai-recommendation",
+  "name": "hackathon_project_2025-26",
   "version": "1.0.0",
   "description": "AI-Driven Problem Statement Recommendation System for Hackathon Platform",
-  "main": "server.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev --prefix src/client\"",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IEEE-SB-VIT-Pune/Hackathon_Project_2025-26.git"
   },
   "keywords": [
     "hackathon",
@@ -17,26 +22,35 @@
   ],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IEEE-SB-VIT-Pune/Hackathon_Project_2025-26/issues"
+  },
+  "homepage": "https://github.com/IEEE-SB-VIT-Pune/Hackathon_Project_2025-26#readme",
   "dependencies": {
     "@xenova/transformers": "^2.17.2",
     "axios": "^1.6.2",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^1.41.3",
     "compromise": "^14.12.0",
     "cors": "^2.8.6",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.4",
-    "express": "^4.22.1",
+    "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.0.0",
-    "mongoose": "^8.22.1",
+    "mongoose": "^9.0.1",
+    "multer": "^2.1.1",
+    "multer-storage-cloudinary": "^4.0.0",
     "natural": "^6.10.3",
+    "nodemailer": "^8.0.3",
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "nodemon": "^3.1.11"
   }
 }
