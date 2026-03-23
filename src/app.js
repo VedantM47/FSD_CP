@@ -26,8 +26,8 @@ import evaluationRoutes from './routes/evaluation.routes.js';
 import oauthRoutes from './routes/oauth.routes.js';
 import calendarRoutes from './routes/calendar.routes.js';
 
-// AI & Recommendation Routes
-import aiRoutes from './routes/ai.routes.js';
+// Search & Recommendation Routes
+import searchRoutes from './routes/search.routes.js';
 import problemRoutes from './routes/problem.routes.js';
 import recommendationRoutes from './routes/recommendation.routes.js';
 import judgeRoutes from './routes/judge.routes.js';
@@ -90,8 +90,8 @@ app.use('/api/evaluations', evaluationRoutes);
 app.use('/api/oauth', oauthRoutes);
 app.use('/api/calendar', calendarRoutes);
 
-// AI Feature Routes
-app.use('/api/ai', aiRoutes);
+// Search & Recommendation Routes
+app.use('/api/ai', searchRoutes);
 app.use('/api/problems', problemRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 
