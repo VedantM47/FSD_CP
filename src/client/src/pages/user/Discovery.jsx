@@ -25,16 +25,26 @@ const Discovery = () => {
    * ── Map backend hackathon → shape HackathonCard expects ──
    * Includes a robust comparison to handle both hId and hackathonId fields
    */
+ /**
+   * ── Map backend hackathon → shape HackathonCard expects ──
+   */
   const toCardShape = (h) => {
-    // ROBUST ID CHECK: We convert everything to String to avoid Object vs String mismatches
     const registrationRecord = userRoles.find((role) => {
       const roleHackathonId = String(role.hId || role.hackathonId || "");
       const currentHackathonId = String(h._id || "");
-      
       return roleHackathonId === currentHackathonId && role.role === 'participant';
     });
 
     const isUserRegistered = !!registrationRecord;
+
+    // 🕒 FIX: DATE CHECK LOGIC
+    // Grab the raw date before we format it into a string
+    const rawDeadline = h.registrationDeadline || h.endDate;
+    // Check if right now is past the deadline
+    const isRegistrationClosed = rawDeadline ? new Date() > new Date(rawDeadline) : false;
+
+    // FIX: Make the badge say "closed" if the deadline passed, even if DB says "open"
+    const displayStatus = (h.status === 'open' && isRegistrationClosed) ? 'closed' : h.status;
 
     return {
       _id: h._id,
@@ -42,28 +52,22 @@ const Discovery = () => {
       organization: "HackathonHub", 
       description: h.description || "No description provided.",
       image: h.image || `https://placehold.co/600x300/e2e8f0/475569?text=Hackathon`,
-      status: h.status,
-      isRegistered: isUserRegistered, // This flag controls the button state
+      status: displayStatus, // Now the badge will correctly show 'closed'
+      isRegistered: isUserRegistered,
+      isRegistrationClosed: isRegistrationClosed, // Pass this to shut down the button
       teamSize: h.maxTeamSize ? `1–${h.maxTeamSize}` : "Open",
       mode: "Online", 
-      deadline: h.registrationDeadline
-        ? new Date(h.registrationDeadline).toLocaleDateString("en-US", {
+      deadline: rawDeadline
+        ? new Date(rawDeadline).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
             year: "numeric",
           })
-        : h.endDate
-          ? new Date(h.endDate).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })
-          : "TBD",
+        : "TBD",
       prizePool: h.prizePool || "TBA",
-      tags: [h.status],
+      tags: [displayStatus], // Now the tags will also show 'closed'
     };
   };
-
   /* ── Load User Context and Hackathons ── */
   useEffect(() => {
     const loadDiscoveryData = async () => {

@@ -1,16 +1,16 @@
-import dotenv from 'dotenv';
+import 'dotenv/config'; // 👈 THIS RUNS FIRST, INJECTING THE .ENV IMMEDIATELY
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-dotenv.config({ path: path.resolve(__dirname, '.', '.env') });
-
+// 👇 NOW THESE RUN, AND PROCESS.ENV IS FULLY LOADED!
 import app from './src/app.js';
 import connectDB from './src/config/db.js';
 import { initSocket } from './src/utils/socket.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 8080;
 

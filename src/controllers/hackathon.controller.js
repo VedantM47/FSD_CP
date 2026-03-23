@@ -23,9 +23,34 @@ const MAX_JUDGES = 10;
 export const createHackathon = async (req, res, next) => {
   try {
     log.info('CREATE_HACKATHON', 'Creating hackathon', { title: req.body.title, by: req.user?.email || 'unauthenticated' });
+    
+    // 1. Clone the body so we can safely modify it
+    const hackathonData = { ...req.body };
 
-    // 🔥 NEW: Validate Team Sizes
-    const { minTeamSize, maxTeamSize } = req.body;
+    // 🛠️ 2. THE FIX: Parse the stringified array into the exact Object structure Mongoose wants
+    if (hackathonData.judges && typeof hackathonData.judges === 'string') {
+      try {
+        const parsedJudges = JSON.parse(hackathonData.judges);
+        
+        if (Array.isArray(parsedJudges)) {
+            // Mongoose needs: [{ judgeUserId: "...", assignedAt: Date }]
+            // Frontend sent: ["id1", "id2"]
+            hackathonData.judges = parsedJudges.map(id => ({
+                judgeUserId: id,
+                assignedAt: new Date()
+            }));
+        } else {
+            hackathonData.judges = [];
+        }
+      } catch (e) {
+        log.warn('CREATE_HACKATHON', 'Failed to parse judges array string. Defaulting to empty array.');
+        hackathonData.judges = [];
+      }
+    }
+
+    // 3. Validate Team Sizes
+    const minTeamSize = hackathonData.minTeamSize;
+    const maxTeamSize = hackathonData.maxTeamSize;
     if (minTeamSize && maxTeamSize && Number(minTeamSize) > Number(maxTeamSize)) {
       return next({
         statusCode: 400,
@@ -33,16 +58,17 @@ export const createHackathon = async (req, res, next) => {
       });
     }
 
-    const hackathonData = { ...req.body };
+    // 4. Handle Image Upload
     if (req.file) {
       hackathonData.image = req.file.path;
     }
 
+    // 5. Save to Database
     const hackathon = await Hackathon.create(hackathonData);
 
     log.success('CREATE_HACKATHON', `Hackathon created: "${hackathon.title}" (id=${hackathon._id})`);
 
-    // 🔔 Real-time: notify all calendar clients that new hackathon events exist
+    // 6. Notify connected clients
     emitCalendarUpdate('created', hackathon._id);
 
     res.status(201).json({

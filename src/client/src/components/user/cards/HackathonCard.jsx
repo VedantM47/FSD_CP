@@ -5,16 +5,9 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
   const isRegistered = hackathon.isRegistered; 
   const isOngoing = hackathon.status === "ongoing";
   const isClosed = hackathon.status === "closed" || hackathon.status === "past";
-  const isDraft = hackathon.status === "draft"; // Naya check Draft ke liye
+  const isDraft = hackathon.status === "draft"; 
+  const isRegistrationClosed = hackathon.isRegistrationClosed; // 👈 Naya prop fetch kiya
 
-  /**
-   * ── renderMainButton ──
-   * Logic:
-   * 1. Registered -> ✓ Registered
-   * 2. Draft -> Coming Soon (Disabled)
-   * 3. Ongoing/Closed -> Status Name (Disabled)
-   * 4. Open -> Register Now
-   */
   const renderMainButton = () => {
     // Case 1: Agar user already registered hai
     if (isRegistered) {
@@ -50,7 +43,7 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
       );
     }
 
-    // Case 2: Agar hackathon DRAFT mein hai (Yeh fix hai!)
+    // Case 2: Agar hackathon DRAFT mein hai
     if (isDraft) {
       return (
         <button 
@@ -69,8 +62,8 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
       );
     }
 
-    // Case 3: Agar registration band ho gayi hai
-    if (isOngoing || isClosed) {
+    // Case 3: Agar registration band ho gayi hai (Date passed ya Admin closed it)
+    if (isOngoing || isClosed || isRegistrationClosed) {
       return (
         <button 
           className="btn-primary" 
@@ -83,7 +76,7 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
             cursor: 'not-allowed' 
           }}
         >
-          {isOngoing ? "Ongoing" : "Closed"}
+          {isOngoing ? "Ongoing" : "Registration Closed"}
         </button>
       );
     }

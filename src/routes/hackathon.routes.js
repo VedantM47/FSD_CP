@@ -51,13 +51,13 @@ router.get(
 /* ================= PROTECTED ================= */
 
 // Create hackathon (admin / Mentor)
-router.post('/', upload.single('image'), createHackathon);
+router.post('/', auth,upload.single('image'), createHackathon);
 
-router.patch('/:id', upload.single('image'), updateHackathon);
+router.patch('/:id',auth, upload.single('image'), updateHackathon);
 
 
 // Update hackathon status (admin / organizer / Mentor)
-router.patch('/:id/status', updateHackathonStatus);
+router.patch('/:id/status', auth,updateHackathonStatus);
 
 /* ================= ASSIGN JUDGE ================= */
 router.post(

@@ -27,22 +27,36 @@ if (credentialsPresent) {
         clientSecret: googleClientSecret,
         callbackURL: `${process.env.BACKEND_URL || 'http://localhost:8080'}/api/oauth/google/callback`,
       },
-      async (accessToken, refreshToken, profile, done) => {
+     async (accessToken, refreshToken, profile, done) => {
         try {
-          let user = await User.findOne({ googleId: profile.id });
+          const email = profile.emails[0].value;
+          
+          // 1. Check if user already exists BY EMAIL first
+          let user = await User.findOne({ email: email });
 
-          if (!user) {
-            user = await User.create({
-              fullName: profile.displayName,
-              email: profile.emails[0].value,
-              googleId: profile.id,
-              authProvider: 'google',
-              systemRole: 'user',
-            });
+          if (user) {
+            // 2. If user exists but doesn't have a googleId yet, link it!
+            if (!user.googleId) {
+              user.googleId = profile.id;
+              // We don't overwrite the authProvider if they signed up with 'local' originally, 
+              // but you can if you want. Let's just save the googleId.
+              await user.save();
+            }
+            return done(null, user); // Log them in!
           }
+
+          // 3. If user DOES NOT exist at all, create a brand new one
+          user = await User.create({
+            fullName: profile.displayName,
+            email: email,
+            googleId: profile.id,
+            authProvider: 'google',
+            systemRole: 'user',
+          });
 
           return done(null, user);
         } catch (err) {
+          console.error("Google Auth Error:", err);
           return done(err, null);
         }
       }
