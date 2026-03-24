@@ -1,9 +1,10 @@
 # Hackathon_Project_2025-26
 
-Changes in project log: 
 
-format log:
-##  Date: YYYY-MM-DD 
+## Changes in project log: 
+
+format of the log:
+### Date: YYYY-MM-DD 
 ### Contributor: <Your Name>
 - 🔧 Type of Change: [Feature / Bug Fix / Refactor / Docs / Setup]
 ### Files Modified:
@@ -23,5 +24,3 @@ format log:
 ### Notes / Dependencies:
 - Any important info others should know
 - Example: "Requires env update" or "Breaks previous API response"
-
----
