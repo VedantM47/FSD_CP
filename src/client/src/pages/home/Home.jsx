@@ -8,7 +8,6 @@ import "../../styles/home.css";
 /* =============== GATEWAY CARD DATA =============== */
 const gateways = [
     {
-        icon: "🔍",
         title: "Discover Hackathons",
         desc: "Browse upcoming hackathons, filter by tech stack, and find the perfect challenge for your team.",
         to: "/discovery",
@@ -16,7 +15,6 @@ const gateways = [
         bg: "#eff6ff",
     },
     {
-        icon: "📅",
         title: "Calendar",
         desc: "Track deadlines, submission dates, and presentation schedules in one unified timeline.",
         to: "/calendar",
@@ -24,7 +22,6 @@ const gateways = [
         bg: "#f5f3ff",
     },
     {
-        icon: "👤",
         title: "My Profile",
         desc: "Manage your skills, teams, and hackathon history. Showcase your achievements.",
         to: "/profile",
@@ -32,7 +29,6 @@ const gateways = [
         bg: "#ecfeff",
     },
     {
-        icon: "⚖️",
         title: "Judge Panel",
         desc: "Review submissions, score teams with criteria-based rubrics, and provide feedback.",
         to: "/judge/hackathons",
@@ -40,7 +36,6 @@ const gateways = [
         bg: "#fffbeb",
     },
     {
-        icon: "🛠",
         title: "Admin Dashboard",
         desc: "Create hackathons, manage teams, assign judges, and monitor platform activity.",
         to: "/admin/dashboard",
@@ -48,7 +43,6 @@ const gateways = [
         bg: "#fef2f2",
     },
     {
-        icon: "📝",
         title: "Register & Join",
         desc: "Form a team, invite members, and register for any open hackathon in minutes.",
         to: "/discovery",
@@ -149,7 +143,6 @@ const Home = () => {
                                 "--card-bg": g.bg,
                             }}
                         >
-                            <div className="card-icon">{g.icon}</div>
                             <div className="card-title">{g.title}</div>
                             <div className="card-desc">{g.desc}</div>
                             <div className="card-arrow">

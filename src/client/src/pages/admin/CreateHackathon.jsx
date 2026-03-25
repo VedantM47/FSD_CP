@@ -180,115 +180,127 @@ function CreateHackathon() {
           {error && <p className="error-text" style={{ color: '#ef4444', marginBottom: '20px', fontWeight: 'bold' }}>{error}</p>}
 
           {loading ? (
-            <p>Loading...</p>
+            <div className="loading-container">
+              <p>Loading...</p>
+            </div>
           ) : (
-            <div className="hackathon-form">
-              {/* BASIC DETAILS */}
-              <section className="form-section">
-                <h2 className="form-section-title">Hackathon Details</h2>
-
-                <div className="form-group">
-                  <label className="form-label">Title</label>
-                  <input
-                    type="text"
-                    name="title"
-                    className="form-input"
-                    value={formData.title}
-                    onChange={handleChange}
-                  />
+            <div className="hackathon-form-improved">
+              {/* BASIC INFO SECTION */}
+              <section className="form-section-card">
+                <div className="form-section-header">
+                  <h2 className="form-section-title-new">Basic Information</h2>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Description</label>
-                  <textarea
-                    name="description"
-                    className="form-textarea"
-                    rows="4"
-                    value={formData.description}
-                    onChange={handleChange}
-                  />
-                </div>
+                <div className="form-grid">
+                  <div className="form-group-full">
+                    <label className="form-label-new">Hackathon Title</label>
+                    <input
+                      type="text"
+                      name="title"
+                      className="form-input-new"
+                      placeholder="Enter hackathon title"
+                      value={formData.title}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-                <div className="form-group">
-                  <label className="form-label">Banner Image</label>
-                  <input
-                    type="file"
-                    name="image"
-                    className="form-input"
-                    accept="image/*"
-                    onChange={handleChange}
-                  />
-                  {isEditMode && <small className="text-gray-500">Leave blank to keep existing image</small>}
-                </div>
+                  <div className="form-group-full">
+                    <label className="form-label-new">Description</label>
+                    <textarea
+                      name="description"
+                      className="form-textarea-new"
+                      rows="5"
+                      placeholder="Describe your hackathon..."
+                      value={formData.description}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-                <div className="form-group">
-                  <label className="form-label">Status</label>
-                  <select
-                    name="status"
-                    className="form-select"
-                    value={formData.status}
-                    onChange={handleChange}
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="open">Open</option>
-                    <option value="ongoing">Ongoing</option>
-                    <option value="closed">Closed</option>
-                  </select>
+                  <div className="form-group">
+                    <label className="form-label-new">Banner Image</label>
+                    <input
+                      type="file"
+                      name="image"
+                      className="form-input-file"
+                      accept="image/*"
+                      onChange={handleChange}
+                    />
+                    {isEditMode && <small className="form-hint">Leave blank to keep existing image</small>}
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label-new">Status</label>
+                    <select
+                      name="status"
+                      className="form-select-new"
+                      value={formData.status}
+                      onChange={handleChange}
+                    >
+                      <option value="draft">Draft</option>
+                      <option value="open">Open</option>
+                      <option value="ongoing">Ongoing</option>
+                      <option value="closed">Closed</option>
+                    </select>
+                  </div>
                 </div>
               </section>
 
-              {/* DATES */}
-              <section className="form-section">
-                <h2 className="form-section-title">Dates</h2>
+              {/* DATES SECTION */}
+              <section className="form-section-card">
+                <div className="form-section-header">
+                  <h2 className="form-section-title-new">Dates & Timeline</h2>
+                </div>
 
-                <div className="form-row">
+                <div className="form-grid">
                   <div className="form-group">
-                    <label className="form-label">Start Date</label>
+                    <label className="form-label-new">Start Date & Time</label>
                     <input
                       type="datetime-local"
                       name="startDate"
-                      className="form-input"
+                      className="form-input-new"
                       value={formData.startDate}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">End Date</label>
+                    <label className="form-label-new">End Date & Time</label>
                     <input
                       type="datetime-local"
                       name="endDate"
-                      className="form-input"
+                      className="form-input-new"
                       value={formData.endDate}
                       onChange={handleChange}
                     />
                   </div>
-                </div>
 
-                <div className="form-group">
-                  <label className="form-label">Registration Deadline</label>
-                  <input
-                    type="datetime-local"
-                    name="registrationDeadline"
-                    className="form-input"
-                    value={formData.registrationDeadline}
-                    onChange={handleChange}
-                  />
+                  <div className="form-group-full">
+                    <label className="form-label-new">Registration Deadline</label>
+                    <input
+                      type="datetime-local"
+                      name="registrationDeadline"
+                      className="form-input-new"
+                      value={formData.registrationDeadline}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
               </section>
 
-              {/* RULES & REWARDS */}
-              <section className="form-section">
-                <h2 className="form-section-title">Rules & Requirements</h2>
+              {/* TEAM & REWARDS SECTION */}
+              <section className="form-section-card">
+                <div className="form-section-header">
+                  <h2 className="form-section-title-new">Team & Rewards</h2>
+                </div>
 
-                {/* ✅ UPDATED TEAM SIZE INPUTS */}
-                <div className="form-row">
+                <div className="form-grid">
                   <div className="form-group">
-                    <label className="form-label">Min Team Size</label>
+                    <label className="form-label-new">Minimum Team Size</label>
                     <input
                       type="number"
                       name="minTeamSize"
-                      className="form-input"
+                      className="form-input-new"
+                      placeholder="e.g., 1"
                       value={formData.minTeamSize}
                       onChange={handleChange}
                       min="1"
@@ -296,70 +308,94 @@ function CreateHackathon() {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Max Team Size</label>
+                    <label className="form-label-new">Maximum Team Size</label>
                     <input
                       type="number"
                       name="maxTeamSize"
-                      className="form-input"
+                      className="form-input-new"
+                      placeholder="e.g., 4"
                       value={formData.maxTeamSize}
                       onChange={handleChange}
                       min="1"
                     />
                   </div>
-                </div>
 
-                <div className="form-group">
-                  <label className="form-label">Prize Pool</label>
-                  <input
-                    type="text"
-                    name="prizePool"
-                    className="form-input"
-                    value={formData.prizePool}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Rules</label>
-                  <textarea
-                    name="rules"
-                    className="form-textarea"
-                    rows="4"
-                    value={formData.rules}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Terms & Conditions</label>
-                  <textarea
-                    name="terms"
-                    className="form-textarea"
-                    rows="4"
-                    value={formData.terms}
-                    onChange={handleChange}
-                  />
+                  <div className="form-group-full">
+                    <label className="form-label-new">Prize Pool</label>
+                    <input
+                      type="text"
+                      name="prizePool"
+                      className="form-input-new"
+                      placeholder="e.g., $10,000"
+                      value={formData.prizePool}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
               </section>
 
-              {/* JUDGES */}
-              <section className="form-section">
-                <h2 className="form-section-title">Assign Judges</h2>
+              {/* RULES & TERMS SECTION */}
+              <section className="form-section-card">
+                <div className="form-section-header">
+                  <h2 className="form-section-title-new">Rules & Terms</h2>
+                </div>
+
+                <div className="form-grid">
+                  <div className="form-group-full">
+                    <label className="form-label-new">Rules</label>
+                    <textarea
+                      name="rules"
+                      className="form-textarea-new"
+                      rows="5"
+                      placeholder="Enter hackathon rules..."
+                      value={formData.rules}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="form-group-full">
+                    <label className="form-label-new">Terms & Conditions</label>
+                    <textarea
+                      name="terms"
+                      className="form-textarea-new"
+                      rows="5"
+                      placeholder="Enter terms and conditions..."
+                      value={formData.terms}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </section>
+
+              {/* JUDGES SECTION */}
+              <section className="form-section-card">
+                <div className="form-section-header">
+                  <h2 className="form-section-title-new">Assign Judges</h2>
+                </div>
 
                 {judges.length === 0 ? (
-                  <p>No judges available</p>
+                  <div className="empty-state">
+                    <p>No judges available. Please add judges to the system first.</p>
+                  </div>
                 ) : (
-                  <div className="judge-list">
+                  <div className="judge-grid">
                     {judges.map(judge => (
-                      <label key={judge._id} className="judge-item">
+                      <label key={judge._id} className="judge-checkbox-card">
                         <input
                           type="checkbox"
+                          className="judge-checkbox"
                           checked={selectedJudges.includes(judge._id)}
                           onChange={() => toggleJudge(judge._id)}
                         />
-                        <span>
-                          {judge.fullName} ({judge.email})
-                        </span>
+                        <div className="judge-info">
+                          <div className="judge-avatar">
+                            {judge.fullName?.charAt(0).toUpperCase() || '?'}
+                          </div>
+                          <div className="judge-details">
+                            <span className="judge-name">{judge.fullName}</span>
+                            <span className="judge-email">{judge.email}</span>
+                          </div>
+                        </div>
                       </label>
                     ))}
                   </div>
@@ -367,19 +403,22 @@ function CreateHackathon() {
               </section>
 
               {/* ACTIONS */}
-              <div className="form-actions">
+              <div className="form-actions-new">
                 <button
-                  className="btn-secondary"
+                  className="btn-cancel"
                   onClick={() => navigate('/admin/dashboard')}
+                  type="button"
                 >
                   Cancel
                 </button>
 
                 <button
-                  className="btn-primary"
+                  className="btn-submit"
                   onClick={handleSubmit}
+                  disabled={loading}
+                  type="button"
                 >
-                  {isEditMode ? 'Update Hackathon' : 'Create Hackathon'}
+                  {loading ? 'Saving...' : (isEditMode ? 'Update Hackathon' : 'Create Hackathon')}
                 </button>
               </div>
             </div>

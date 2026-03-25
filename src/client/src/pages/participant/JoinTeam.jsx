@@ -36,10 +36,10 @@ const JoinTeam = () => {
     try {
       setRequesting(teamId);
       await requestJoinTeam(teamId);
-      alert("✅ Request Sent Successfully! The team leader will review your application.");
+      alert("Request Sent Successfully! The team leader will review your application.");
     } catch (error) {
       const msg = error.response?.data?.message || "Request failed";
-      alert(msg.includes('already') ? "⚠️ You have already requested this team or are currently in a team." : `❌ Error: ${msg}`);
+      alert(msg.includes('already') ? "You have already requested this team or are currently in a team." : `Error: ${msg}`);
     } finally {
       setRequesting(null);
     }
@@ -143,7 +143,6 @@ const JoinTeam = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <span style={{ position: 'absolute', left: '15px', top: '15px', fontSize: '1.2rem', opacity: 0.5 }}>🔍</span>
           </div>
         </div>
 

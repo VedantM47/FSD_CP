@@ -125,7 +125,7 @@ const ManageTeam = () => {
           {/* Left Column: Accepted Members */}
           <div style={{ background: 'white', borderRadius: '24px', padding: '30px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
             <h2 style={{ margin: '0 0 25px 0', fontSize: '1.5rem', color: '#111827', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span>👥</span> Roster
+              Roster
             </h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>

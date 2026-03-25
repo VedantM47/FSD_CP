@@ -33,14 +33,14 @@ const ApplyOrganizer = () => {
         
         {success ? (
           <div>
-            <p style={{ color: 'green', fontWeight: 'bold' }}>✅ Application submitted successfully! An admin will review your request soon.</p>
+            <p style={{ color: 'green', fontWeight: 'bold' }}>Application submitted successfully! An admin will review your request soon.</p>
             <button onClick={() => navigate('/profile')} style={{ background: '#3b82f6', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '4px', marginTop: '20px', cursor: 'pointer' }}>
               Return to Profile
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            {error && <p style={{ color: 'red' }}>❌ {error}</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             
             <label style={{ fontWeight: 'bold' }}>Why do you want to be an organizer?</label>
             <textarea 

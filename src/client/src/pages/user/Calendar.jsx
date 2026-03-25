@@ -45,7 +45,7 @@ const RefreshBanner = ({ visible }) => (
             zIndex: 9999,
         }}
     >
-        ✅ Calendar updated in real time
+        Calendar updated in real time
     </div>
 );
 
@@ -202,13 +202,13 @@ const Calendar = () => {
                         className={`view-btn ${viewMode === 'month' ? 'active' : ''}`}
                         onClick={() => setViewMode('month')}
                     >
-                        📅 Month
+                        Month
                     </button>
                     <button
                         className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                         onClick={() => setViewMode('list')}
                     >
-                        📋 List
+                        List
                     </button>
                 </div>
 

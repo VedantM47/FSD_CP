@@ -10,8 +10,6 @@ import RoleManagement from '../../components/admin/RoleManagement';
 import { 
   getAdminDashboard, 
   getAdminHackathons, 
-  getOrganizerApplications, 
-  reviewOrganizerApplication,
   sendAdminBroadcast,
   getAdminEmailQueueStatus
 } from '../../services/api';
@@ -23,7 +21,6 @@ function AdminDashboard() {
 
   const [stats, setStats] = useState(null);
   const [hackathons, setHackathons] = useState([]);
-  const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -43,20 +40,15 @@ function AdminDashboard() {
         setLoading(true);
         setError('');
 
-        const [dashboardRes, hackathonsRes, appsRes] = await Promise.all([
+        const [dashboardRes, hackathonsRes] = await Promise.all([
           getAdminDashboard(),
           getAdminHackathons(),
-          getOrganizerApplications(),
         ]);
 
         if (!isMounted) return;
 
         setStats(dashboardRes.data.data);
         setHackathons(hackathonsRes.data.data || []);
-        
-        // Filter out non-pending applications if preferred, 
-        // or just store all and filter in UI. Let's store all.
-        setApplications(appsRes.data.data || []);
       } catch (err) {
         console.error('❌ ADMIN DASHBOARD ERROR:', err);
 
@@ -84,19 +76,6 @@ function AdminDashboard() {
       clearInterval(queuePoll);
     };
   }, []);
-
-  const handleReviewApplication = async (id, status) => {
-    try {
-      await reviewOrganizerApplication(id, status);
-      // Remove from list or update status locally
-      setApplications(prev => prev.map(app => 
-        app._id === id ? { ...app, status } : app
-      ));
-      alert(`Application ${status} successfully.`);
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to review application.');
-    }
-  };
 
   const handleBroadcast = async (e) => {
     e.preventDefault();
@@ -290,43 +269,6 @@ function AdminDashboard() {
                     key={hackathon._id}
                     hackathon={hackathon}
                   />
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* ORGANIZER APPLICATIONS */}
-          <section className="applications-section" style={{ marginTop: '40px' }}>
-            <h2 className="section-title">Organizer Applications</h2>
-
-            {applications.filter(app => app.status === 'pending').length === 0 ? (
-              <p>No pending applications.</p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                {applications.filter(app => app.status === 'pending').map((app) => (
-                  <div key={app._id} style={{ background: 'white', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                      <h3 style={{ margin: '0 0 5px 0' }}>{app.userId?.fullName} ({app.userId?.email})</h3>
-                      <p style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#666' }}>
-                        {app.userId?.college} • {app.userId?.department}
-                      </p>
-                      <p style={{ margin: 0, padding: '10px', background: '#f8fafc', borderRadius: '4px', fontStyle: 'italic' }}>
-                        "{app.motivation}"
-                      </p>
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px', marginLeft: '20px' }}>
-                      <button 
-                        onClick={() => handleReviewApplication(app._id, 'approved')}
-                        style={{ background: '#10B981', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                        Approve
-                      </button>
-                      <button 
-                        onClick={() => handleReviewApplication(app._id, 'rejected')}
-                        style={{ background: '#EF4444', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                        Reject
-                      </button>
-                    </div>
-                  </div>
                 ))}
               </div>
             )}

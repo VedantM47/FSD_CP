@@ -67,7 +67,13 @@ export const updateHackathon = (id, data) => API.patch(`/hackathons/${id}`, data
 export const updateHackathonStatus = (id, status) => API.patch(`/hackathons/${id}/status`, { status });
 export const sendAdminBroadcast = (data) => API.post("/admin/broadcast", data, getAuthHeaders());
 export const getAdminEmailQueueStatus = () => API.get('/admin/email-queue', getAuthHeaders());
-export const getAdminUsers = () => API.get('/admin/users', getAuthHeaders());
+export const getAdminUsers = (page = 1, limit = 10, search = '') => {
+  const params = new URLSearchParams();
+  params.set('page', page.toString());
+  params.set('limit', limit.toString());
+  if (search) params.set('search', search);
+  return API.get(`/admin/users?${params.toString()}`, getAuthHeaders());
+};
 export const updateAdminUserRole = (data) => API.post('/admin/users/role', data, getAuthHeaders());
 
 /* ================= HACKATHON APIs ================= */
