@@ -72,14 +72,23 @@ Contributor: Yash Wadhwani
 Files Modified:
 
 src/models/user.model.js
+
 src/models/hackathon.model.js
+
 src/controllers/profile.controller.js
+
 src/client/src/pages/user/OrganizerDashboard.jsx
+
 src/client/src/pages/home/Home.jsx
+
 src/client/src/App.js (Routes)
+
 src/routes/hackathon.routes.js
+
 src/models/organizerApplication.model.js(removed)
+
 src/routes/organizerApplication.routes.js(removed)
+
 src/controller/organizerApplication.controller.js(removed)
 
 Description:
