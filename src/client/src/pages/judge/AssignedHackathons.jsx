@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/judge/Navbar";
 import Footer from "../../components/judge/Footer";
 import HackathonCard from "../../components/judge/HackathonCard";
@@ -7,6 +8,7 @@ import "../../styles/judge.css";
 import "../../styles/judge-additional.css";
 
 const AssignedHackathons = () => {
+  const navigate = useNavigate();
   const [hackathons, setHackathons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -224,6 +226,13 @@ const AssignedHackathons = () => {
       <main className="page-main">
         <div className="page-container">
           <div className="page-header">
+            <button
+              onClick={() => navigate(-1)}
+              className="back-button"
+              style={{ marginBottom: "16px" }}
+            >
+              ← Back
+            </button>
             <h1 className="page-title">Assigned Hackathons</h1>
             <p className="page-subtitle">
               Review and evaluate team submissions for hackathons you are
