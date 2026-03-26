@@ -113,6 +113,7 @@ const ParticipantDashboard = () => {
             </div>
           </div>
 
+
           <div style={styles.statsGrid}>
             {/* Team Members */}
             <div style={styles.card}>

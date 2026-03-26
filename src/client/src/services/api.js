@@ -96,7 +96,11 @@ export const getParticipantDashboard = (hackathonId) => API.get(`/participant/ha
 
 /* ================= TEAM APIs ================= */
 export const registerTeam = (data) => API.post("/teams", data);
-export const requestJoinTeam = (teamId) => API.post(`/teams/${teamId}/join`);
+export const requestJoinTeam = (teamId, message) => API.post(`/teams/${teamId}/join`, { message });
+export const withdrawJoinRequest = (teamId) => API.post(`/teams/${teamId}/withdraw`);
+export const discoverMembers = (teamId) => API.get(`/teams/${teamId}/discover-members`);
+export const inviteMember = (teamId, data) => API.post(`/teams/${teamId}/invite`, data);
+export const respondToInvite = (teamId, data) => API.post(`/teams/${teamId}/invites/respond`, data);
 
 /* ================= CALENDAR ================= */
 export const getCalendarEvents = () => API.get('/calendar');

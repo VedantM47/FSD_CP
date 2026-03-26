@@ -66,6 +66,14 @@ export const getParticipantDashboard = async (req, res, next) => {
       nextDeadlineDate = hackathon.finalDeadline;
     }
 
+    // 2.5 Invitations Check
+    const invitedTeams = await Team.find({
+      hackathonId,
+      'members': { 
+        $elemMatch: { userId, status: 'invited' } 
+      }
+    }).select('name leader').populate('leader', 'fullName email');
+
     const dashboardData = {
       hackathon: {
         id: hackathon._id,
@@ -89,6 +97,11 @@ export const getParticipantDashboard = async (req, res, next) => {
         maxSize: team.maxSize || hackathon.maxTeamSize || 4,
         isLeader: team.leader.toString() === userId.toString(),
       } : null,
+      invitations: invitedTeams.map(t => ({
+        id: t._id,
+        name: t.name,
+        leaderName: t.leader?.fullName || 'Unknown Leader'
+      })),
       project: {
         isCreated: isProjectCreated,
         isSubmitted: isProjectSubmitted,
