@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminNavbar from '../../components/admin/AdminNavbar';
+import Navbar from '../../components/common/Navbar'; // CHANGED: Using universal Navbar
 import API, { getAuthHeaders } from "../../services/api";
 import { getOrganizerHackathons } from '../../services/api';
 import '../../styles/admin.css';
@@ -50,7 +50,6 @@ const HackCard = ({ h, navigate }) => {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', background: '#f8fafc', borderRadius: '10px', padding: '12px 16px' }}>
         {[
-          // FIXED: Checking both teamsCount and teamCount to be safe
           { label: 'Teams',       value: h.teamsCount ?? h.teamCount ?? 0 },
           { label: 'Submissions', value: h.submissionsCount ?? h.submissionCount ?? 0 },
           { label: 'Max Teams',   value: h.maxTeams ?? '∞' },
@@ -103,13 +102,8 @@ function OrganizerDashboard() {
       try {
         setLoading(true);
         setError('');
-
-        // 1. Simply fetch the data. The Backend already filters by Organizer role.
         const res = await getOrganizerHackathons();
-        
-        // 2. Ensure we extract the array correctly from the { success, data, count } response
         const list = res.data?.data || [];
-
         if (isMounted) setHackathons(list);
       } catch (err) {
         console.error("Dashboard Fetch Error:", err);
@@ -123,7 +117,7 @@ function OrganizerDashboard() {
     return () => { isMounted = false; };
   }, []);
 
-  /* Aggregate stats - handling both key naming versions */
+  /* Aggregate stats */
   const totalHackathons   = hackathons.length;
   const activeHackathons  = hackathons.filter(h => ['ongoing','open'].includes(h.status)).length;
   const totalTeams        = hackathons.reduce((a, h) => a + (h.teamsCount || h.teamCount || 0), 0);
@@ -135,8 +129,9 @@ function OrganizerDashboard() {
 
   if (loading) return (
     <div className="admin-layout">
-      <AdminNavbar />
-      <main className="admin-main" style={{ display: 'flex', alignItems: 'center', justifyContent: "center" }}>
+      {/* FIXED: navigationMode set to organizer to hide Admin links */}
+      <Navbar navigationMode="organizer" title="Organizer Portal" />
+      <main className="admin-main" style={{ display: 'flex', alignItems: 'center', justifyContent: "center", minHeight: '80vh' }}>
         <p style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Loading your dashboard...</p>
       </main>
     </div>
@@ -144,23 +139,24 @@ function OrganizerDashboard() {
 
   return (
     <div className="admin-layout">
-      <AdminNavbar />
+      {/* FIXED: navigationMode set to organizer */}
+      <Navbar navigationMode="organizer" title="Organizer Portal" />
       <main className="admin-main">
-        <div className="admin-container">
+        <div className="admin-container" style={{ paddingTop: '20px' }}>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', marginBottom: '30px', background: 'linear-gradient(135deg, #047857 0%, #064e3b 100%)', padding: '30px 35px', borderRadius: '18px', color: 'white' }}>
             <div>
-              <p style={{ margin: '0 0 6px 0', fontSize: '0.85rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1px' }}>Organizer Panel</p>
-              <h1 style={{ fontSize: '2.2rem', margin: '0 0 8px 0', fontWeight: '900' }}>My Hackathons</h1>
-              <p style={{ margin: 0, opacity: 0.8, fontSize: '1.05rem' }}>View stats and manage events assigned to you.</p>
+              <p style={{ margin: '0 0 6px 0', fontSize: '0.85rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1px' }}>Management Area</p>
+              <h1 style={{ fontSize: '2.2rem', margin: '0 0 8px 0', fontWeight: '900' }}>Organizer Dashboard</h1>
+              <p style={{ margin: 0, opacity: 0.8, fontSize: '1.05rem' }}>Monitor stats and manage events assigned to your account.</p>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '16px', marginBottom: '35px' }}>
-            <StatBox label="Total Hackathons" value={totalHackathons} color="#ede9fe" />
-            <StatBox label="Active / Open"    value={activeHackathons} color="#dcfce7" />
-            <StatBox label="Teams Enrolled"   value={totalTeams}       color="#dbeafe" />
-            <StatBox label="Submissions"      value={totalSubmissions} color="#fef3c7" />
+            <StatBox label="Assigned Events" value={totalHackathons} color="#ede9fe" />
+            <StatBox label="Live / Open"      value={activeHackathons} color="#dcfce7" />
+            <StatBox label="Total Teams"      value={totalTeams}       color="#dbeafe" />
+            <StatBox label="Total Submissions" value={totalSubmissions} color="#fef3c7" />
           </div>
 
           <div style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
@@ -170,8 +166,8 @@ function OrganizerDashboard() {
                 onClick={() => setStatusFilter(s)}
                 style={{
                   padding: '8px 18px', borderRadius: '99px', border: '1.5px solid',
-                  borderColor: statusFilter === s ? '#2563eb' : '#e5e7eb',
-                  background: statusFilter === s ? '#2563eb' : '#fff',
+                  borderColor: statusFilter === s ? '#111827' : '#e5e7eb',
+                  background: statusFilter === s ? '#111827' : '#fff',
                   color: statusFilter === s ? '#fff' : '#4b5563',
                   fontWeight: '600', cursor: 'pointer', fontSize: '0.85rem', textTransform: 'capitalize'
                 }}
@@ -180,6 +176,8 @@ function OrganizerDashboard() {
               </button>
             ))}
           </div>
+
+          {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
 
           {displayed.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px', background: '#fff', borderRadius: '16px', border: '2px dashed #e5e7eb', color: '#9ca3af' }}>
