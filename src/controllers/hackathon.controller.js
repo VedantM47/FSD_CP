@@ -24,66 +24,67 @@ export const createHackathon = async (req, res, next) => {
   try {
     log.info('CREATE_HACKATHON', 'Creating hackathon', { title: req.body.title, by: req.user?.email || 'unauthenticated' });
     
-    // 1. Clone the body so we can safely modify it
-    const hackathonData = { ...req.body };
+    // Explicitly set the creator ID
+    const hackathonData = { 
+      ...req.body,
+      createdBy: req.user._id 
+    };
 
-    // 🛠️ 2. THE FIX: Parse the stringified array into the exact Object structure Mongoose wants
-    if (hackathonData.judges && typeof hackathonData.judges === 'string') {
-      try {
-        const parsedJudges = JSON.parse(hackathonData.judges);
-        
-        if (Array.isArray(parsedJudges)) {
-            // Mongoose needs: [{ judgeUserId: "...", assignedAt: Date }]
-            // Frontend sent: ["id1", "id2"]
-            hackathonData.judges = parsedJudges.map(id => ({
-                judgeUserId: id,
-                assignedAt: new Date()
-            }));
-        } else {
-            hackathonData.judges = [];
-        }
-      } catch (e) {
-        log.warn('CREATE_HACKATHON', 'Failed to parse judges array string. Defaulting to empty array.');
-        hackathonData.judges = [];
+    // 1. Parse Judges
+    let judgeIds = [];
+    if (hackathonData.judges) {
+      judgeIds = typeof hackathonData.judges === 'string' ? JSON.parse(hackathonData.judges) : hackathonData.judges;
+      hackathonData.judges = Array.isArray(judgeIds) ? judgeIds.map(id => ({ judgeUserId: id, assignedAt: new Date() })) : [];
+    }
+
+    if (judgeIds.length > MAX_JUDGES) {
+      return next({ statusCode: 400, message: `Maximum ${MAX_JUDGES} judges allowed.` });
+    }
+
+    // 2. Parse Organizers
+    let organizerIds = [];
+    if (hackathonData.organizers) {
+      organizerIds = typeof hackathonData.organizers === 'string' ? JSON.parse(hackathonData.organizers) : hackathonData.organizers;
+      
+      // Ensure the creator is always in the organizer list
+      if (!organizerIds.includes(req.user._id.toString())) {
+        organizerIds.push(req.user._id.toString());
       }
+
+      // FIX: Standardized key to 'userId'
+      hackathonData.organizers = organizerIds.map(id => ({ 
+       organizerUserId: id,
+        assignedAt: new Date() 
+      }));
     }
 
     // 3. Validate Team Sizes
-    const minTeamSize = hackathonData.minTeamSize;
-    const maxTeamSize = hackathonData.maxTeamSize;
-    if (minTeamSize && maxTeamSize && Number(minTeamSize) > Number(maxTeamSize)) {
-      return next({
-        statusCode: 400,
-        message: "Minimum team size cannot be greater than maximum team size.",
-      });
+    if (hackathonData.minTeamSize && hackathonData.maxTeamSize && Number(hackathonData.minTeamSize) > Number(hackathonData.maxTeamSize)) {
+      return next({ statusCode: 400, message: "Minimum team size cannot be greater than maximum team size." });
     }
 
-    // 4. Handle Image Upload
-    if (req.file) {
-      hackathonData.image = req.file.path;
-    }
+    if (req.file) hackathonData.image = req.file.path;
 
-    // 5. Save to Database
+    // 4. Save Hackathon
     const hackathon = await Hackathon.create(hackathonData);
 
-    log.success('CREATE_HACKATHON', `Hackathon created: "${hackathon.title}" (id=${hackathon._id})`);
+    // 5. Sync User Roles (Handshake) - Use 'hId' to match middleware context
+    if (judgeIds.length > 0) {
+      await User.updateMany({ _id: { $in: judgeIds } }, { $addToSet: { hackathonRoles: { hId: hackathon._id, role: 'judge' } } });
+    }
+    if (organizerIds.length > 0) {
+      await User.updateMany({ _id: { $in: organizerIds } }, { $addToSet: { hackathonRoles: { hId: hackathon._id, role: 'organizer' } } });
+    }
 
-    // 6. Notify connected clients
+    log.success('CREATE_HACKATHON', `Hackathon created: "${hackathon.title}"`);
     emitCalendarUpdate('created', hackathon._id);
 
-    res.status(201).json({
-      success: true,
-      data: hackathon,
-    });
+    res.status(201).json({ success: true, data: hackathon });
   } catch (err) {
-    log.error('CREATE_HACKATHON', 'Failed to create hackathon', err);
-    next({
-      statusCode: 400,
-      message: err.message,
-    });
+    log.error('CREATE_HACKATHON', 'Failed to create', err);
+    next({ statusCode: 400, message: err.message });
   }
 };
-
 
 /* ================= GET ALL HACKATHONS ================= */
 /* Public */
@@ -112,27 +113,22 @@ export const getAllHackathons = async (req, res, next) => {
 export const getHackathonById = async (req, res, next) => {
   try {
     log.info('GET_HACKATHON', `Fetching hackathon`, { id: req.params.id });
-    const hackathon = await Hackathon.findById(req.params.id);
+    
+    // FIX: Updated populate path to 'organizers.userId'
+    const hackathon = await Hackathon.findById(req.params.id)
+      .populate('judges.judgeUserId', 'fullName email')
+      .populate('organizers.organizerUserId', 'fullName email');
 
     if (!hackathon) {
       log.warn('GET_HACKATHON', `Not found: ${req.params.id}`);
-      return next({
-        statusCode: 404,
-        message: 'Hackathon not found',
-      });
+      return next({ statusCode: 404, message: 'Hackathon not found' });
     }
 
     log.success('GET_HACKATHON', `Found: "${hackathon.title}"`);
-    res.status(200).json({
-      success: true,
-      data: hackathon,
-    });
+    res.status(200).json({ success: true, data: hackathon });
   } catch (err) {
     log.error('GET_HACKATHON', 'Failed to fetch hackathon', err);
-    next({
-      statusCode: 400,
-      message: err.message,
-    });
+    next({ statusCode: 400, message: err.message });
   }
 };
 
@@ -309,86 +305,58 @@ export const searchHackathons = async (req, res, next) => {
   }
 };
 
-/* ================= UPDATE HACKATHON ================= */
-/* Admin / Mentor */
+
 /* ================= UPDATE HACKATHON ================= */
 /* Admin / Mentor */
 export const updateHackathon = async (req, res, next) => {
   try {
-    log.info('UPDATE_HACKATHON', 'Updating hackathon', { id: req.params.id, fields: Object.keys(req.body), by: req.user?.email });
+    log.info('UPDATE_HACKATHON', 'Updating hackathon', { id: req.params.id, by: req.user?.email });
 
-    // 🔥 NEW: Validate Team Sizes during update
-    const { minTeamSize, maxTeamSize, judges: newJudgeIds, ...updateData } = req.body;
+    const { minTeamSize, maxTeamSize, judges: newJudgeIds, organizers: newOrganizerIds, ...updateData } = req.body;
 
     if (minTeamSize && maxTeamSize && Number(minTeamSize) > Number(maxTeamSize)) {
-      return next({
-        statusCode: 400,
-        message: "Minimum team size cannot be greater than maximum team size.",
-      });
+      return next({ statusCode: 400, message: "Minimum team size cannot be greater than maximum team size." });
     }
 
-    // Include min/max team sizes in updateData
-    if (minTeamSize) updateData.minTeamSize = minTeamSize;
-    if (maxTeamSize) updateData.maxTeamSize = maxTeamSize;
+    if (req.file) updateData.image = req.file.path;
 
-    if (req.file) {
-      updateData.image = req.file.path;
+    // Parse incoming IDs and use standardized keys
+    if (newJudgeIds) {
+      const parsedJudges = Array.isArray(newJudgeIds) ? newJudgeIds : JSON.parse(newJudgeIds);
+      if (parsedJudges.length > MAX_JUDGES) return next({ statusCode: 400, message: `Max ${MAX_JUDGES} judges allowed.` });
+      updateData.judges = parsedJudges.map(id => ({ judgeUserId: id, assignedAt: new Date() }));
     }
 
-    // 2. Format strings into the exact object structure Mongoose demands
-    if (newJudgeIds && Array.isArray(newJudgeIds)) {
-      updateData.judges = newJudgeIds.map(id => ({
-        judgeUserId: id,
-        assignedAt: new Date()
-      }));
+    if (newOrganizerIds) {
+      const parsedOrganizers = Array.isArray(newOrganizerIds) ? newOrganizerIds : JSON.parse(newOrganizerIds);
+      // FIX: Standardized to 'userId'
+      updateData.organizers = parsedOrganizers.map(id => ({ organizerUserId: id, assignedAt: new Date() }));
     }
 
-    // 3. Save the Hackathon document
-    const hackathon = await Hackathon.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const hackathon = await Hackathon.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
+    if (!hackathon) return next({ statusCode: 404, message: 'Hackathon not found' });
 
-    if (!hackathon) {
-      log.warn('UPDATE_HACKATHON', `Not found: ${req.params.id}`);
-      return next({ statusCode: 404, message: 'Hackathon not found' });
+    // Sync Roles
+    const hId = hackathon._id;
+    if (newJudgeIds) {
+      const parsedJudges = Array.isArray(newJudgeIds) ? newJudgeIds : JSON.parse(newJudgeIds);
+      await User.updateMany({ 'hackathonRoles.hId': hId, 'hackathonRoles.role': 'judge' }, { $pull: { hackathonRoles: { hId: hId, role: 'judge' } } });
+      await User.updateMany({ _id: { $in: parsedJudges } }, { $addToSet: { hackathonRoles: { hId: hId, role: 'judge' } } });
     }
 
-    // 4. BULLETPROOF SYNC: Judge roles synchronization
-    if (newJudgeIds && Array.isArray(newJudgeIds)) {
-      const incomingIds = newJudgeIds.map(id => id.toString());
-
-      await User.updateMany(
-        { 'hackathonRoles.hackathonId': hackathon._id, 'hackathonRoles.role': 'judge' },
-        { $pull: { hackathonRoles: { hackathonId: hackathon._id, role: 'judge' } } }
-      );
-
-      if (incomingIds.length > 0) {
-        await User.updateMany(
-          { _id: { $in: incomingIds } },
-          { $push: { hackathonRoles: { hackathonId: hackathon._id, role: 'judge' } } }
-        );
-      }
-
-      log.info('UPDATE_HACKATHON', `Force-synced judge roles. Active judges: ${incomingIds.length}`);
+    if (newOrganizerIds) {
+      const parsedOrganizers = Array.isArray(newOrganizerIds) ? newOrganizerIds : JSON.parse(newOrganizerIds);
+      await User.updateMany({ 'hackathonRoles.hId': hId, 'hackathonRoles.role': 'organizer' }, { $pull: { hackathonRoles: { hId: hId, role: 'organizer' } } });
+      await User.updateMany({ _id: { $in: parsedOrganizers } }, { $addToSet: { hackathonRoles: { hId: hId, role: 'organizer' } } });
     }
 
     log.success('UPDATE_HACKATHON', `Updated: "${hackathon.title}"`);
-
-    // 🔔 Real-time: notify calendar clients that hackathon dates may have changed
     emitCalendarUpdate('updated', hackathon._id);
 
-    res.status(200).json({
-      success: true,
-      data: hackathon,
-    });
+    res.status(200).json({ success: true, data: hackathon });
   } catch (err) {
-    log.error('UPDATE_HACKATHON', 'Failed to update hackathon', err);
-    next({
-      statusCode: 400,
-      message: err.message,
-    });
+    log.error('UPDATE_HACKATHON', 'Failed to update', err);
+    next({ statusCode: 400, message: err.message });
   }
 };
 /* ================= UPDATE HACKATHON STATUS ================= */

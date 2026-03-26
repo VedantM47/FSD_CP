@@ -7,6 +7,9 @@ const HackathonCard = ({ hackathon }) => {
   // Fallback logic (IMPORTANT)
   const title = hackathon.title || hackathon.name || "Untitled Hackathon";
 
+  // ADDED: Logic check for edit permissions
+  const canEdit = hackathon.status === 'draft' || hackathon.status === 'open';
+
   const getStatusClass = (status) => {
     switch (status) {
       case "draft":
@@ -107,8 +110,16 @@ const HackathonCard = ({ hackathon }) => {
 
         <button
           className="action-btn-grid action-btn-edit"
-          onClick={() => navigate(`/admin/hackathons/${hackathon._id}/edit`)}
-          title="Edit Hackathon"
+
+          onClick={() =>
+            navigate(`/admin/hackathons/${hackathon._id}/edit`)
+          }
+          disabled={!canEdit}
+          title={!canEdit ? `Editing disabled (${hackathon.status})` : "Edit Hackathon"}
+          style={{
+            opacity: canEdit ? 1 : 0.5,
+            cursor: canEdit ? 'pointer' : 'not-allowed',
+          }}
         >
           Edit
         </button>

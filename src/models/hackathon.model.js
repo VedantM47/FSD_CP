@@ -1,4 +1,3 @@
-// src/models/hackathon.model.js
 import mongoose from 'mongoose';
 
 const hackathonSchema = new mongoose.Schema(
@@ -15,10 +14,9 @@ const hackathonSchema = new mongoose.Schema(
     presentationDate: Date,
     resultDate: Date,
 
-    // FIX: Adding Minimum and Defaulting Maximum
     minTeamSize: {
       type: Number,
-      default: 1, // Default 1 member (Solo allowed)
+      default: 1, 
     },
     maxTeamSize: {
       type: Number,
@@ -26,7 +24,7 @@ const hackathonSchema = new mongoose.Schema(
     },
 
     prizePool: String,
-    image: String, // Cloudinary URL
+    image: String, 
     rules: String,
     terms: String,
 
@@ -36,9 +34,21 @@ const hackathonSchema = new mongoose.Schema(
       default: 'draft',
     },
 
+    // Isko 'judgeUserId' hi rakha hai kyunki assignJudge controller yahi maangta hai
     judges: [
       {
         judgeUserId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+        assignedAt: Date,
+      },
+    ],
+
+    // Isko wapas 'organizerUserId' kar diya hai taaki populate crash na ho
+    organizers: [
+      {
+        organizerUserId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'User',
         },

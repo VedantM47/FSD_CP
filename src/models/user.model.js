@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Hackathon',
         },
+        hId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Hackathon',
+        },
         role: {
           type: String,
           enum: ['participant', 'judge', 'organizer'],

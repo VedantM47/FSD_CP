@@ -51,8 +51,8 @@ function App() {
       </Route>
 
       {/* ===== ORGANIZER & ADMIN SHARED ROUTES ===== */}
-      <Route element={<ProtectedRoute allowedRoles={["admin", "mentor"]} />}>
-        <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
+      <Route element={<ProtectedRoute allowedRoles={["admin", "mentor","user"]} />}>
+       
         <Route path="/admin/hackathons/create" element={<CreateHackathon />} />
         <Route path="/admin/hackathons/:id" element={<ViewHackathon />} />
         <Route path="/admin/hackathons/:id/edit" element={<CreateHackathon />} />
@@ -62,6 +62,7 @@ function App() {
       {/* ===== PROTECTED ROUTES (any authenticated user) ===== */}
       <Route element={<ProtectedRoute />}>
         {/* Judge Routes */}
+         <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
         <Route path="/judge/hackathons" element={<AssignedHackathons />} />
         <Route path="/judge/hackathons/:id" element={<HackathonOverview />} />
         <Route path="/judge/hackathons/:id/submissions" element={<TeamSubmissions />} />

@@ -98,6 +98,12 @@ CREATE_HACKATHON: ({ user }) => {
 
 UPDATE_HACKATHON: ({ user, hackathon }) => {
   if (!user || !hackathon) return false;
+  
+  // DYNAMIC CHECK: Lock editing if the event has started or finished
+  if (hackathon.status !== 'draft' && hackathon.status !== 'open') {
+    return false; 
+  }
+
   if (user.systemRole === 'admin' || user.systemRole === 'mentor') return true;
 
   return user.hackathonRoles?.some(
@@ -126,7 +132,16 @@ REMOVE_JUDGE: ({ user, hackathon }) => {
     r => r.hackathonId.equals(hackathon._id) && r.role === 'organizer'
   );
 },
+VIEW_ORGANIZER_DASHBOARD: ({ user }) => {
+    // 1. Let System Admins and Mentors in by default
+    if (['admin', 'mentor'].includes(user.systemRole)) return true;
 
+    // 2. Let regular users in ONLY if they have an organizer role for at least one hackathon
+    // This matches the context seen in your logs: {"role":"organizer"}
+    const isOrganizer = user.hackathonRoles?.some(r => r.role === 'organizer');
+    
+    return isOrganizer;
+  },
 /* =====================================================
    SUBMISSION POLICIES
 ===================================================== */
