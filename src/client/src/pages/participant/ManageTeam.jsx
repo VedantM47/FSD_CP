@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import API, { getAuthHeaders } from '../../services/api';
 
 const ManageTeam = () => {
@@ -90,132 +90,469 @@ const ManageTeam = () => {
   const pendingMembers = team.members.filter(m => m.status === 'pending');
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f3f4f6', padding: '40px 20px', fontFamily: 'system-ui, sans-serif' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        
-        {/* Navigation */}
-        <button onClick={() => navigate(`/user/hackathon/${id}`)} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'transparent', border: 'none', color: '#4b5563', fontWeight: 'bold', cursor: 'pointer', padding: '0 0 20px 0', fontSize: '1rem', transition: 'color 0.2s' }}>
-          <span style={{ fontSize: '1.2rem' }}>←</span> Return to Dashboard
+    <div style={styles.container}>
+      <div style={styles.headerNav}>
+        <button onClick={() => navigate(`/user/hackathon/${id}`)} style={styles.backLink}>
+           ← Return to Dashboard
         </button>
+      </div>
 
-        {/* Hero Header */}
-        <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%)', borderRadius: '24px', padding: '40px', color: 'white', marginBottom: '30px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
-          <div>
-            <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', padding: '6px 16px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '15px', backdropFilter: 'blur(10px)' }}>
-              Team Headquarters
-            </div>
-            <h1 style={{ fontSize: '3rem', margin: '0 0 10px 0', fontWeight: '900', letterSpacing: '-1px' }}>{team.name}</h1>
-            <p style={{ fontSize: '1.1rem', margin: 0, opacity: 0.9 }}>
-              Led by <strong>{team.leader.fullName}</strong> • {acceptedMembers.length} / {team.maxSize} Members
-            </p>
-          </div>
-          
-          {!isLeader && (
-            <button onClick={handleLeaveTeam} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 6px rgba(239, 68, 68, 0.3)', transition: 'transform 0.1s' }}
-              onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
-              onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              <span>🚪</span> Leave Team
-            </button>
-          )}
+      <div style={styles.heroSection}>
+        <div style={styles.heroContent}>
+          <div style={styles.heroBadge}>Team Headquarters</div>
+          <h1 style={styles.teamName}>{team.name}</h1>
+          <p style={styles.teamSub}>
+            Led by <strong>{team.leader.fullName}</strong> • {acceptedMembers.length} / {team.maxSize} Members
+          </p>
         </div>
+        {!isLeader ? (
+          <button onClick={handleLeaveTeam} style={styles.btnLeave}>
+            Leave Team
+          </button>
+        ) : (
+          <button 
+            onClick={() => navigate(`/user/hackathon/${id}/team/${team._id}/find-members`)} 
+            style={{ ...styles.btnLeave, background: '#10b981', color: 'white' }}
+          >
+            Find Members
+          </button>
+        )}
+      </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '30px' }}>
-          
-          {/* Left Column: Accepted Members */}
-          <div style={{ background: 'white', borderRadius: '24px', padding: '30px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-            <h2 style={{ margin: '0 0 25px 0', fontSize: '1.5rem', color: '#111827', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              Roster
-            </h2>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              {acceptedMembers.map(m => (
-                <div key={m.userId._id} style={{ display: 'flex', alignItems: 'center', padding: '15px', border: '1px solid #e5e7eb', borderRadius: '16px', background: '#f9fafb' }}>
-                  <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', marginRight: '15px' }}>
-                    {m.userId.fullName.charAt(0).toUpperCase()}
+      <div style={styles.layoutGrid}>
+        {/* Left Column: Team Members */}
+        <div style={styles.column}>
+          <h2 style={styles.sectionTitle}>Team Roster</h2>
+          <div style={styles.rosterGrid}>
+            {acceptedMembers.map(m => {
+              const memberId = m.userId?._id || m.userId;
+              const isMemberLeader = String(team.leader._id || team.leader) === String(memberId);
+              
+              return (
+                <div key={memberId} style={styles.memberCard}>
+                  <div style={styles.cardHeader}>
+                    <div style={styles.cardAvatar}>
+                      {m.userId?.fullName?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <div style={styles.cardMeta}>
+                      <h3 style={styles.memberName}>{m.userId?.fullName || 'Unknown User'}</h3>
+                      <p style={styles.memberEmail}>{m.userId?.email || ''}</p>
+                    </div>
+                    {isMemberLeader && <span style={styles.leaderPill}>Leader</span>}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <h3 style={{ margin: '0 0 2px 0', fontSize: '1rem', color: '#1f2937' }}>{m.userId.fullName}</h3>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280' }}>{m.userId.email}</p>
+                  
+                  <div style={styles.skillsSection}>
+                    <label style={styles.miniLabel}>Skills</label>
+                    <div style={styles.pillContainer}>
+                      {m.userId?.skills?.length > 0 ? (
+                        m.userId.skills.slice(0, 3).map(skill => (
+                          <span key={skill} style={styles.skillPill}>{skill}</span>
+                        ))
+                      ) : (
+                        <span style={styles.emptyPill}>No skills listed</span>
+                      )}
+                      {m.userId?.skills?.length > 3 && <span style={styles.morePill}>+{m.userId.skills.length - 3}</span>}
+                    </div>
                   </div>
-                  <div>
-                    {String(team.leader._id) === String(m.userId._id) ? (
-                      <span style={{ background: '#e0e7ff', color: '#4338ca', padding: '6px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 'bold', border: '1px solid #c7d2fe' }}>LEADER</span>
-                    ) : (
-                      <span style={{ background: '#f3f4f6', color: '#4b5563', padding: '6px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 'bold', border: '1px solid #e5e7eb' }}>MEMBER</span>
+
+                  <div style={styles.cardActions}>
+                    <Link to={`/profile/${memberId}`} style={styles.viewProfileLink}>View Profile</Link>
+                    {isLeader && !isMemberLeader && (
+                      <button 
+                        onClick={() => handleManageMember(memberId, 'rejected')} 
+                        style={styles.btnKick}
+                      >
+                        Kick
+                      </button>
                     )}
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
+        </div>
 
-          {/* Right Column: Pending Requests */}
-          <div style={{ background: 'white', borderRadius: '24px', padding: '30px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-            <h2 style={{ margin: '0 0 25px 0', fontSize: '1.5rem', color: '#111827', display: 'flex', alignItems: 'center', gap: '10px', position: 'relative' }}>
-              <span>📥</span> Inbox / Requests
-              {pendingMembers.length > 0 && (
-                <span style={{ position: 'absolute', top: '-5px', right: 0, background: '#ef4444', color: 'white', width: '24px', height: '24px', borderRadius: '50%', fontSize: '0.8rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>{pendingMembers.length}</span>
-              )}
-            </h2>
-
+        {/* Right Column: Pending Requests */}
+        <div style={styles.column}>
+          <h2 style={styles.sectionTitle}>
+            Join Requests {pendingMembers.length > 0 && <span style={styles.counter}>{pendingMembers.length}</span>}
+          </h2>
+          
+          <div style={styles.requestStack}>
             {pendingMembers.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 20px', border: '2px dashed #e5e7eb', borderRadius: '16px', color: '#9ca3af' }}>
+              <div style={styles.emptyRequests}>
                 <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📫</div>
-                <p style={{ margin: 0, fontWeight: '500' }}>No pending requests.</p>
+                <p>No pending requests at the moment.</p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                {pendingMembers.map(m => (
-                  <div key={m.userId._id} style={{ padding: '20px', border: '1px solid #fef3c7', borderRadius: '16px', background: '#fffbeb', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: '#f59e0b' }}></div>
-                    
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fcd34d', color: '#92400e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.1rem', marginRight: '15px' }}>
-                        {m.userId.fullName.charAt(0).toUpperCase()}
+              pendingMembers.map(m => {
+                const memberId = m.userId?._id || m.userId;
+                const isOwnRequest = String(memberId) === String(currentUser?._id);
+
+                return (
+                  <div key={memberId} style={styles.requestCard}>
+                    <div style={styles.requestTop}>
+                       <div style={styles.requestAvatar}>
+                         {m.userId?.fullName?.charAt(0).toUpperCase() || 'U'}
+                       </div>
+                       <div style={styles.requestMeta}>
+                         <h4 style={styles.requestName}>{m.userId?.fullName || 'Unknown User'}</h4>
+                         <p style={styles.requestEmail}>{m.userId?.email || ''}</p>
+                       </div>
+                    </div>
+
+                    {m.message && (
+                      <div style={styles.messageBox}>
+                        <label style={styles.miniLabel}>Message:</label>
+                        <p style={styles.messageText}>"{m.message}"</p>
                       </div>
-                      <div>
-                        <h3 style={{ margin: '0 0 2px 0', fontSize: '1rem', color: '#92400e' }}>{m.userId.fullName}</h3>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#b45309' }}>{m.userId.email}</p>
+                    )}
+
+                    <div style={styles.requestSkills}>
+                      <div style={styles.pillContainer}>
+                        {m.userId?.skills?.slice(0, 3).map(skill => (
+                          <span key={skill} style={styles.requestSkillPill}>{skill}</span>
+                        ))}
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      {(isLeader || String(m.userId._id) === String(currentUser._id)) ? (
+                    <div style={styles.requestActions}>
+                      {(isLeader || isOwnRequest) ? (
                         <>
                           <button 
-                            onClick={() => handleManageMember(m.userId._id, 'accepted')} 
-                            style={{ flex: 1, background: '#10b981', color: 'white', border: 'none', padding: '10px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}
-                            onMouseOver={(e) => e.currentTarget.style.background = '#059669'}
-                            onMouseOut={(e) => e.currentTarget.style.background = '#10b981'}
+                            onClick={() => handleManageMember(memberId, 'accepted')} 
+                            style={styles.btnAccept}
                           >
                             Accept
                           </button>
                           <button 
-                            onClick={() => handleManageMember(m.userId._id, 'rejected')} 
-                            style={{ flex: 1, background: '#fee2e2', color: '#ef4444', border: '1px solid #fca5a5', padding: '10px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s' }}
-                            onMouseOver={(e) => e.currentTarget.style.background = '#fecaca'}
-                            onMouseOut={(e) => e.currentTarget.style.background = '#fee2e2'}
+                            onClick={() => handleManageMember(memberId, 'rejected')} 
+                            style={styles.btnDecline}
                           >
                             Decline
                           </button>
                         </>
                       ) : (
-                        <div style={{ width: '100%', textAlign: 'center', padding: '10px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '10px', color: '#b45309', fontWeight: '500', fontSize: '0.9rem' }}>
-                          Awaiting Leader Approval
-                        </div>
+                        <div style={styles.awaitingStatus}>Awaiting Leader Approval</div>
                       )}
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })
             )}
           </div>
-
         </div>
       </div>
     </div>
   );
+};
+
+const styles = {
+  container: {
+    minHeight: '100vh',
+    backgroundColor: '#f1f5f9',
+    padding: '2rem 1rem',
+    fontFamily: '"Inter", sans-serif',
+  },
+  headerNav: {
+    maxWidth: '1200px',
+    margin: '0 auto 1.5rem',
+  },
+  backLink: {
+    background: 'none',
+    border: 'none',
+    color: '#64748b',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  },
+  heroSection: {
+    maxWidth: '1200px',
+    margin: '0 auto 2.5rem',
+    background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+    borderRadius: '20px',
+    padding: '3rem',
+    color: '#fff',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+  },
+  heroBadge: {
+    background: 'rgba(255,255,255,0.1)',
+    padding: '6px 12px',
+    borderRadius: '6px',
+    fontSize: '0.75rem',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    marginBottom: '1rem',
+    display: 'inline-block',
+  },
+  teamName: {
+    fontSize: '2.5rem',
+    fontWeight: '800',
+    margin: '0 0 0.5rem 0',
+  },
+  teamSub: {
+    fontSize: '1.1rem',
+    opacity: 0.8,
+  },
+  btnLeave: {
+    background: '#ef4444',
+    color: '#fff',
+    border: 'none',
+    padding: '12px 24px',
+    borderRadius: '10px',
+    fontWeight: '700',
+    cursor: 'pointer',
+    boxShadow: '0 4px 6px rgba(239,68,68,0.2)',
+  },
+  layoutGrid: {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    display: 'grid',
+    gridTemplateColumns: '1.6fr 1fr',
+    gap: '2.5rem',
+  },
+  column: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.5rem',
+  },
+  sectionTitle: {
+    fontSize: '1.25rem',
+    fontWeight: '700',
+    color: '#1e293b',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+  },
+  counter: {
+    background: '#ef4444',
+    color: '#fff',
+    fontSize: '0.75rem',
+    padding: '2px 8px',
+    borderRadius: '99px',
+  },
+  rosterGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+    gap: '1.5rem',
+  },
+  memberCard: {
+    background: '#fff',
+    borderRadius: '16px',
+    padding: '1.5rem',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.25rem',
+  },
+  cardHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+    position: 'relative',
+  },
+  cardAvatar: {
+    width: '48px',
+    height: '48px',
+    borderRadius: '12px',
+    background: '#f1f5f9',
+    color: '#64748b',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '1.25rem',
+    fontWeight: '700',
+  },
+  cardMeta: {
+    flex: 1,
+  },
+  memberName: {
+    fontSize: '1rem',
+    fontWeight: '700',
+    margin: 0,
+    color: '#1e293b',
+  },
+  memberEmail: {
+    fontSize: '0.8rem',
+    color: '#64748b',
+    margin: 0,
+  },
+  leaderPill: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    background: '#ecfdf5',
+    color: '#059669',
+    fontSize: '0.7rem',
+    fontWeight: '700',
+    padding: '4px 8px',
+    borderRadius: '6px',
+  },
+  miniLabel: {
+    fontSize: '0.7rem',
+    fontWeight: '700',
+    color: '#94a3b8',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    marginBottom: '0.5rem',
+    display: 'block',
+  },
+  pillContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '0.5rem',
+  },
+  skillPill: {
+    background: '#eff6ff',
+    color: '#1d4ed8',
+    padding: '4px 10px',
+    borderRadius: '6px',
+    fontSize: '0.75rem',
+    fontWeight: '600',
+  },
+  emptyPill: {
+    fontSize: '0.8rem',
+    color: '#94a3b8',
+    fontStyle: 'italic',
+  },
+  morePill: {
+    fontSize: '0.75rem',
+    color: '#64748b',
+    padding: '4px 0',
+  },
+  cardActions: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: '1rem',
+    borderTop: '1px solid #f1f5f9',
+  },
+  viewProfileLink: {
+    fontSize: '0.85rem',
+    color: '#2563eb',
+    fontWeight: '600',
+    textDecoration: 'none',
+  },
+  btnKick: {
+    background: 'none',
+    border: 'none',
+    color: '#ef4444',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+  },
+  requestStack: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  },
+  requestCard: {
+    background: '#fff',
+    borderRadius: '16px',
+    padding: '1.5rem',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+    borderLeft: '4px solid #f59e0b',
+  },
+  requestTop: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+    marginBottom: '1rem',
+  },
+  requestAvatar: {
+    width: '40px',
+    height: '40px',
+    borderRadius: '10px',
+    background: '#fef3c7',
+    color: '#d97706',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: '700',
+  },
+  requestMeta: {
+    flex: 1,
+  },
+  requestName: {
+    fontSize: '0.95rem',
+    fontWeight: '700',
+    margin: 0,
+  },
+  requestEmail: {
+    fontSize: '0.75rem',
+    color: '#64748b',
+    margin: 0,
+  },
+  messageBox: {
+    background: '#f8fafc',
+    padding: '12px',
+    borderRadius: '8px',
+    marginBottom: '1rem',
+  },
+  messageText: {
+    fontSize: '0.85rem',
+    color: '#475569',
+    margin: 0,
+    fontStyle: 'italic',
+  },
+  requestSkillPill: {
+    background: '#f1f5f9',
+    color: '#475569',
+    padding: '4px 8px',
+    borderRadius: '6px',
+    fontSize: '0.7rem',
+    fontWeight: '600',
+  },
+  requestActions: {
+    display: 'flex',
+    gap: '0.75rem',
+    marginTop: '1.25rem',
+  },
+  btnAccept: {
+    flex: 1,
+    padding: '10px',
+    background: '#10b981',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    fontWeight: '700',
+    cursor: 'pointer',
+  },
+  btnDecline: {
+    flex: 1,
+    padding: '10px',
+    background: '#f1f5f9',
+    color: '#64748b',
+    border: 'none',
+    borderRadius: '8px',
+    fontWeight: '700',
+    cursor: 'pointer',
+  },
+  awaitingStatus: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: '0.85rem',
+    color: '#f59e0b',
+    fontWeight: '600',
+    background: '#fffbeb',
+    padding: '8px',
+    borderRadius: '8px',
+  },
+  emptyRequests: {
+    textAlign: 'center',
+    padding: '3rem 1rem',
+    background: '#fff',
+    borderRadius: '16px',
+    border: '2px dashed #e2e8f0',
+    color: '#94a3b8',
+  }
 };
 
 export default ManageTeam;

@@ -443,8 +443,8 @@ export const getTeamsByHackathon = async (req, res, next) => {
     log.info('GET_TEAMS_BY_HACKATHON', 'Fetching teams', { hackathonId });
 
     const teams = await Team.find({ hackathonId })
-      .populate('leader', 'fullName email privacySettings')
-      .populate('members.userId', 'fullName email privacySettings');
+      .populate('leader', 'fullName email privacySettings skills')
+      .populate('members.userId', 'fullName email privacySettings skills');
 
     // Enforce privacy settings to hide emails where requested
     const sanitizedTeams = teams.map((t) => {

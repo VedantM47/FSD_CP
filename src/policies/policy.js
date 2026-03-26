@@ -72,20 +72,9 @@ DELETE_TEAM: ({ user, team }) => {
 },
 
 VIEW_TEAM_DETAILS: ({ user, team, hackathon }) => {
-  if (!user || !team || !hackathon) return false;
-  if (user.systemRole === 'admin') return true;
-  if (team.leader.equals(user._id)) return true;
-
-  const isMember = team.members.some(
-    m => m.userId.equals(user._id) && m.status === 'accepted'
-  );
-  if (isMember) return true;
-
-  return user.hackathonRoles?.some(
-    r =>
-      r.hackathonId.equals(hackathon._id) &&
-      (r.role === 'organizer' || r.role === 'judge')
-  );
+  if (!user || !team) return false;
+  // Allow any authenticated user to view team details (needed for team discovery)
+  return true;
 },
 
 /* =====================================================

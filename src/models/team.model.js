@@ -27,8 +27,12 @@ const teamSchema = new mongoose.Schema(
         },
         status: {
           type: String,
-          enum: ['pending', 'accepted'],
+          enum: ['pending', 'accepted', 'invited'],
           default: 'pending',
+        },
+        message: {
+          type: String,
+          trim: true,
         },
       },
     ],

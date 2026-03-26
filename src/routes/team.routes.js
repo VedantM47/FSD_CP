@@ -14,6 +14,10 @@ import {
   getTeamDetails,
   searchTeams,
   publicTeamSearch,
+  withdrawJoinRequest,
+  discoverMembers,
+  inviteMember,
+  respondToInvite,
 } from '../controllers/team.controller.js';
 
 import Team from '../models/team.model.js';
@@ -106,6 +110,13 @@ router.post(
   requestJoinTeam
 );
 
+/* ================= WITHDRAW JOIN REQUEST ================= */
+router.delete(
+  '/:teamId/join',
+  auth,
+  withdrawJoinRequest
+);
+
 //* ================= GET PENDING JOIN REQUESTS ================= */
 router.get(
   '/:teamId/requests',
@@ -163,5 +174,34 @@ router.delete(
 );
 
 
+/* ================= DISCOVER MEMBERS ================= */
+router.get(
+  '/:teamId/discover-members',
+  auth,
+  authorize('MANAGE_TEAM_MEMBERS', async (req) => {
+    const team = await Team.findById(req.params.teamId);
+    return { user: req.user, team };
+  }),
+  discoverMembers
+);
+
+/* ================= INVITE MEMBER ================= */
+router.post(
+  '/:teamId/invite',
+  auth,
+  authorize('MANAGE_TEAM_MEMBERS', async (req) => {
+    const team = await Team.findById(req.params.teamId);
+    return { user: req.user, team };
+  }),
+  inviteMember
+);
+
+/* ================= RESPOND TO INVITE ================= */
+// User accepts or declines an invitation sent by leader
+router.post(
+  '/:teamId/invites/respond',
+  auth,
+  respondToInvite
+);
 
 export default router;

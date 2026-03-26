@@ -1,24 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getHackathonTeams, requestJoinTeam } from '../../services/api'; 
+import { getHackathonTeams, requestJoinTeam, withdrawJoinRequest, getMe } from '../../services/api'; 
 import '../../styles/JoinTeam.css';
 
 const JoinTeam = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [step, setStep] = useState('intake');
-  const [participantData, setParticipantData] = useState({ skills: '', bio: '', experience: 'Beginner' });
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [requesting, setRequesting] = useState(null);
+  const [user, setUser] = useState(null);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [joinMessage, setJoinMessage] = useState("");
 
-  const handleIntakeSubmit = (e) => {
-    e.preventDefault();
-    setStep('browse');
+  useEffect(() => {
+    fetchUser();
     fetchTeams();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const { data } = await getMe();
+      if (data.success) setUser(data.data);
+    } catch (error) {
+      console.error("Failed to load user", error);
+    }
   };
+
+
 
   const fetchTeams = async () => {
     setLoading(true);
@@ -32,11 +44,20 @@ const JoinTeam = () => {
     }
   };
 
-  const handleApply = async (teamId) => {
+  const handleOpenJoinModal = (team) => {
+    setSelectedTeam(team);
+    setShowJoinModal(true);
+  };
+
+  const handleApply = async () => {
+    if (!selectedTeam) return;
     try {
-      setRequesting(teamId);
-      await requestJoinTeam(teamId);
+      setRequesting(selectedTeam._id);
+      await requestJoinTeam(selectedTeam._id, joinMessage);
+      setShowJoinModal(false);
+      setJoinMessage("");
       alert("Request Sent Successfully! The team leader will review your application.");
+      fetchTeams();
     } catch (error) {
       const msg = error.response?.data?.message || "Request failed";
       alert(msg.includes('already') ? "You have already requested this team or are currently in a team." : `Error: ${msg}`);
@@ -45,74 +66,21 @@ const JoinTeam = () => {
     }
   };
 
-  if (step === 'intake') {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)', padding: '20px' }}>
-        <div style={{ background: '#ffffff', borderRadius: '24px', padding: '40px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '10px' }}>👋</div>
-            <h1 style={{ margin: '0 0 10px 0', fontSize: '2rem', color: '#111827', fontWeight: '800' }}>Builder Profile</h1>
-            <p style={{ margin: 0, color: '#6b7280', fontSize: '1.1rem' }}>Let's introduce yourself to potential teammates.</p>
-          </div>
-          
-          <form onSubmit={handleIntakeSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', color: '#374151', marginBottom: '8px' }}>Your Technical Stack</label>
-              <input 
-                style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '2px solid #e5e7eb', fontSize: '1rem', transition: 'border-color 0.2s', outline: 'none' }}
-                placeholder="React, Python, UI/UX..." 
-                value={participantData.skills}
-                onChange={(e) => setParticipantData({...participantData, skills: e.target.value})}
-                required
-              />
-            </div>
+  const handleWithdraw = async (teamId) => {
+    if (!window.confirm("Are you sure you want to withdraw your join request?")) return;
+    try {
+      setRequesting(teamId);
+      await withdrawJoinRequest(teamId);
+      alert("Request withdrawn successfully.");
+      fetchTeams();
+    } catch (error) {
+      alert("Failed to withdraw request.");
+    } finally {
+      setRequesting(null);
+    }
+  };
 
-            <div>
-              <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', color: '#374151', marginBottom: '8px' }}>Experience Level</label>
-              <select 
-                style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '2px solid #e5e7eb', fontSize: '1rem', outline: 'none', background: '#fff', cursor: 'pointer' }}
-                value={participantData.experience}
-                onChange={(e) => setParticipantData({...participantData, experience: e.target.value})}
-              >
-                <option>Novice (First Hackathon)</option>
-                <option>Intermediate (1-2 Hackathons)</option>
-                <option>Advanced (Hackathon Veteran)</option>
-              </select>
-            </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', color: '#374151', marginBottom: '8px' }}>Quick Pitch</label>
-              <textarea 
-                style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '2px solid #e5e7eb', fontSize: '1rem', outline: 'none', resize: 'vertical', minHeight: '100px' }}
-                placeholder="Hi! I am a frontend developer looking to build something awesome..." 
-                value={participantData.bio}
-                onChange={(e) => setParticipantData({...participantData, bio: e.target.value})}
-                required
-              />
-            </div>
-
-            <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
-              <button 
-                type="button" 
-                onClick={() => navigate(-1)} 
-                style={{ flex: 1, padding: '15px', background: '#f3f4f6', color: '#4b5563', border: 'none', borderRadius: '12px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s' }}
-              >
-                Back
-              </button>
-              <button 
-                type="submit" 
-                style={{ flex: 2, padding: '15px', background: 'linear-gradient(to right, #2563eb, #3b82f6)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(37, 99, 235, 0.2)', transition: 'transform 0.1s' }}
-                onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
-                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                Find Teams 🚀
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
 
   const filteredTeams = teams.filter(team => {
     if(!team.isOpenToJoin) return false;
@@ -127,13 +95,13 @@ const JoinTeam = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
           <div>
             <button 
-              onClick={() => setStep('intake')} 
+              onClick={() => navigate(-1)} 
               style={{ background: 'transparent', border: 'none', color: '#3b82f6', fontWeight: 'bold', cursor: 'pointer', padding: '0 0 10px 0', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '5px' }}
             >
               ← Back to Profile
             </button>
             <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#111827', margin: 0 }}>Join a Team</h1>
-            <p style={{ color: '#6b7280', fontSize: '1.1rem', margin: '5px 0 0 0' }}>Discover open teams looking for <strong>{participantData.skills || "talented members"}</strong>.</p>
+            <p style={{ color: '#6b7280', fontSize: '1.1rem', margin: '5px 0 0 0' }}>Discover open teams looking for <strong>talented members</strong>.</p>
           </div>
           
           <div style={{ position: 'relative', width: '100%', maxWidth: '350px' }}>
@@ -198,28 +166,101 @@ const JoinTeam = () => {
                       </div>
                     </div>
                     
-                    <button 
-                      disabled={isFull || requesting === team._id}
-                      onClick={() => handleApply(team._id)}
-                      style={{ 
-                        padding: '10px 20px', 
-                        borderRadius: '10px', 
-                        border: 'none', 
-                        background: (isFull || requesting === team._id) ? '#f3f4f6' : '#111827', 
-                        color: (isFull || requesting === team._id) ? '#9ca3af' : 'white', 
-                        fontWeight: 'bold', 
-                        cursor: (isFull || requesting === team._id) ? 'not-allowed' : 'pointer',
-                        transition: 'background 0.2s'
-                      }}
-                    >
-                      {requesting === team._id ? 'Sending...' : (isFull ? 'Filled' : 'Request Join')}
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button 
+                        onClick={() => navigate(`/user/hackathon/${id}/team/${team._id}`)}
+                        style={{
+                          padding: '10px 16px',
+                          borderRadius: '10px',
+                          border: '1px solid #e5e7eb',
+                          background: '#fff',
+                          color: '#374151',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          transition: 'background 0.2s',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                       View Details
+                      </button>
+                      
+                      {user && team.members?.find(m => m.userId?._id === user._id && m.status === 'pending') ? (
+                        <button 
+                          disabled={requesting === team._id}
+                          onClick={() => handleWithdraw(team._id)}
+                          style={{ 
+                            padding: '10px 16px', 
+                            borderRadius: '10px', 
+                            border: 'none', 
+                            background: '#fee2e2', 
+                            color: '#b91c1c', 
+                            fontWeight: 'bold', 
+                            cursor: 'pointer',
+                            transition: 'background 0.2s',
+                            fontSize: '0.9rem'
+                          }}
+                        >
+                          {requesting === team._id ? 'Processing...' : 'Withdraw'}
+                        </button>
+                      ) : (
+                        <button 
+                          disabled={isFull || requesting === team._id}
+                          onClick={() => handleOpenJoinModal(team)}
+                          style={{ 
+                            padding: '10px 16px', 
+                            borderRadius: '10px', 
+                            border: 'none', 
+                            background: (isFull || requesting === team._id) ? '#f3f4f6' : '#111827', 
+                            color: (isFull || requesting === team._id) ? '#9ca3af' : 'white', 
+                            fontWeight: 'bold', 
+                            cursor: (isFull || requesting === team._id) ? 'not-allowed' : 'pointer',
+                            transition: 'background 0.2s',
+                            fontSize: '0.9rem'
+                          }}
+                        >
+                          {requesting === team._id ? 'Sending...' : (isFull ? 'Filled' : 'Request Join')}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
             })
           )}
         </div>
+
+        {/* Join Message Modal */}
+        {showJoinModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+            <div style={{ background: '#fff', borderRadius: '16px', padding: '30px', width: '100%', maxWidth: '450px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+              <h2 style={{ margin: '0 0 10px 0', fontSize: '1.5rem', color: '#111827' }}>Join {selectedTeam?.name}</h2>
+              <p style={{ margin: '0 0 20px 0', color: '#6b7280', fontSize: '0.9rem' }}>Send a short message to the team leader introducing yourself.</p>
+              
+              <textarea 
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '0.95rem', minHeight: '120px', outline: 'none', marginBottom: '20px' }}
+                placeholder="Hi! I saw your team and I'd love to join. I have experience in..."
+                value={joinMessage}
+                onChange={(e) => setJoinMessage(e.target.value)}
+              />
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button 
+                  onClick={() => setShowJoinModal(false)}
+                  style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#fff', color: '#374151', fontWeight: '600', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleApply}
+                  disabled={requesting === selectedTeam?._id}
+                  style={{ flex: 2, padding: '12px', borderRadius: '8px', background: '#111827', color: '#fff', fontWeight: '600', border: 'none', cursor: 'pointer' }}
+                >
+                  {requesting === selectedTeam?._id ? "Sending..." : "Send Request"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
