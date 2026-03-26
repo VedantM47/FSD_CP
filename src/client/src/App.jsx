@@ -31,6 +31,8 @@ import RegisterHackathon from "./pages/participant/RegisterHackathon";
 import JoinTeam from "./pages/participant/JoinTeam";
 import SubmitProject from "./pages/participant/SubmitProject";
 import ManageTeam from "./pages/participant/ManageTeam";
+import TeamDetails from "./pages/participant/TeamDetails";
+import FindMembers from "./pages/participant/FindMembers";
 
 import "./styles/auth.css";
 import "./styles/global.css";
@@ -83,6 +85,8 @@ function App() {
         <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
         <Route path="/user/hackathon/:id/submit" element={<SubmitProject />} />
         <Route path="/user/hackathon/:id/manage-team" element={<ManageTeam />} />
+        <Route path="/user/hackathon/:id/team/:teamId" element={<TeamDetails />} />
+        <Route path="/user/hackathon/:id/team/:teamId/find-members" element={<FindMembers />} />
       </Route>
 
       {/* Fallback */}
