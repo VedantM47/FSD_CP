@@ -459,6 +459,23 @@ export const getTeamsByHackathon = async (req, res, next) => {
           }
         });
       }
+
+      // Aggregate team skills
+      const skills = new Set();
+      if (teamObj.members) {
+        teamObj.members
+          .filter((m) => m.status === "accepted")
+          .forEach((m) => {
+            if (m.userId?.skills) {
+              m.userId.skills.forEach((s) => skills.add(s));
+            }
+          });
+      }
+      if (teamObj.leader?.skills) {
+        teamObj.leader.skills.forEach((s) => skills.add(s));
+      }
+      teamObj.teamSkills = Array.from(skills);
+
       return teamObj;
     });
 

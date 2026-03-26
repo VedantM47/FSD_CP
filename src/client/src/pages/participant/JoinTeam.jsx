@@ -141,9 +141,18 @@ const JoinTeam = () => {
                     </span>
                   </div>
 
-                  <p style={{ color: '#4b5563', fontSize: '0.95rem', lineHeight: '1.5', flex: 1, marginBottom: '25px' }}>
+                  <p style={{ color: '#4b5563', fontSize: '0.95rem', lineHeight: '1.5', flex: 1, marginBottom: '15px' }}>
                     {team.projectDescription || "Looking for passionate teammates to build an innovative solution. Let's create something amazing together!"}
                   </p>
+
+                  <div style={{ marginBottom: '20px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {(team.teamSkills || []).slice(0, 5).map(skill => (
+                        <span key={skill} className="team-skill-tag">{skill}</span>
+                    ))}
+                    {(team.teamSkills || []).length > 5 && (
+                        <span className="team-skill-tag">+{(team.teamSkills.length - 5)} more</span>
+                    )}
+                  </div>
 
                   <div style={{ marginBottom: '25px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 'bold', color: '#6b7280', marginBottom: '8px' }}>

@@ -60,6 +60,8 @@ const TeamDetails = () => {
         }
     };
 
+    const teamSkills = team?.teamSkills || [];
+
     if (loading) return <div style={styles.loading}>Loading Team Details...</div>;
     if (!team) return <div style={styles.error}>Team not found.</div>;
 
@@ -88,6 +90,19 @@ const TeamDetails = () => {
                     </div>
 
                     <div style={styles.card}>
+                        <h2 style={styles.cardTitle}>Team Skills</h2>
+                        <div style={styles.skillsWrapper}>
+                            {teamSkills.length > 0 ? (
+                                teamSkills.map(skill => (
+                                    <span key={skill} style={styles.skillTag}>{skill}</span>
+                                ))
+                            ) : (
+                                <p style={styles.noSkills}>No skills specific to this team yet.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div style={styles.card}>
                         <h2 style={styles.cardTitle}>Team Members</h2>
                         <div style={styles.memberList}>
                             {team.members.filter(m => m.status === 'accepted').map(member => (
@@ -98,6 +113,12 @@ const TeamDetails = () => {
                                     <div style={styles.memberInfo}>
                                         <div style={styles.memberName}>{member.userId?.fullName}</div>
                                         <div style={styles.memberRole}>{member.role || "Member"}</div>
+                                        <div style={styles.memberSkills}>
+                                            {member.userId?.skills?.slice(0, 3).map(s => (
+                                                <span key={s} style={styles.miniSkill}>{s}</span>
+                                            ))}
+                                            {member.userId?.skills?.length > 3 && <span style={styles.miniSkill}>+{member.userId.skills.length - 3}</span>}
+                                        </div>
                                     </div>
                                     <Link to={`/profile/${member.userId?._id}`} style={styles.viewProfileBtn}>View Profile</Link>
                                 </div>
@@ -191,7 +212,12 @@ const styles = {
     confirmJoinBtn: { flex: 2, padding: '10px', background: '#111827', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' },
     leaderRow: { display: 'flex', alignItems: 'center', gap: '16px' },
     loading: { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px', fontSize: '1.2rem', color: '#64748b' },
-    error: { textAlign: 'center', padding: '40px', color: '#ef4444' }
+    error: { textAlign: 'center', padding: '40px', color: '#ef4444' },
+    skillsWrapper: { display: 'flex', flexWrap: 'wrap', gap: '8px' },
+    skillTag: { background: '#eff6ff', color: '#1d4ed8', border: '1px solid #dbeafe', padding: '6px 14px', borderRadius: '50px', fontSize: '0.85rem', fontWeight: '600' },
+    noSkills: { color: '#94a3b8', fontSize: '0.9rem', fontStyle: 'italic' },
+    memberSkills: { display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' },
+    miniSkill: { background: '#f1f5f9', color: '#475569', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '600' }
 };
 
 export default TeamDetails;

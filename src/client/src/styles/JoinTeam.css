@@ -153,3 +153,12 @@
   .jt-header-content { flex-direction: column; align-items: flex-start; }
   .jt-search-wrapper { width: 100%; }
 }
+.team-skill-tag {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+}

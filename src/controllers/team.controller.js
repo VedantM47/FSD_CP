@@ -153,9 +153,24 @@ export const getTeamDetails = async (req, res, next) => {
     }
 
     log.success('GET_TEAM', `Returning team: "${team.name}"`);
+
+    const teamObj = team.toObject();
+    const skills = new Set();
+    teamObj.members
+      .filter((m) => m.status === "accepted")
+      .forEach((m) => {
+        if (m.userId?.skills) {
+          m.userId.skills.forEach((s) => skills.add(s));
+        }
+      });
+    if (teamObj.leader?.skills) {
+      teamObj.leader.skills.forEach((s) => skills.add(s));
+    }
+    teamObj.teamSkills = Array.from(skills);
+
     res.status(200).json({
       success: true,
-      data: team,
+      data: teamObj,
     });
   } catch (err) {
     log.error('GET_TEAM', 'Failed to fetch team', err);
