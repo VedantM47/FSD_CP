@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../../components/judge/Navbar";
 import Footer from "../../components/judge/Footer";
 import judgeApi from "../../services/judgeApi";
@@ -8,6 +8,7 @@ import "../../styles/judge-additional.css";
 
 const TeamSubmissions = () => {
   const { id: hackathonId } = useParams();
+  const navigate = useNavigate();
 
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -314,6 +315,13 @@ const TeamSubmissions = () => {
       <main className="page-main">
         <div className="page-container">
           <div className="submissions-header">
+            <button
+              onClick={() => navigate(-1)}
+              className="back-button"
+              style={{ marginBottom: "16px" }}
+            >
+              ← Back
+            </button>
             <h1 className="page-title">Team Submissions & Evaluation</h1>
 
             <div className="summary-pills">

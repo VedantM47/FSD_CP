@@ -4,7 +4,7 @@ import "../../styles/admin.css";
 const HackathonCard = ({ hackathon }) => {
   const navigate = useNavigate();
 
-  // ✅ fallback logic (IMPORTANT)
+  // Fallback logic (IMPORTANT)
   const title = hackathon.title || hackathon.name || "Untitled Hackathon";
 
   const getStatusClass = (status) => {
@@ -43,7 +43,9 @@ const HackathonCard = ({ hackathon }) => {
         <h3 className="hackathon-card-title" title={title}>
           {title}
         </h3>
-        <span className={`status-badge-grid ${getStatusClass(hackathon.status)}`}>
+        <span
+          className={`status-badge-grid ${getStatusClass(hackathon.status)}`}
+        >
           {getStatusIcon(hackathon.status)} {hackathon.status}
         </span>
       </div>
@@ -68,7 +70,8 @@ const HackathonCard = ({ hackathon }) => {
       </div>
 
       {/* Optional: Display additional info */}
-      {(hackathon.judgesCount !== undefined || hackathon.teamsCount !== undefined) && (
+      {(hackathon.judgesCount !== undefined ||
+        hackathon.teamsCount !== undefined) && (
         <div className="hackathon-card-stats">
           {hackathon.judgesCount !== undefined && (
             <div className="stat-item">
@@ -89,7 +92,7 @@ const HackathonCard = ({ hackathon }) => {
           onClick={() => navigate(`/admin/hackathons/${hackathon._id}`)}
           title="View Details"
         >
-          👁️ View
+          View
         </button>
 
         <button
@@ -99,17 +102,15 @@ const HackathonCard = ({ hackathon }) => {
           }
           title="View Dashboard"
         >
-          📊 Dashboard
+          Dashboard
         </button>
 
         <button
           className="action-btn-grid action-btn-edit"
-          onClick={() =>
-            navigate(`/admin/hackathons/${hackathon._id}/edit`)
-          }
+          onClick={() => navigate(`/admin/hackathons/${hackathon._id}/edit`)}
           title="Edit Hackathon"
         >
-          ✏️ Edit
+          Edit
         </button>
       </div>
     </div>
