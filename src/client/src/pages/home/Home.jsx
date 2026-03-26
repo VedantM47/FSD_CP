@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
 import { useAuth } from "../../context/AuthContext";
@@ -36,19 +36,20 @@ const gateways = [
         bg: "#fffbeb",
     },
     {
+        title: "Organizer Dashboard",
+        desc: "Manage your assigned hackathons, teams, and event settings.",
+        to: "/organizer/dashboard",
+        accent: "#047857",
+        bg: "#ecfdf5",
+    },
+    {
         title: "Admin Dashboard",
         desc: "Create hackathons, manage teams, assign judges, and monitor platform activity.",
         to: "/admin/dashboard",
         accent: "#ef4444",
         bg: "#fef2f2",
-    },
-    {
-        title: "Register & Join",
-        desc: "Form a team, invite members, and register for any open hackathon in minutes.",
-        to: "/discovery",
-        accent: "#10b981",
-        bg: "#ecfdf5",
-    },
+        roleRequired: "admin"
+    }
 ];
 
 /* =============== STEPS DATA =============== */
@@ -78,9 +79,28 @@ const stats = [
     { value: "10,000+", label: "Participants" },
 ];
 
-/* =============== HOME PAGE COMPONENT =============== */
 const Home = () => {
-    const { isAuthenticated } = useAuth();
+    const navigate = useNavigate();
+    const { isAuthenticated, user } = useAuth();
+
+    const handleCardClick = (e, g) => {
+        e.preventDefault();
+
+        // 1. Mandatory Login Check
+        if (!isAuthenticated) {
+            return navigate('/login');
+        }
+
+        // 2. Admin Logic (Keep Alert)
+        if (g.roleRequired === 'admin' && user?.systemRole !== 'admin') {
+            return alert("Access Denied: You are not an Admin.");
+        }
+
+        // 3. Judge & Organizer - Direct Navigation (Old Way)
+        // The pages themselves will handle the filtering/empty states
+        navigate(g.to);
+    };
+
     return (
         <div className="min-h-screen flex flex-col">
             <Navbar />
@@ -134,13 +154,14 @@ const Home = () => {
 
                 <div className="gateway-grid">
                     {gateways.map((g, i) => (
-                        <Link
+                        <div
                             key={i}
-                            to={g.to}
+                            onClick={(e) => handleCardClick(e, g)}
                             className="gateway-card"
                             style={{
                                 "--card-accent": g.accent,
                                 "--card-bg": g.bg,
+                                cursor: 'pointer'
                             }}
                         >
                             <div className="card-title">{g.title}</div>
@@ -148,7 +169,7 @@ const Home = () => {
                             <div className="card-arrow">
                                 Go to {g.title} <span>→</span>
                             </div>
-                        </Link>
+                        </div>
                     ))}
                 </div>
             </section>

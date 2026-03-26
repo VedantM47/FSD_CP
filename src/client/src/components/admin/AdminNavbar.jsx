@@ -3,43 +3,57 @@ import { useAuth } from '../../context/AuthContext';
 
 function AdminNavbar() {
   const { pathname } = useLocation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth(); // Assuming 'user' contains 'systemRole'
 
   const isActive = (path) => pathname.startsWith(path);
+  
+  // Logic to determine role
+  const isAdmin = user?.systemRole === 'admin';
+  const isMentor = user?.systemRole === 'mentor';
+  const isOrganizer = user?.systemRole === 'organizer';
 
   return (
     <nav className="admin-navbar">
       <div className="navbar-content">
-        {/* Left */}
+        {/* Left: Logo always leads to Home (Discovery) */}
         <div className="navbar-left">
-          <Link to="/" className="navbar-logo" style={{ textDecoration: 'none', color: 'inherit' }}>🚀 HackPlatform</Link>
+          <Link to="/" className="navbar-logo" style={{ textDecoration: 'none', color: 'inherit' }}>
+            HackPlatform
+          </Link>
         </div>
 
-        {/* Center */}
+        {/* Center: Dynamic Title */}
         <div className="navbar-center">
-          <span className="navbar-title">Admin Dashboard</span>
+          <span className="navbar-title">
+            {isAdmin ? 'Admin Panel' : isOrganizer ? 'Organizer Panel' : 'Dashboard'}
+          </span>
         </div>
 
-        {/* Right */}
+        {/* Right: Conditional Links */}
         <div className="navbar-right">
+          {/* Everyone gets a link back to the main Home/Discovery page */}
+          <Link to="/" className="nav-link">
+            Home
+          </Link>
+
           <Link
-            to="/admin/dashboard"
-            className={`nav-link ${isActive('/admin/dashboard') ? 'active' : ''}`}
+            to={isAdmin || isMentor ? "/admin/dashboard" : "/organizer/dashboard"}
+            className={`nav-link ${isActive('/admin/dashboard') || isActive('/organizer/dashboard') ? 'active' : ''}`}
           >
             Dashboard
           </Link>
 
-          <Link
-            to="/admin/hackathons/create"
-            className={`nav-link ${isActive('/admin/hackathons/create') ? 'active' : ''}`}
-          >
-            Create Hackathon
-          </Link>
+          {/* Only Admin/Mentor can see 'Create' */}
+          {(isAdmin || isMentor) && (
+            <Link
+              to="/admin/hackathons/create"
+              className={`nav-link ${isActive('/admin/hackathons/create') ? 'active' : ''}`}
+            >
+              Create Hackathon
+            </Link>
+          )}
 
-          <button
-            onClick={logout}
-            className="nav-link logout"
-          >
+          <button onClick={logout} className="nav-link logout">
             Logout
           </button>
         </div>
