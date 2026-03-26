@@ -155,20 +155,27 @@ export const getMyProfile = async (req, res, next) => {
       };
     });
 
+    // 8.5 Invitations — teams where user has status 'invited'
+    const invitedTeams = await Team.find({
+      members: { $elemMatch: { userId, status: 'invited' } }
+    })
+      .populate('hackathonId', 'title')
+      .populate('leader', 'fullName email')
+      .lean();
+
+    const invitations = invitedTeams.map(t => ({
+      teamId: t._id,
+      teamName: t.name,
+      hackathonName: t.hackathonId?.title || 'Unknown',
+      hackathonId: t.hackathonId?._id,
+      leaderName: t.leader?.fullName || 'Unknown',
+    }));
+
     // 9. Build response
     const profile = {
       user: {
-        _id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        college: user.college || '',
-        department: user.department || '',
-        year: user.year || '',
-        skills: user.skills || [],
-        github: user.github || '',
-        linkedin: user.linkedin || '',
-        systemRole: user.systemRole,
-        authProvider: user.authProvider,
+        ...user,
+        password: undefined,
       },
       stats: {
         hackathonsParticipated: hackathons.length,
@@ -178,6 +185,7 @@ export const getMyProfile = async (req, res, next) => {
       hackathons: hackathonDetails,
       teams: teamsFormatted,
       submissions: submissionsFormatted,
+      invitations,
     };
 
     log.success('PROFILE', `Profile aggregated: ${hackathons.length} hackathons`);

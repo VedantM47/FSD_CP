@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const ProfileHeader = ({ user, stats }) => {
   const initial = user?.fullName?.[0]?.toUpperCase() || "?";
 
@@ -13,11 +15,7 @@ const ProfileHeader = ({ user, stats }) => {
           </p>
           {user.college && <p>{user.college}</p>}
           {user.department && <p>{user.department}</p>}
-          {user.year && (
-            <p>
-              <span className="icon">•</span> {user.year}
-            </p>
-          )}
+          {user.year && <p><span className="icon">📍</span> {user.year}</p>}
         </div>
       </div>
 

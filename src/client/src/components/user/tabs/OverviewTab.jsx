@@ -1,4 +1,7 @@
-const OverviewTab = ({ hackathons, teams, navigate }) => {
+import API, { getAuthHeaders } from "../../../services/api";
+import { useState } from "react";
+
+const OverviewTab = ({ user, hackathons, teams, navigate, onUpdate }) => {
   const activeHackathons = (hackathons || []).filter(
     (h) => h.status === "In Progress" || h.status === "Registered"
   );
@@ -20,6 +23,25 @@ const OverviewTab = ({ hackathons, teams, navigate }) => {
 
   // First team where user is leader (for team info card)
   const primaryTeam = (teams || []).find((t) => t.isLeader) || teams?.[0];
+  const [isToggling, setIsToggling] = useState(false);
+
+  const handleToggleJoin = async () => {
+    if (!primaryTeam || !primaryTeam.isLeader || isToggling) return;
+    
+    try {
+      setIsToggling(true);
+      await API.patch(`/teams/${primaryTeam._id}`, {
+        isOpenToJoin: !primaryTeam.isOpenToJoin
+      }, getAuthHeaders());
+      
+      if (onUpdate) onUpdate(); // Refresh profile data
+    } catch (err) {
+      console.error("Failed to toggle team status:", err);
+      alert("Failed to update team status.");
+    } finally {
+      setIsToggling(false);
+    }
+  };
 
   return (
     <>
@@ -117,10 +139,45 @@ const OverviewTab = ({ hackathons, teams, navigate }) => {
 
           <div className="team-open-toggle">
             <span>Looking for members</span>
-            <ToggleSwitch enabled={primaryTeam.isOpenToJoin} readOnly />
+            <ToggleSwitch 
+              enabled={primaryTeam.isOpenToJoin} 
+              readOnly={!primaryTeam.isLeader} 
+              onClick={handleToggleJoin}
+            />
           </div>
         </div>
       )}
+
+      {/* Skills & Interests Display */}
+      <div className="overview-grid" style={{ marginTop: '20px' }}>
+        <div className="overview-card">
+          <h3 className="overview-card__title">Skills</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {user?.skills?.length > 0 ? (
+              user.skills.map(skill => (
+                <span key={skill} className="skill-tag">{skill}</span>
+              ))
+            ) : (
+              <p style={{ fontSize: '13px', color: '#94a3b8' }}>No skills added yet.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="overview-card">
+          <h3 className="overview-card__title">Interests</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {user?.interests?.length > 0 ? (
+              user.interests.map(interest => (
+                <span key={interest} className="skill-tag" style={{ background: '#fef3c7', color: '#d97706', borderColor: '#fde68a' }}>
+                  {interest}
+                </span>
+              ))
+            ) : (
+              <p style={{ fontSize: '13px', color: '#94a3b8' }}>No interests added yet.</p>
+            )}
+          </div>
+        </div>
+      </div>
     </>
   );
 };
@@ -138,11 +195,13 @@ function formatTimeAgo(dateStr) {
   return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
 }
 
-const ToggleSwitch = ({ enabled, readOnly }) => (
+const ToggleSwitch = ({ enabled, readOnly, onClick }) => (
   <button
     className={`toggle-switch ${enabled ? "toggle-switch--on" : "toggle-switch--off"}`}
     disabled={readOnly}
+    onClick={onClick}
     style={{ cursor: readOnly ? "default" : "pointer" }}
+    type="button"
   >
     <div className="toggle-switch__knob" />
   </button>
