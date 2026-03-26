@@ -137,11 +137,20 @@
 }
 
 .admin-navbar .nav-link.logout {
-  color: #FFD6D6 !important;
+  font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+    background: transparent;
+    border: none;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
 .admin-navbar .nav-link.logout:hover {
-  color: #ffffff !important;
+  color: #FFD6D6;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ====== USER NAVBAR ====== */
@@ -371,9 +380,19 @@
 
 /* ====== UTILITY CLASSES ====== */
 .navbar-logout {
-  color: #FFD6D6 !important;
+  font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+    background: transparent;
+    border: none;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+
 }
 
 .navbar-logout:hover {
-  color: #ffffff !important;
+  color: #FFD6D6;
+    background-color: rgba(255, 255, 255, 0.1);
 }
