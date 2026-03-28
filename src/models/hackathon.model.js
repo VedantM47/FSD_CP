@@ -56,6 +56,45 @@ const hackathonSchema = new mongoose.Schema(
       },
     ],
 
+    // Domains for hackathon
+    domains: [
+      {
+        id: {
+          type: String,
+          lowercase: true,
+          trim: true,
+        },
+        name: {
+          type: String,
+          required: true,
+        },
+        description: String,
+        icon: String,
+        order: {
+          type: Number,
+          default: 0,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
+    // Domain selection settings
+    allowDomainSelection: {
+      type: Boolean,
+      default: true,
+    },
+    multiDomainSelection: {
+      type: Boolean,
+      default: true,
+    },
+    maxDomainsPerEntry: {
+      type: Number,
+      default: 3,
+    },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -63,6 +102,9 @@ const hackathonSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Index for faster domain lookups
+hackathonSchema.index({ 'domains.id': 1 });
 
 const Hackathon = mongoose.model('Hackathon', hackathonSchema);
 export default Hackathon;

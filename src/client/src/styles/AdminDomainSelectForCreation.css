@@ -1,0 +1,326 @@
+/* Admin Domain Select for Creation */
+
+.admin-domain-select-for-creation {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.section-header {
+  margin-bottom: 20px;
+}
+
+.section-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.section-description {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Domain Actions */
+.domain-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-add-domain,
+.btn-templates {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.btn-add-domain {
+  background: #007bff;
+  color: white;
+}
+
+.btn-add-domain:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.btn-templates {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-templates:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+/* Add Domain Form */
+.add-domain-form-creation {
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.form-group-creation {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group-creation label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.form-group-creation input,
+.form-group-creation textarea {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.form-group-creation input:focus,
+.form-group-creation textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.btn-confirm {
+  padding: 8px 16px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-confirm:hover {
+  background: #218838;
+}
+
+/* Templates Section */
+.templates-section-creation {
+  margin-bottom: 24px;
+}
+
+.templates-grid-creation {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.template-card-creation {
+  background: #f0f7ff;
+  border: 2px solid #0066cc;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.3s;
+}
+
+.template-card-creation:hover {
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
+  transform: translateY(-2px);
+}
+
+.template-card-creation h4 {
+  margin: 0 0 10px 0;
+  color: #0066cc;
+  font-size: 14px;
+}
+
+.template-card-creation ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px 0;
+}
+
+.template-card-creation li {
+  padding: 4px 0;
+  font-size: 13px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.template-icon {
+  font-size: 16px;
+}
+
+.btn-apply-template-creation {
+  width: 100%;
+  padding: 6px 10px;
+  background: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-apply-template-creation:hover {
+  background: #004499;
+}
+
+/* Selected Domains */
+.selected-domains-creation {
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.selected-domains-creation h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #1a1a1a;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 16px;
+  color: #999;
+  font-style: italic;
+  margin: 0;
+}
+
+.domains-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.domain-chip-creation {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.domain-chip-creation:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
+
+.chip-icon-creation {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.chip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chip-content strong {
+  font-size: 14px;
+}
+
+.chip-content small {
+  font-size: 12px;
+  color: #666;
+  display: block;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-remove-chip {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  line-height: 1;
+  transition: all 0.2s;
+}
+
+.btn-remove-chip:hover {
+  color: #c82333;
+  transform: scale(1.2);
+}
+
+/* Info Box */
+.info-box {
+  background: #e7f3ff;
+  border-left: 4px solid #0066cc;
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 13px;
+  color: #333;
+}
+
+.info-box strong {
+  color: #0066cc;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-domain-select-for-creation {
+    padding: 16px;
+  }
+
+  .add-domain-form-creation {
+    grid-template-columns: 1fr;
+  }
+
+  .templates-grid-creation {
+    grid-template-columns: 1fr;
+  }
+
+  .domain-actions {
+    flex-direction: column;
+  }
+
+  .btn-add-domain,
+  .btn-templates {
+    width: 100%;
+  }
+
+  .domains-preview {
+    flex-direction: column;
+  }
+
+  .domain-chip-creation {
+    width: 100%;
+  }
+
+  .chip-content small {
+    max-width: 100%;
+  }
+}
