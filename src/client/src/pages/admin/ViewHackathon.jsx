@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
-import AdminNavbar from '../../components/admin/AdminNavbar';
-import { getHackathonById } from '../../services/api';
+import AdminNavbar from "../../components/admin/AdminNavbar";
+import { HackathonDomainsBadges } from "../../components/HackathonDomainsBadges";
+import { getHackathonById } from "../../services/api";
 
-import '../../styles/admin.css';
+import "../../styles/admin.css";
 
 function ViewHackathon() {
   const { id } = useParams();
@@ -12,38 +13,37 @@ function ViewHackathon() {
 
   const [hackathon, setHackathon] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
-  const fetchHackathon = async () => {
-    try {
-      setLoading(true);
-      const res = await getHackathonById(id);
-      setHackathon(res.data.data);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to load hackathon');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchHackathon = async () => {
+      try {
+        setLoading(true);
+        const res = await getHackathonById(id);
+        setHackathon(res.data.data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load hackathon");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchHackathon();
-}, [id]);
-
+    fetchHackathon();
+  }, [id]);
 
   const statusClass = (status) => {
     switch (status) {
-      case 'draft':
-        return 'status-draft';
-      case 'open':
-        return 'status-open';
-      case 'ongoing':
-        return 'status-live';
-      case 'closed':
-        return 'status-closed';
+      case "draft":
+        return "status-draft";
+      case "open":
+        return "status-open";
+      case "ongoing":
+        return "status-live";
+      case "closed":
+        return "status-closed";
       default:
-        return '';
+        return "";
     }
   };
 
@@ -80,7 +80,7 @@ function ViewHackathon() {
             <div className="hero-header">
               <button
                 className="back-btn-hero"
-                onClick={() => navigate('/admin/dashboard')}
+                onClick={() => navigate("/admin/dashboard")}
               >
                 ← Back to Dashboard
               </button>
@@ -88,18 +88,14 @@ function ViewHackathon() {
               <div className="hero-actions">
                 <button
                   className="btn-secondary-hero"
-                  onClick={() =>
-                    navigate(`/admin/hackathons/${id}/dashboard`)
-                  }
+                  onClick={() => navigate(`/admin/hackathons/${id}/dashboard`)}
                 >
                   Dashboard
                 </button>
 
                 <button
                   className="btn-primary-hero"
-                  onClick={() =>
-                    navigate(`/admin/hackathons/${id}/edit`)
-                  }
+                  onClick={() => navigate(`/admin/hackathons/${id}/edit`)}
                 >
                   Edit Hackathon
                 </button>
@@ -109,11 +105,9 @@ function ViewHackathon() {
             <h1 className="hero-title">{hackathon.title}</h1>
 
             <p className="hero-subtitle">
-              {new Date(hackathon.startDate).toLocaleDateString()} –{' '}
+              {new Date(hackathon.startDate).toLocaleDateString()} –{" "}
               {new Date(hackathon.endDate).toLocaleDateString()}
             </p>
-
-            
           </div>
         </div>
 
@@ -144,6 +138,17 @@ function ViewHackathon() {
             <h2 className="view-section-title">About</h2>
             <p className="view-section-text">{hackathon.description}</p>
           </section>
+
+          {/* NEW: PROBLEM DOMAINS */}
+          {hackathon.domains && hackathon.domains.length > 0 && (
+            <section className="view-section">
+              <h2 className="view-section-title">Problem Domains</h2>
+              <HackathonDomainsBadges
+                domains={hackathon.domains}
+                size="medium"
+              />
+            </section>
+          )}
 
           {/* RULES */}
           <section className="view-section">

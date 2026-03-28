@@ -1,8 +1,10 @@
 import Hackathon from '../models/hackathon.model.js';
 import Team from '../models/team.model.js';
 import User from '../models/user.model.js';
+import Submission from '../models/submission.model.js';
 import log from '../utils/logger.js';
 import { getIO } from '../utils/socket.js';
+import mongoose from 'mongoose';
 
 // Helper — emit a calendar refresh signal to all connected clients
 const emitCalendarUpdate = (action, hackathonId) => {
@@ -23,14 +25,54 @@ const MAX_JUDGES = 10;
 export const createHackathon = async (req, res, next) => {
   try {
     log.info('CREATE_HACKATHON', 'Creating hackathon', { title: req.body.title, by: req.user?.email || 'unauthenticated' });
-    
+
     // Explicitly set the creator ID
-    const hackathonData = { 
+    const hackathonData = {
       ...req.body,
-      createdBy: req.user._id 
+      createdBy: req.user._id
     };
 
-    // 1. Parse Judges
+    // 1. Parse and Validate Domains (NEW)
+    let domains = [];
+    if (hackathonData.domains) {
+      try {
+        domains = typeof hackathonData.domains === 'string'
+          ? JSON.parse(hackathonData.domains)
+          : hackathonData.domains;
+
+        if (!Array.isArray(domains)) {
+          domains = [];
+        }
+
+        // Validate each domain
+        domains = domains.map((domain, index) => ({
+          id: domain.id || domain.name.toLowerCase().replace(/\s+/g, '-'),
+          name: domain.name?.trim() || '',
+          description: domain.description?.trim() || '',
+          icon: domain.icon?.substring(0, 5) || '🏷️',
+          order: domain.order || index + 1,
+          createdAt: new Date(),
+        }));
+
+        hackathonData.domains = domains;
+
+        // Set defaults if not provided
+        if (hackathonData.multiDomainSelection === undefined) {
+          hackathonData.multiDomainSelection = true;
+        }
+        if (hackathonData.allowDomainSelection === undefined) {
+          hackathonData.allowDomainSelection = true;
+        }
+        if (!hackathonData.maxDomainsPerEntry) {
+          hackathonData.maxDomainsPerEntry = 3;
+        }
+      } catch (error) {
+        log.warn('CREATE_HACKATHON', 'Error parsing domains', error);
+        hackathonData.domains = [];
+      }
+    }
+
+    // 2. Parse Judges
     let judgeIds = [];
     if (hackathonData.judges) {
       judgeIds = typeof hackathonData.judges === 'string' ? JSON.parse(hackathonData.judges) : hackathonData.judges;
@@ -41,34 +83,34 @@ export const createHackathon = async (req, res, next) => {
       return next({ statusCode: 400, message: `Maximum ${MAX_JUDGES} judges allowed.` });
     }
 
-    // 2. Parse Organizers
+    // 3. Parse Organizers
     let organizerIds = [];
     if (hackathonData.organizers) {
       organizerIds = typeof hackathonData.organizers === 'string' ? JSON.parse(hackathonData.organizers) : hackathonData.organizers;
-      
+
       // Ensure the creator is always in the organizer list
       if (!organizerIds.includes(req.user._id.toString())) {
         organizerIds.push(req.user._id.toString());
       }
 
       // FIX: Standardized key to 'userId'
-      hackathonData.organizers = organizerIds.map(id => ({ 
+      hackathonData.organizers = organizerIds.map(id => ({
        organizerUserId: id,
-        assignedAt: new Date() 
+        assignedAt: new Date()
       }));
     }
 
-    // 3. Validate Team Sizes
+    // 4. Validate Team Sizes
     if (hackathonData.minTeamSize && hackathonData.maxTeamSize && Number(hackathonData.minTeamSize) > Number(hackathonData.maxTeamSize)) {
       return next({ statusCode: 400, message: "Minimum team size cannot be greater than maximum team size." });
     }
 
     if (req.file) hackathonData.image = req.file.path;
 
-    // 4. Save Hackathon
+    // 5. Save Hackathon
     const hackathon = await Hackathon.create(hackathonData);
 
-    // 5. Sync User Roles (Handshake) - Use 'hId' to match middleware context
+    // 6. Sync User Roles (Handshake) - Use 'hId' to match middleware context
     if (judgeIds.length > 0) {
       await User.updateMany({ _id: { $in: judgeIds } }, { $addToSet: { hackathonRoles: { hId: hackathon._id, role: 'judge' } } });
     }
@@ -76,7 +118,7 @@ export const createHackathon = async (req, res, next) => {
       await User.updateMany({ _id: { $in: organizerIds } }, { $addToSet: { hackathonRoles: { hId: hackathon._id, role: 'organizer' } } });
     }
 
-    log.success('CREATE_HACKATHON', `Hackathon created: "${hackathon.title}"`);
+    log.success('CREATE_HACKATHON', `Hackathon created: "${hackathon.title}" with ${domains.length} domains`);
     emitCalendarUpdate('created', hackathon._id);
 
     res.status(201).json({ success: true, data: hackathon });
@@ -312,13 +354,54 @@ export const updateHackathon = async (req, res, next) => {
   try {
     log.info('UPDATE_HACKATHON', 'Updating hackathon', { id: req.params.id, by: req.user?.email });
 
-    const { minTeamSize, maxTeamSize, judges: newJudgeIds, organizers: newOrganizerIds, ...updateData } = req.body;
+    // BUG FIX 1: Extract domains separately so we can parse the JSON string.
+    // BUG FIX 2: Extract minTeamSize/maxTeamSize so we can add them back after validation.
+    const {
+      minTeamSize,
+      maxTeamSize,
+      judges: newJudgeIds,
+      organizers: newOrganizerIds,
+      domains: rawDomains,
+      ...updateData
+    } = req.body;
+
+    // BUG FIX 2: Add team sizes back into the update payload after validation.
+    if (minTeamSize !== undefined) updateData.minTeamSize = minTeamSize;
+    if (maxTeamSize !== undefined) updateData.maxTeamSize = maxTeamSize;
 
     if (minTeamSize && maxTeamSize && Number(minTeamSize) > Number(maxTeamSize)) {
       return next({ statusCode: 400, message: "Minimum team size cannot be greater than maximum team size." });
     }
 
     if (req.file) updateData.image = req.file.path;
+
+    // BUG FIX 1: Parse the domains JSON string (sent via FormData) into the
+    // proper array of subdocuments that Mongoose expects.
+    if (rawDomains !== undefined) {
+      try {
+        let parsedDomains = typeof rawDomains === 'string'
+          ? JSON.parse(rawDomains)
+          : rawDomains;
+
+        if (!Array.isArray(parsedDomains)) {
+          parsedDomains = [];
+        }
+
+        updateData.domains = parsedDomains.map((domain, index) => ({
+          id: domain.id || (domain.name || '').toLowerCase().replace(/\s+/g, '-'),
+          name: domain.name?.trim() || '',
+          description: domain.description?.trim() || '',
+          icon: domain.icon?.substring(0, 5) || '🏷️',
+          order: domain.order || index + 1,
+          createdAt: domain.createdAt || new Date(),
+        }));
+
+        log.info('UPDATE_HACKATHON', `Parsed ${updateData.domains.length} domains`);
+      } catch (parseError) {
+        log.warn('UPDATE_HACKATHON', 'Failed to parse domains — keeping existing', parseError);
+        // Don't set updateData.domains — leave the existing domains in the DB untouched.
+      }
+    }
 
     // Parse incoming IDs and use standardized keys
     if (newJudgeIds) {
@@ -329,7 +412,6 @@ export const updateHackathon = async (req, res, next) => {
 
     if (newOrganizerIds) {
       const parsedOrganizers = Array.isArray(newOrganizerIds) ? newOrganizerIds : JSON.parse(newOrganizerIds);
-      // FIX: Standardized to 'userId'
       updateData.organizers = parsedOrganizers.map(id => ({ organizerUserId: id, assignedAt: new Date() }));
     }
 
@@ -490,6 +572,250 @@ export const getTeamsByHackathon = async (req, res, next) => {
     next({
       statusCode: 500,
       message: err.message,
+    });
+  }
+};
+
+/* ================= DOMAIN MANAGEMENT ================= */
+
+export const addDomain = async (req, res, next) => {
+  try {
+    const { hackathonId } = req.params;
+    const { id, name, description, icon, order } = req.body;
+    log.info('ADD_DOMAIN', 'Adding domain', { hackathonId, domainId: id });
+
+    if (!name || !id) {
+      return next({
+        statusCode: 400,
+        message: 'Domain name and id are required',
+      });
+    }
+
+    if (name.trim().length === 0) {
+      return next({
+        statusCode: 400,
+        message: 'Domain name cannot be empty',
+      });
+    }
+
+    const hackathon = await Hackathon.findById(hackathonId);
+    if (!hackathon) {
+      log.warn('ADD_DOMAIN', `Hackathon not found: ${hackathonId}`);
+      return next({
+        statusCode: 404,
+        message: 'Hackathon not found',
+      });
+    }
+
+    if (hackathon.domains.some((d) => d.id === id.toLowerCase())) {
+      return next({
+        statusCode: 400,
+        message: 'Domain ID already exists in this hackathon',
+      });
+    }
+
+    if (hackathon.domains.length >= 50) {
+      return next({
+        statusCode: 400,
+        message: 'Maximum 50 domains allowed per hackathon',
+      });
+    }
+
+    hackathon.domains.push({
+      id: id.toLowerCase().replace(/\s+/g, '-'),
+      name: name.trim(),
+      description: description?.trim(),
+      icon: icon?.substring(0, 5),
+      order: order || hackathon.domains.length + 1,
+      createdAt: new Date(),
+    });
+
+    await hackathon.save();
+
+    log.success('ADD_DOMAIN', `Domain added: ${name}`);
+    res.status(201).json({
+      success: true,
+      message: 'Domain added successfully',
+      domains: hackathon.domains,
+    });
+  } catch (error) {
+    log.error('ADD_DOMAIN', 'Failed to add domain', error);
+    next({
+      statusCode: 500,
+      message: error.message,
+    });
+  }
+};
+
+export const removeDomain = async (req, res, next) => {
+  try {
+    const { hackathonId, domainId } = req.params;
+    log.info('REMOVE_DOMAIN', 'Removing domain', { hackathonId, domainId });
+
+    const hackathon = await Hackathon.findById(hackathonId);
+    if (!hackathon) {
+      log.warn('REMOVE_DOMAIN', `Hackathon not found: ${hackathonId}`);
+      return next({
+        statusCode: 404,
+        message: 'Hackathon not found',
+      });
+    }
+
+    const initialLength = hackathon.domains.length;
+    hackathon.domains = hackathon.domains.filter(
+      (d) => d.id !== domainId.toLowerCase()
+    );
+
+    if (hackathon.domains.length === initialLength) {
+      log.warn('REMOVE_DOMAIN', `Domain not found: ${domainId}`);
+      return next({
+        statusCode: 404,
+        message: 'Domain not found in this hackathon',
+      });
+    }
+
+    await hackathon.save();
+
+    log.success('REMOVE_DOMAIN', `Domain removed: ${domainId}`);
+    res.status(200).json({
+      success: true,
+      message: 'Domain removed successfully',
+      domains: hackathon.domains,
+    });
+  } catch (error) {
+    log.error('REMOVE_DOMAIN', 'Failed to remove domain', error);
+    next({
+      statusCode: 500,
+      message: error.message,
+    });
+  }
+};
+
+export const updateDomainOrder = async (req, res, next) => {
+  try {
+    const { hackathonId } = req.params;
+    const { domains } = req.body;
+    log.info('UPDATE_DOMAIN_ORDER', 'Updating domain order', { hackathonId });
+
+    if (!Array.isArray(domains) || domains.length === 0) {
+      return next({
+        statusCode: 400,
+        message: 'Domains array is required',
+      });
+    }
+
+    const hackathon = await Hackathon.findById(hackathonId);
+    if (!hackathon) {
+      log.warn('UPDATE_DOMAIN_ORDER', `Hackathon not found: ${hackathonId}`);
+      return next({
+        statusCode: 404,
+        message: 'Hackathon not found',
+      });
+    }
+
+    hackathon.domains = domains;
+    await hackathon.save();
+
+    log.success('UPDATE_DOMAIN_ORDER', 'Domain order updated');
+    res.status(200).json({
+      success: true,
+      message: 'Domain order updated successfully',
+      domains: hackathon.domains,
+    });
+  } catch (error) {
+    log.error('UPDATE_DOMAIN_ORDER', 'Failed to update domain order', error);
+    next({
+      statusCode: 500,
+      message: error.message,
+    });
+  }
+};
+
+export const getDomainStats = async (req, res, next) => {
+  try {
+    const { hackathonId } = req.params;
+    log.info('GET_DOMAIN_STATS', 'Fetching domain statistics', { hackathonId });
+
+    const stats = await Submission.aggregate([
+      {
+        $match: { hackathonId: new mongoose.Types.ObjectId(hackathonId) },
+      },
+      {
+        $unwind: '$domains',
+      },
+      {
+        $group: {
+          _id: '$domains',
+          count: { $sum: 1 },
+          avgScore: { $avg: '$score' },
+        },
+      },
+      {
+        $sort: { count: -1 },
+      },
+    ]);
+
+    log.success('GET_DOMAIN_STATS', `Retrieved stats for ${stats.length} domains`);
+    res.status(200).json({
+      success: true,
+      stats,
+    });
+  } catch (error) {
+    log.error('GET_DOMAIN_STATS', 'Failed to fetch domain stats', error);
+    next({
+      statusCode: 500,
+      message: error.message,
+    });
+  }
+};
+
+export const getDomainTemplates = (req, res) => {
+  try {
+    log.info('GET_DOMAIN_TEMPLATES', 'Fetching domain templates');
+
+    const templates = {
+      tech: {
+        label: 'Technology Track',
+        domains: [
+          { id: 'ai-ml', name: 'AI/ML', icon: '🤖' },
+          { id: 'web-dev', name: 'Web Development', icon: '💻' },
+          { id: 'mobile', name: 'Mobile Apps', icon: '📱' },
+          { id: 'blockchain', name: 'Blockchain', icon: '⛓️' },
+          { id: 'iot', name: 'IoT', icon: '🔧' },
+          { id: 'ar-vr', name: 'AR/VR', icon: '🥽' },
+        ],
+      },
+      social: {
+        label: 'Impact Track',
+        domains: [
+          { id: 'healthcare', name: 'Healthcare', icon: '⚕️' },
+          { id: 'education', name: 'Education', icon: '📚' },
+          { id: 'environment', name: 'Environment', icon: '🌱' },
+          { id: 'finance', name: 'FinTech', icon: '💰' },
+          { id: 'social-good', name: 'Social Good', icon: '❤️' },
+        ],
+      },
+      business: {
+        label: 'Business Track',
+        domains: [
+          { id: 'productivity', name: 'Productivity', icon: '⚡' },
+          { id: 'ecommerce', name: 'E-Commerce', icon: '🛒' },
+          { id: 'logistics', name: 'Logistics', icon: '🚚' },
+          { id: 'entertainment', name: 'Entertainment', icon: '🎮' },
+        ],
+      },
+    };
+
+    log.success('GET_DOMAIN_TEMPLATES', 'Domain templates retrieved');
+    res.status(200).json({
+      success: true,
+      templates,
+    });
+  } catch (error) {
+    log.error('GET_DOMAIN_TEMPLATES', 'Failed to fetch templates', error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 };
