@@ -237,3 +237,32 @@ Database / Schema Changes: YES
 Notes / Dependencies:
 NA
 
+
+### LOG 5
+Date: 29/03/2026
+Contributor: Ojas
+- Type of Change:  Bug Fix 
+ Files Modified:
+        
+src/client/src/components/user/cards/HackathonCard.jsx
+src/client/src/components/user/tabs/SettingsTab.jsx
+src/client/src/pages/participant/FindMembers.jsx
+src/client/src/pages/participant/JoinTeam.jsx
+src/client/src/pages/participant/ManageTeam.jsx
+src/client/src/pages/participant/RegisterHackathon.jsx
+src/client/src/pages/participant/SingleHackathon.jsx
+
+Description:
+UI UX changes done:
+- Implemented working search functionality in admin dashboard
+- Enhanced UI/UX of hackathon cards on homepage for better visual appeal
+- Removed organizer application feature from the system
+- Fixed and improved role management functionality
+- Refined create/edit hackathon forms with better layout and user experience
+  
+Database / Schema Changes:
+- NO
+Notes / Dependencies:
+NA
+
+
