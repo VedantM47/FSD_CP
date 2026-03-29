@@ -193,6 +193,127 @@ const HackathonOverview = () => {
               {hackathon.description || "No description available"}
             </p>
 
+            {/* Problem Statements Section */}
+            {hackathon.problemStatements && hackathon.problemStatements.length > 0 && (
+              <div style={{ marginTop: '24px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>
+                  Problem Statements
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {hackathon.problemStatements.map((ps, index) => (
+                    <div 
+                      key={index} 
+                      style={{ 
+                        padding: '16px', 
+                        backgroundColor: '#f8fafc', 
+                        borderRadius: '10px',
+                        border: '1px solid #e2e8f0'
+                      }}
+                    >
+                      <h4 style={{ 
+                        margin: '0 0 8px 0', 
+                        fontSize: '1rem', 
+                        fontWeight: '600', 
+                        color: '#0f172a' 
+                      }}>
+                        {index + 1}. {ps.title}
+                      </h4>
+                      <p style={{ 
+                        margin: 0, 
+                        fontSize: '0.9rem', 
+                        lineHeight: '1.5', 
+                        color: '#475569',
+                        whiteSpace: 'pre-wrap'
+                      }}>
+                        {ps.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Rounds Section */}
+            {hackathon.rounds && hackathon.rounds.length > 0 && (
+              <div style={{ marginTop: '24px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>
+                  Rounds
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {hackathon.rounds.map((round, index) => (
+                    <div 
+                      key={index} 
+                      style={{ 
+                        padding: '16px', 
+                        backgroundColor: '#fef3c7', 
+                        borderRadius: '10px',
+                        border: '1px solid #fbbf24'
+                      }}
+                    >
+                      <h4 style={{ 
+                        margin: '0 0 8px 0', 
+                        fontSize: '1rem', 
+                        fontWeight: '600', 
+                        color: '#92400e' 
+                      }}>
+                        Round {index + 1}: {round.name}
+                      </h4>
+                      <p style={{ 
+                        margin: '0 0 8px 0', 
+                        fontSize: '0.9rem', 
+                        lineHeight: '1.5', 
+                        color: '#78350f',
+                        whiteSpace: 'pre-wrap'
+                      }}>
+                        {round.description}
+                      </p>
+                      
+                      {(round.startDate || round.endDate) && (
+                        <div style={{ 
+                          display: 'flex', 
+                          gap: '16px', 
+                          marginBottom: '8px',
+                          fontSize: '0.85rem',
+                          color: '#92400e'
+                        }}>
+                          {round.startDate && (
+                            <div>
+                              <strong>Start:</strong> {new Date(round.startDate).toLocaleString()}
+                            </div>
+                          )}
+                          {round.endDate && (
+                            <div>
+                              <strong>End:</strong> {new Date(round.endDate).toLocaleString()}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      {round.submissionRequirements && (
+                        <div style={{ 
+                          marginTop: '8px',
+                          padding: '10px',
+                          backgroundColor: '#fffbeb',
+                          borderRadius: '8px',
+                          border: '1px solid #fcd34d'
+                        }}>
+                          <strong style={{ color: '#92400e', fontSize: '0.85rem' }}>Submission Requirements:</strong>
+                          <p style={{ 
+                            margin: '6px 0 0 0', 
+                            fontSize: '0.85rem', 
+                            color: '#78350f',
+                            whiteSpace: 'pre-wrap'
+                          }}>
+                            {round.submissionRequirements}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="overview-info-grid">
               <div className="overview-info-item">
                 <div className="info-icon">

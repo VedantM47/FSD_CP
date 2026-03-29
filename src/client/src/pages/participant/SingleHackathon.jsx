@@ -238,7 +238,7 @@ const SingleHackathon = () => {
       <div className="sh-layout">
         <div className="sh-main">
           <div className="sh-tabs-container">
-            {["About", "Domains", "Timeline", "Prizes", "Rules", "Teams"].map(
+            {["About", "Problem Statements", "Rounds", "Domains", "Timeline", "Prizes", "Rules", "Teams"].map(
               (tab) => (
                 <button
                   key={tab}
@@ -257,6 +257,121 @@ const SingleHackathon = () => {
               {hackathon.description}
             </div>
           </div>
+
+          {hackathon.problemStatements && hackathon.problemStatements.length > 0 && (
+            <div id="Problem Statements" className="sh-content-card">
+              <h2 className="sh-card-title">Problem Statements</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {hackathon.problemStatements.map((ps, index) => (
+                  <div 
+                    key={index} 
+                    style={{ 
+                      padding: '20px', 
+                      backgroundColor: '#f8fafc', 
+                      borderRadius: '12px',
+                      border: '1px solid #e2e8f0'
+                    }}
+                  >
+                    <h3 style={{ 
+                      margin: '0 0 12px 0', 
+                      fontSize: '1.1rem', 
+                      fontWeight: '600', 
+                      color: '#0f172a' 
+                    }}>
+                      {index + 1}. {ps.title}
+                    </h3>
+                    <p style={{ 
+                      margin: 0, 
+                      fontSize: '0.95rem', 
+                      lineHeight: '1.6', 
+                      color: '#475569',
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {ps.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {hackathon.rounds && hackathon.rounds.length > 0 && (
+            <div id="Rounds" className="sh-content-card">
+              <h2 className="sh-card-title">Rounds</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {hackathon.rounds.map((round, index) => (
+                  <div 
+                    key={index} 
+                    style={{ 
+                      padding: '20px', 
+                      backgroundColor: '#fef3c7', 
+                      borderRadius: '12px',
+                      border: '1px solid #fbbf24'
+                    }}
+                  >
+                    <h3 style={{ 
+                      margin: '0 0 12px 0', 
+                      fontSize: '1.1rem', 
+                      fontWeight: '600', 
+                      color: '#92400e' 
+                    }}>
+                      Round {index + 1}: {round.name}
+                    </h3>
+                    <p style={{ 
+                      margin: '0 0 12px 0', 
+                      fontSize: '0.95rem', 
+                      lineHeight: '1.6', 
+                      color: '#78350f',
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {round.description}
+                    </p>
+                    
+                    {(round.startDate || round.endDate) && (
+                      <div style={{ 
+                        display: 'flex', 
+                        gap: '20px', 
+                        marginBottom: '12px',
+                        fontSize: '0.85rem',
+                        color: '#92400e'
+                      }}>
+                        {round.startDate && (
+                          <div>
+                            <strong>Start:</strong> {new Date(round.startDate).toLocaleString()}
+                          </div>
+                        )}
+                        {round.endDate && (
+                          <div>
+                            <strong>End:</strong> {new Date(round.endDate).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {round.submissionRequirements && (
+                      <div style={{ 
+                        marginTop: '12px',
+                        padding: '12px',
+                        backgroundColor: '#fffbeb',
+                        borderRadius: '8px',
+                        border: '1px solid #fcd34d'
+                      }}>
+                        <strong style={{ color: '#92400e', fontSize: '0.9rem' }}>Submission Requirements:</strong>
+                        <p style={{ 
+                          margin: '8px 0 0 0', 
+                          fontSize: '0.9rem', 
+                          color: '#78350f',
+                          whiteSpace: 'pre-wrap'
+                        }}>
+                          {round.submissionRequirements}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {hackathon.domains && hackathon.domains.length > 0 && (
             <div id="Domains" className="sh-content-card">

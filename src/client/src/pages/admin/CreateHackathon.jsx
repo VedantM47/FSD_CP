@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminNavbar from "../../components/admin/AdminNavbar";
-import { AdminDomainSelectForCreation } from "../../components/AdminDomainSelectForCreation";
 import {
   createHackathon,
   updateHackathon,
@@ -15,9 +14,7 @@ function CreateHackathon() {
   const { id } = useParams();
   const isEditMode = Boolean(id);
 
-  // BUG FIX: Start in a loading state when editing so the form (and
-  // AdminDomainSelectForCreation) doesn't mount with empty data and then
-  // re-mount once the fetch resolves.  In create mode we start ready.
+  // Start in a loading state when editing so the form doesn't mount with empty data
   const [loading, setLoading] = useState(isEditMode);
   const [error, setError] = useState("");
 
@@ -30,8 +27,13 @@ function CreateHackathon() {
   const [selectedJudges, setSelectedJudges] = useState([]);
   const [selectedOrganizers, setSelectedOrganizers] = useState([]);
 
-  /* ================= DOMAIN STATE ================= */
-  const [selectedDomains, setSelectedDomains] = useState([]);
+  /* ================= PROBLEM STATEMENTS STATE ================= */
+  const [problemStatements, setProblemStatements] = useState([
+    { title: '', description: '' }
+  ]);
+
+  /* ================= ROUNDS STATE ================= */
+  const [rounds, setRounds] = useState([]);
 
   /* ================= FORM ================= */
   const [formData, setFormData] = useState({
@@ -73,9 +75,23 @@ function CreateHackathon() {
           terms: data.terms || "",
         });
 
-        // Load existing domains
-        if (data.domains && Array.isArray(data.domains)) {
-          setSelectedDomains(data.domains);
+        // Load existing problem statements
+        if (data.problemStatements && Array.isArray(data.problemStatements) && data.problemStatements.length > 0) {
+          setProblemStatements(data.problemStatements.map(ps => ({
+            title: ps.title || '',
+            description: ps.description || ''
+          })));
+        }
+
+        // Load existing rounds
+        if (data.rounds && Array.isArray(data.rounds) && data.rounds.length > 0) {
+          setRounds(data.rounds.map(round => ({
+            name: round.name || '',
+            description: round.description || '',
+            startDate: round.startDate?.slice(0, 16) || '',
+            endDate: round.endDate?.slice(0, 16) || '',
+            submissionRequirements: round.submissionRequirements || ''
+          })));
         }
 
         if (data.judges) {
@@ -152,6 +168,38 @@ function CreateHackathon() {
     }
   };
 
+  /* ================= PROBLEM STATEMENTS HANDLERS ================= */
+  const handleProblemStatementChange = (index, field, value) => {
+    const updated = [...problemStatements];
+    updated[index][field] = value;
+    setProblemStatements(updated);
+  };
+
+  const handleAddProblemStatement = () => {
+    setProblemStatements([...problemStatements, { title: '', description: '' }]);
+  };
+
+  const handleRemoveProblemStatement = (index) => {
+    if (problemStatements.length > 1) {
+      setProblemStatements(problemStatements.filter((_, i) => i !== index));
+    }
+  };
+
+  /* ================= ROUNDS HANDLERS ================= */
+  const handleRoundChange = (index, field, value) => {
+    const updated = [...rounds];
+    updated[index][field] = value;
+    setRounds(updated);
+  };
+
+  const handleAddRound = () => {
+    setRounds([...rounds, { name: '', description: '', startDate: '', endDate: '', submissionRequirements: '' }]);
+  };
+
+  const handleRemoveRound = (index) => {
+    setRounds(rounds.filter((_, i) => i !== index));
+  };
+
   /* ================= HANDLERS ================= */
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -175,8 +223,13 @@ function CreateHackathon() {
       return;
     }
 
-    if (selectedDomains.length === 0) {
-      setError("Please select at least one domain for the hackathon");
+    // Validate problem statements
+    const validProblemStatements = problemStatements.filter(
+      ps => ps.title.trim() && ps.description.trim()
+    );
+
+    if (validProblemStatements.length === 0) {
+      setError("Please add at least one problem statement with both title and description.");
       return;
     }
 
@@ -198,7 +251,15 @@ function CreateHackathon() {
         "organizers",
         JSON.stringify(selectedOrganizers.map((o) => o._id)),
       );
-      payload.append("domains", JSON.stringify(selectedDomains));
+      payload.append("problemStatements", JSON.stringify(validProblemStatements));
+      
+      // Add rounds (optional)
+      if (rounds.length > 0) {
+        const validRounds = rounds.filter(
+          round => round.name.trim() && round.description.trim()
+        );
+        payload.append("rounds", JSON.stringify(validRounds));
+      }
 
       if (isEditMode) {
         await updateHackathon(id, payload);
@@ -424,12 +485,231 @@ function CreateHackathon() {
                 </div>
               </section>
 
-              {/* --- NEW: Problem Domains Section --- */}
+              {/* --- Problem Statements Section --- */}
               <section className="form-section-card">
-                <AdminDomainSelectForCreation
-                  onDomainsChange={setSelectedDomains}
-                  initialDomains={selectedDomains}
-                />
+                <div className="form-section-header">
+                  <h2 className="form-section-title-new">Problem Statements</h2>
+                  <p style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '5px', marginBottom: 0 }}>
+                    Add one or more problem statements for participants to work on.
+                  </p>
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {problemStatements.map((ps, index) => (
+                    <div key={index} style={{ 
+                      padding: '20px', 
+                      border: '1.5px solid #e5e7eb', 
+                      borderRadius: '12px',
+                      backgroundColor: '#f9fafb'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '600', color: '#374151' }}>
+                          Problem Statement {index + 1}
+                        </h3>
+                        {problemStatements.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveProblemStatement(index)}
+                            style={{
+                              padding: '6px 12px',
+                              fontSize: '0.8rem',
+                              color: '#dc2626',
+                              backgroundColor: '#fee2e2',
+                              border: '1px solid #fca5a5',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontWeight: '600'
+                            }}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div>
+                          <label className="form-label-new">Title</label>
+                          <input
+                            type="text"
+                            className="form-input-new"
+                            placeholder="e.g., Build an AI-powered chatbot"
+                            value={ps.title}
+                            onChange={(e) => handleProblemStatementChange(index, 'title', e.target.value)}
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="form-label-new">Description</label>
+                          <textarea
+                            className="form-textarea-new"
+                            rows="4"
+                            placeholder="Describe the problem statement in detail..."
+                            value={ps.description}
+                            onChange={(e) => handleProblemStatementChange(index, 'description', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <button
+                    type="button"
+                    onClick={handleAddProblemStatement}
+                    style={{
+                      padding: '12px 24px',
+                      fontSize: '0.9rem',
+                      color: '#2563eb',
+                      backgroundColor: '#eff6ff',
+                      border: '1.5px solid #bfdbfe',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      alignSelf: 'flex-start'
+                    }}
+                  >
+                    + Add Another Problem Statement
+                  </button>
+                </div>
+              </section>
+
+              {/* --- Rounds Section --- */}
+              <section className="form-section-card">
+                <div className="form-section-header">
+                  <h2 className="form-section-title-new">Rounds</h2>
+                  <p style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '5px', marginBottom: 0 }}>
+                    Define multiple rounds for your hackathon (optional). Each round can have its own timeline and requirements.
+                  </p>
+                </div>
+                
+                {rounds.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '30px', color: '#6b7280' }}>
+                    <p style={{ marginBottom: '15px' }}>No rounds added yet. Click below to add your first round.</p>
+                    <button
+                      type="button"
+                      onClick={handleAddRound}
+                      style={{
+                        padding: '12px 24px',
+                        fontSize: '0.9rem',
+                        color: '#2563eb',
+                        backgroundColor: '#eff6ff',
+                        border: '1.5px solid #bfdbfe',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontWeight: '600'
+                      }}
+                    >
+                      + Add First Round
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {rounds.map((round, index) => (
+                      <div key={index} style={{ 
+                        padding: '20px', 
+                        border: '1.5px solid #e5e7eb', 
+                        borderRadius: '12px',
+                        backgroundColor: '#f9fafb'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                          <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '600', color: '#374151' }}>
+                            Round {index + 1}
+                          </h3>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveRound(index)}
+                            style={{
+                              padding: '6px 12px',
+                              fontSize: '0.8rem',
+                              color: '#dc2626',
+                              backgroundColor: '#fee2e2',
+                              border: '1px solid #fca5a5',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontWeight: '600'
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                          <div>
+                            <label className="form-label-new">Round Name</label>
+                            <input
+                              type="text"
+                              className="form-input-new"
+                              placeholder="e.g., PPT Round, Online Round, Offline Round"
+                              value={round.name}
+                              onChange={(e) => handleRoundChange(index, 'name', e.target.value)}
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="form-label-new">Description</label>
+                            <textarea
+                              className="form-textarea-new"
+                              rows="3"
+                              placeholder="Describe what happens in this round..."
+                              value={round.description}
+                              onChange={(e) => handleRoundChange(index, 'description', e.target.value)}
+                            />
+                          </div>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div>
+                              <label className="form-label-new">Start Date & Time (Optional)</label>
+                              <input
+                                type="datetime-local"
+                                className="form-input-new"
+                                value={round.startDate}
+                                onChange={(e) => handleRoundChange(index, 'startDate', e.target.value)}
+                              />
+                            </div>
+                            
+                            <div>
+                              <label className="form-label-new">End Date & Time (Optional)</label>
+                              <input
+                                type="datetime-local"
+                                className="form-input-new"
+                                value={round.endDate}
+                                onChange={(e) => handleRoundChange(index, 'endDate', e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="form-label-new">Submission Requirements</label>
+                            <textarea
+                              className="form-textarea-new"
+                              rows="3"
+                              placeholder="What do participants need to submit in this round?"
+                              value={round.submissionRequirements}
+                              onChange={(e) => handleRoundChange(index, 'submissionRequirements', e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    <button
+                      type="button"
+                      onClick={handleAddRound}
+                      style={{
+                        padding: '12px 24px',
+                        fontSize: '0.9rem',
+                        color: '#2563eb',
+                        backgroundColor: '#eff6ff',
+                        border: '1.5px solid #bfdbfe',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        alignSelf: 'flex-start'
+                      }}
+                    >
+                      + Add Another Round
+                    </button>
+                  </div>
+                )}
               </section>
 
               {/* NEW: Search & Assign Roles Section */}
