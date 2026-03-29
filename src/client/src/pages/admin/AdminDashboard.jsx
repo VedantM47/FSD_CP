@@ -179,7 +179,6 @@ function AdminDashboard() {
             {queueStatus && (
               <div style={{ marginTop: '15px', padding: '14px 20px', borderRadius: '10px', background: queueStatus.smtpConfigured ? '#ecfdf5' : '#fef3c7', border: `1px solid ${queueStatus.smtpConfigured ? '#6ee7b7' : '#fcd34d'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '600', color: queueStatus.smtpConfigured ? '#065f46' : '#92400e' }}>
-                  <span style={{ fontSize: '1.3rem' }}>{queueStatus.smtpConfigured ? '📡' : '⚠️'}</span>
                   <span>Email {queueStatus.smtpConfigured ? 'SMTP Ready' : 'SMTP Not Configured — Add EMAIL_USER & EMAIL_PASS to .env'}</span>
                 </div>
                 <div style={{ display: 'flex', gap: '20px', fontSize: '0.85rem', color: '#4b5563' }}>

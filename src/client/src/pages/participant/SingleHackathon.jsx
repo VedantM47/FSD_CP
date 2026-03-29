@@ -28,6 +28,12 @@ const SingleHackathon = () => {
     minutes: 0,
     seconds: 0,
   });
+  
+  // AI Recommendation state
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [aiRecommendation, setAiRecommendation] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(null);
 
   // --- 2. FETCH DATA & AUTH SYNC ---
   useEffect(() => {
@@ -159,6 +165,41 @@ const SingleHackathon = () => {
     const timer = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(timer);
   }, [hackathon]);
+
+  // --- 4. AI RECOMMENDATION HANDLER ---
+  const handleAIRecommendation = async () => {
+    setShowAIModal(true);
+    setAiLoading(true);
+    setAiError(null);
+    setAiRecommendation(null);
+
+    try {
+      const response = await API.get(
+        `/recommendations/${id}`,
+        getAuthHeaders()
+      );
+
+      if (response.data.success) {
+        setAiRecommendation(response.data.data);
+      } else {
+        setAiError(response.data.message || 'Failed to generate recommendation');
+      }
+    } catch (error) {
+      console.error('AI Recommendation Error:', error);
+      setAiError(
+        error.response?.data?.message || 
+        'Unable to generate recommendation. Please ensure your team has skills or interests added.'
+      );
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const closeAIModal = () => {
+    setShowAIModal(false);
+    setAiRecommendation(null);
+    setAiError(null);
+  };
 
   const scrollToSection = (sectionId) => {
     setActiveTab(sectionId);
@@ -543,9 +584,6 @@ const SingleHackathon = () => {
                 className="sh-judge-view"
                 style={{ textAlign: "center", padding: "10px" }}
               >
-                <div style={{ fontSize: "2.5rem", marginBottom: "10px" }}>
-                  ⚖️
-                </div>
                 <h3 className="dashboard-title">Judge Panel</h3>
                 <p
                   style={{
@@ -653,7 +691,7 @@ const SingleHackathon = () => {
                           fontSize: "0.85rem",
                         }}
                       >
-                        ⚠️ Action Required
+                        Action Required
                       </p>
                       <p
                         style={{
@@ -722,9 +760,6 @@ const SingleHackathon = () => {
                     className="sh-closed-box"
                     style={{ textAlign: "center", padding: "20px" }}
                   >
-                    <div style={{ fontSize: "2.5rem", marginBottom: "10px" }}>
-                      ⌛
-                    </div>
                     <p
                       style={{ fontWeight: "800", color: "#64748B", margin: 0 }}
                     >
@@ -757,6 +792,116 @@ const SingleHackathon = () => {
           </div>
         </div>
       </div>
+
+      {/* AI Recommendation Button - Only visible if registered */}
+      {isRegistered && !isPendingRegistration && (
+        <button 
+          className="ai-assistant-btn" 
+          onClick={handleAIRecommendation}
+          title="Get AI Problem Statement Recommendation"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          <span className="ai-tooltip">I will suggest the best problem statement for your team</span>
+        </button>
+      )}
+
+      {/* AI Recommendation Modal */}
+      {showAIModal && (
+        <div className="ai-modal-overlay" onClick={closeAIModal}>
+          <div className="ai-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="ai-modal-header">
+              <h2 className="ai-modal-title">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                AI Recommendation
+              </h2>
+              <button className="ai-modal-close" onClick={closeAIModal}>&times;</button>
+            </div>
+
+            {/* Tip Note */}
+            <div style={{
+              background: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              borderRadius: '12px',
+              padding: '12px 16px',
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '10px'
+            }}>
+              <p style={{
+                margin: 0,
+                fontSize: '0.9rem',
+                color: '#1e40af',
+                lineHeight: '1.5'
+              }}>
+                <strong>Tip:</strong> Add skills, interests, and bio for each team member in their profile to get the most accurate and efficient recommendations!
+              </p>
+            </div>
+
+            {aiLoading && (
+              <div className="ai-loading">
+                <div className="ai-loading-spinner"></div>
+                <p className="ai-loading-text">Analyzing your team's skills and interests...</p>
+              </div>
+            )}
+
+            {aiError && (
+              <div className="ai-error">
+                <p className="ai-error-text">{aiError}</p>
+              </div>
+            )}
+
+            {aiRecommendation && !aiLoading && (
+              <div className="ai-recommendation">
+                <div className="ai-match-score">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                  </svg>
+                  {Math.round(aiRecommendation.recommendation.matchScore * 100)}% Match
+                </div>
+
+                <div className="ai-problem-card">
+                  <h3 className="ai-problem-title">
+                    {aiRecommendation.recommendation.problemStatement.title}
+                  </h3>
+                  <p className="ai-problem-description">
+                    {aiRecommendation.recommendation.problemStatement.description}
+                  </p>
+                </div>
+
+                <div className="ai-insights">
+                  <div className="ai-insight-item">
+                    <div className="ai-insight-label">Rank</div>
+                    <div className="ai-insight-value">
+                      #{aiRecommendation.recommendation.rankPosition}
+                    </div>
+                  </div>
+                  <div className="ai-insight-item">
+                    <div className="ai-insight-label">Skill Match</div>
+                    <div className="ai-insight-value">
+                      {aiRecommendation.recommendation.skillOverlap}
+                    </div>
+                  </div>
+                </div>
+
+                <p style={{ 
+                  marginTop: '20px', 
+                  fontSize: '0.9rem', 
+                  color: '#64748b', 
+                  textAlign: 'center',
+                  fontStyle: 'italic'
+                }}>
+                  Based on {aiRecommendation.teamName}'s skills and interests
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

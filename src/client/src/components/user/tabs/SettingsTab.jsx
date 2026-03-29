@@ -243,7 +243,7 @@ const SettingsTab = ({ user, onUpdate }) => {
         </div>
         {!isEditing ? (
           <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>
-            ✏️ Edit Profile
+            Edit Profile
           </button>
         ) : (
           <div style={{ display: 'flex', gap: '10px' }}>

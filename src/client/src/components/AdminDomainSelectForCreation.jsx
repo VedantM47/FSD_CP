@@ -265,7 +265,7 @@ export function AdminDomainSelectForCreation({
 
       {/* Info Box */}
       <div className="info-box">
-        <strong>ℹ️ Info:</strong> Domains can be modified anytime after
+        <strong>Info:</strong> Domains can be modified anytime after
         hackathon creation. Participants will see these domains when submitting
         their projects.
       </div>

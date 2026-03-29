@@ -244,7 +244,7 @@ const Calendar = () => {
 
             {!error && events.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-                    <p>🗓️ No hackathon events found.</p>
+                    <p>No hackathon events found.</p>
                     {showAll
                         ? <p>No open hackathons have been created yet.</p>
                         : <p>Register for a hackathon to see its schedule here, or switch to <strong>All Hackathons</strong>.</p>

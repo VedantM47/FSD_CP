@@ -143,7 +143,6 @@ const SubmitProject = () => {
       <div className="sp-wrapper">
         <div className="sp-container">
           <div className="sp-form-card locked-state">
-            <div className="locked-icon">⚠️</div>
             <h2 className="sp-section-title">Ineligible for Submission</h2>
             <p className="locked-msg">
               Your team <strong>{userTeam?.name}</strong> does not meet the minimum requirements for this hackathon.

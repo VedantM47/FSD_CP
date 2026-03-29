@@ -34,10 +34,8 @@ const Discovery = () => {
     });
 
     // ALSO check if user is part of any team for this hackathon (covers invite scenario)
-    const isInTeam = userTeams.some(team => 
-      String(team.hackathonId) === String(h._id) && 
-      team.members.some(m => m.status === 'accepted' || m.status === 'pending')
-    );
+    const teamRecord = userTeams.find(t => String(t.hackathonId) === String(h._id));
+    const isInTeam = !!teamRecord;
 
     const isUserRegistered = !!registrationRecord || isInTeam;
 
@@ -80,11 +78,10 @@ const Discovery = () => {
         setError(null);
 
         // 1. Fetch User Data to check which hackathons they are in
-        let userId = null;
+        let userData = null;
         try {
           const userRes = await API.get("/users/me", getAuthHeaders());
-          const userData = userRes.data?.data || userRes.data;
-          userId = userData._id;
+          userData = userRes.data?.data || userRes.data;
           setUserRoles(userData?.hackathonRoles || []);
         } catch (authErr) {
           console.log("Visitor mode: Proceeding without user roles.");
@@ -99,15 +96,29 @@ const Discovery = () => {
         const raw = hackRes.data?.data ?? [];
         setAllHackathons(raw);
 
-        // 3. Fetch user's teams across all hackathons (if logged in)
-        if (userId) {
-          try {
-            const teamsRes = await API.get("/teams/my-teams", getAuthHeaders());
-            const myTeams = teamsRes.data?.data || [];
-            setUserTeams(myTeams);
-          } catch (teamErr) {
-            console.log("Could not fetch user teams:", teamErr);
-          }
+        // 3. For each hackathon, check if user is in a team (if logged in)
+        if (userData) {
+          const teamsPromises = raw.map(async (hackathon) => {
+            try {
+              const teamsRes = await API.get(`/hackathons/${hackathon._id}/teams`, getAuthHeaders());
+              const allTeams = teamsRes.data?.data || [];
+              
+              // Find if user is in any team for this hackathon
+              const userTeam = allTeams.find(team => 
+                team.members?.some(m => 
+                  String(m.userId?._id || m.userId) === String(userData._id)
+                )
+              );
+              
+              return userTeam ? { hackathonId: hackathon._id, team: userTeam } : null;
+            } catch (err) {
+              return null;
+            }
+          });
+
+          const teamsResults = await Promise.all(teamsPromises);
+          const userTeamsData = teamsResults.filter(Boolean);
+          setUserTeams(userTeamsData);
         }
 
       } catch (err) {
@@ -156,7 +167,7 @@ const Discovery = () => {
 
         {!loading && error && (
           <div className="empty-state-message">
-            <p>⚠️ {error}</p>
+            <p>{error}</p>
             <button className="btn-secondary" onClick={() => window.location.reload()}>
               Retry
             </button>

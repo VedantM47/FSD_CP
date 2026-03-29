@@ -116,7 +116,7 @@ const EventModal = ({ event, isOpen, onClose }) => {
                             color: '#dc2626', fontWeight: 600, fontSize: '0.85rem',
                             marginTop: '12px'
                         }}>
-                            ⚠️ Deadline in less than 24 hours!
+                            Deadline in less than 24 hours!
                         </div>
                     )}
 

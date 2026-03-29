@@ -51,6 +51,12 @@ const teamSchema = new mongoose.Schema(
       default: false,
     },
 
+    projectDescription: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+
     project: {
       title: String,
       description: String,

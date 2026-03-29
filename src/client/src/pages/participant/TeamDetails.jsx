@@ -147,7 +147,7 @@ const TeamDetails = () => {
                             <div style={styles.statusBox}>✅ You are in this team</div>
                         ) : isPending ? (
                             <div style={styles.pendingBox}>
-                                <p>⌛ Your request is pending</p>
+                                <p>Your request is pending</p>
                                 <button onClick={handleWithdraw} disabled={requesting} style={styles.withdrawBtn}>
                                     {requesting ? "Withdrawing..." : "Withdraw Request"}
                                 </button>
