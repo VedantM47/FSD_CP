@@ -5,7 +5,6 @@ import {
   searchUsers,
   getHackathonById,
 } from "../../services/api";
-import { HackathonDomainsBadges } from "../../components/HackathonDomainsBadges";
 import "../../styles/RegisterHackathon.css";
 
 const RegisterHackathon = () => {
@@ -202,28 +201,6 @@ const RegisterHackathon = () => {
               e.preventDefault();
           }}
         >
-          {/* Display Hackathon Domains */}
-          {hackathon && hackathon.domains && hackathon.domains.length > 0 && (
-            <div
-              className="step-card"
-              style={{ background: "#f0f7ff", borderLeft: "4px solid #007bff" }}
-            >
-              <h3
-                style={{
-                  margin: "0 0 12px 0",
-                  color: "#007bff",
-                  fontSize: "16px",
-                }}
-              >
-                📋 Problem Domains
-              </h3>
-              <HackathonDomainsBadges
-                domains={hackathon.domains}
-                size="medium"
-              />
-            </div>
-          )}
-
           {/* STEP 1: Personal Info */}
           <div className="step-card">
             <div className="step-header">

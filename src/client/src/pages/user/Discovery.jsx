@@ -17,25 +17,29 @@ const Discovery = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [allHackathons, setAllHackathons] = useState([]);
   const [userRoles, setUserRoles] = useState([]); 
+  const [userTeams, setUserTeams] = useState([]); // Track user's teams
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [visibleCount, setVisibleCount] = useState(6);
 
   /**
    * ── Map backend hackathon → shape HackathonCard expects ──
-   * Includes a robust comparison to handle both hId and hackathonId fields
-   */
- /**
-   * ── Map backend hackathon → shape HackathonCard expects ──
    */
   const toCardShape = (h) => {
+    // Check if user has participant role for this hackathon
     const registrationRecord = userRoles.find((role) => {
       const roleHackathonId = String(role.hId || role.hackathonId || "");
       const currentHackathonId = String(h._id || "");
       return roleHackathonId === currentHackathonId && role.role === 'participant';
     });
 
-    const isUserRegistered = !!registrationRecord;
+    // ALSO check if user is part of any team for this hackathon (covers invite scenario)
+    const isInTeam = userTeams.some(team => 
+      String(team.hackathonId) === String(h._id) && 
+      team.members.some(m => m.status === 'accepted' || m.status === 'pending')
+    );
+
+    const isUserRegistered = !!registrationRecord || isInTeam;
 
     // 🕒 FIX: DATE CHECK LOGIC
     // Grab the raw date before we format it into a string
@@ -76,9 +80,11 @@ const Discovery = () => {
         setError(null);
 
         // 1. Fetch User Data to check which hackathons they are in
+        let userId = null;
         try {
           const userRes = await API.get("/users/me", getAuthHeaders());
           const userData = userRes.data?.data || userRes.data;
+          userId = userData._id;
           setUserRoles(userData?.hackathonRoles || []);
         } catch (authErr) {
           console.log("Visitor mode: Proceeding without user roles.");
@@ -93,6 +99,17 @@ const Discovery = () => {
         const raw = hackRes.data?.data ?? [];
         setAllHackathons(raw);
 
+        // 3. Fetch user's teams across all hackathons (if logged in)
+        if (userId) {
+          try {
+            const teamsRes = await API.get("/teams/my-teams", getAuthHeaders());
+            const myTeams = teamsRes.data?.data || [];
+            setUserTeams(myTeams);
+          } catch (teamErr) {
+            console.log("Could not fetch user teams:", teamErr);
+          }
+        }
+
       } catch (err) {
         setError(err?.response?.data?.message || "Failed to load hackathons.");
       } finally {
@@ -104,14 +121,14 @@ const Discovery = () => {
 
   /* ── Memoized Filtering and Mapping ── */
   const filteredHackathons = useMemo(() => {
-    // Map data only when both roles and hackathons are loaded
+    // Map data only when both roles, teams, and hackathons are loaded
     const shaped = allHackathons.map(toCardShape);
     
     if (activeFilter === "All") return shaped;
     return shaped.filter((h) =>
       h.tags.some((tag) => tag.toLowerCase() === activeFilter.toLowerCase())
     );
-  }, [activeFilter, allHackathons, userRoles]);
+  }, [activeFilter, allHackathons, userRoles, userTeams]);
 
   const visibleHackathons = filteredHackathons.slice(0, visibleCount);
   const hasMore = visibleCount < filteredHackathons.length;

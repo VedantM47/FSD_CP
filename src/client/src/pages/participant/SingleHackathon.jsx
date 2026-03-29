@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Footer from "../../components/judge/Footer";
-import { HackathonDomainsBadges } from "../../components/HackathonDomainsBadges";
 import API, { getAuthHeaders, getHackathonById } from "../../services/api";
 import "../../styles/SingleHackathon.css";
 import Navbar from "../../components/common/Navbar";
@@ -238,7 +237,7 @@ const SingleHackathon = () => {
       <div className="sh-layout">
         <div className="sh-main">
           <div className="sh-tabs-container">
-            {["About", "Problem Statements", "Rounds", "Domains", "Timeline", "Prizes", "Rules", "Teams"].map(
+            {["About", "Problem Statements", "Rounds", "Timeline", "Prizes", "Rules", "Teams"].map(
               (tab) => (
                 <button
                   key={tab}
@@ -373,24 +372,6 @@ const SingleHackathon = () => {
             </div>
           )}
 
-          {hackathon.domains && hackathon.domains.length > 0 && (
-            <div id="Domains" className="sh-content-card">
-              <h2 className="sh-card-title">Problem Domains</h2>
-              <div
-                style={{
-                  padding: "20px",
-                  background: "#f8fafc",
-                  borderRadius: "12px",
-                }}
-              >
-                <HackathonDomainsBadges
-                  domains={hackathon.domains}
-                  size="large"
-                />
-              </div>
-            </div>
-          )}
-
           <div id="Timeline" className="sh-content-card">
             <h2 className="sh-card-title">Timeline</h2>
             <div className="modern-timeline">
@@ -427,7 +408,7 @@ const SingleHackathon = () => {
           <div id="Prizes" className="sh-content-card">
             <h2 className="sh-card-title">Prizes & Rewards</h2>
             <div className="prize-banner">
-              <div className="prize-icon">🏆</div>
+              <div className="prize-icon">PRIZE</div>
               <div className="prize-details">
                 <span className="prize-label">Total Prize Pool</span>
                 <span className="prize-amount">
@@ -617,7 +598,7 @@ const SingleHackathon = () => {
                     }}
                     onClick={() => navigate(`/user/hackathon/${id}/dashboard`)}
                   >
-                    🚀 Go To Full Dashboard
+                    Go To Full Dashboard
                   </button>
                 )}
 

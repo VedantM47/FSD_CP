@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import API, { getAuthHeaders, requestJoinTeam, withdrawJoinRequest, getMe } from '../../services/api';
+import Navbar from '../../components/common/Navbar';
 
 const TeamDetails = () => {
     const { id, teamId } = useParams();
@@ -62,15 +63,27 @@ const TeamDetails = () => {
 
     const teamSkills = team?.teamSkills || [];
 
-    if (loading) return <div style={styles.loading}>Loading Team Details...</div>;
-    if (!team) return <div style={styles.error}>Team not found.</div>;
+    if (loading) return (
+        <div>
+            <Navbar />
+            <div style={styles.loading}>Loading Team Details...</div>
+        </div>
+    );
+    if (!team) return (
+        <div>
+            <Navbar />
+            <div style={styles.error}>Team not found.</div>
+        </div>
+    );
 
     const isMember = team.members.some(m => String(m.userId?._id || m.userId) === String(user?._id) && m.status === 'accepted');
     const isPending = team.members.some(m => String(m.userId?._id || m.userId) === String(user?._id) && m.status === 'pending');
     const isFull = team.members.filter(m => m.status === 'accepted').length >= (team.maxSize || 4);
 
     return (
-        <div style={styles.container}>
+        <div>
+            <Navbar />
+            <div style={styles.container}>
             <div style={styles.header}>
                 <button onClick={() => navigate(-1)} style={styles.backBtn}>← Back</button>
                 <div style={styles.titleSection}>
@@ -140,9 +153,9 @@ const TeamDetails = () => {
                                 </button>
                             </div>
                         ) : isFull ? (
-                            <div style={styles.fullBox}>🚫 Team is full</div>
+                            <div style={styles.fullBox}>Team is full</div>
                         ) : !team.isOpenToJoin ? (
-                          <div style={styles.fullBox}>🔒 Not accepting requests</div>
+                          <div style={styles.fullBox}>Not accepting requests</div>
                         ) : showJoinForm ? (
                             <div style={styles.joinForm}>
                                 <textarea 
@@ -177,6 +190,7 @@ const TeamDetails = () => {
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     );
 };

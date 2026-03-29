@@ -80,7 +80,7 @@ const FindMembers = () => {
           </div>
         ) : users.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 20px', background: '#fff', borderRadius: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-            <div style={{ fontSize: '4rem', marginBottom: '20px' }}>🔍</div>
+            <div style={{ fontSize: '2rem', marginBottom: '20px', fontWeight: 'bold', color: '#64748b' }}>NO MEMBERS</div>
             <h2 style={{ fontSize: '1.8rem', color: '#1e293b', marginBottom: '10px' }}>No Available Members Found</h2>
             <p style={{ color: '#64748b', fontSize: '1.1rem', maxWidth: '500px', margin: '0 auto' }}>
               It looks like everyone has already found a team or no participants are currently available for this hackathon.
