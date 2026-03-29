@@ -194,3 +194,46 @@ Auth Sync: Users must logout and log back in if their roles were recently update
 - `VIEW_TEAM_DETAILS` policy is now open to all authenticated users — any logged-in user can view any team's details for discovery purposes
 - `respondToInvite` fix uses `$elemMatch` — previous implicit Mongoose query was incorrectly matching and blocking all invitation acceptances
 
+
+
+Date: 29/03/2026
+Contributor: Ojas
+- Type of Change: Feature Added
+ Files Modified:
+
+PROBLEM_STATEMENTS_DISPLAY_FIX.md
+PROBLEM_STATEMENTS_IMPLEMENTATION.md
+src/client/src/pages/admin/CreateHackathon.jsx
+src/client/src/pages/admin/HackathonDashboard.jsx
+src/client/src/pages/admin/ViewHackathon.jsx
+src/client/src/pages/judge/HackathonOverview.jsx
+src/client/src/pages/participant/SingleHackathon.jsx
+src/controllers/hackathon.controller.js
+src/models/hackathon.model.js
+src/routes/hackathon.routes.js
+
+Description:
+UI/UX and Feature Enhancements:
+
+1. Replaced the domain field with dynamic problem statements in hackathon creation
+2. Admin can now add multiple problem statements with title and description
+3. Improved create hackathon form with dynamic input fields for better usability
+4. Implemented hackathon rounds feature with support for multiple rounds
+5. Each round now includes name, description, and submission requirements
+6. Added dynamic “Add Round” functionality similar to problem statements
+7. Updated hackathon schema and backend to store problem statements and rounds
+8. Ensured proper validation for problem statements and rounds
+9. Display of problem statements and rounds added across:
+
+   * Admin dashboard
+   * View hackathon page
+   * Participant and judge views
+10. Improved overall UI/UX consistency across hackathon-related pages
+
+
+Database / Schema Changes: YES
+
+
+Notes / Dependencies:
+NA
+
