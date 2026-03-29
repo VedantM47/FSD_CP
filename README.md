@@ -266,3 +266,59 @@ Notes / Dependencies:
 NA
 
 
+### LOG 6
+Date: 29/03/2026
+Contributor: Ojas
+- Type of Change:  Feature Added 
+ Files Modified:
+        
+
+    shalvi ai feature added
+
+A       AI_IMPLEMENTATION_SUMMARY.md
+A       AI_RECOMMENDATION_SYSTEM.md
+A       QUICK_START_AI_RECOMMENDER.md
+M       package.json
+M       src/app.js
+M       src/client/src/components/AdminDomainSelectForCreation.jsx
+M       src/client/src/components/HackathonDomainsBadges.jsx
+M       src/client/src/components/user/EventModal.jsx
+M       src/client/src/components/user/tabs/SettingsTab.jsx
+M       src/client/src/pages/admin/AdminDashboard.jsx
+M       src/client/src/pages/participant/SingleHackathon.jsx
+M       src/client/src/pages/participant/SubmitProject.jsx
+M       src/client/src/pages/participant/TeamDetails.jsx
+M       src/client/src/pages/user/Calendar.jsx
+M       src/client/src/pages/user/Discovery.jsx
+M       src/client/src/styles/SingleHackathon.css
+A       src/controllers/recommendation.controller.js
+A       src/models/ProblemEmbedding.js
+A       src/models/ProblemMetadata.js
+A       src/models/ProblemStatement.js
+A       src/models/RecommendationResult.js
+A       src/models/TeamSkillProfile.js
+M       src/models/team.model.js
+A       src/routes/recommendation.routes.js
+A       src/services/embeddingService.js
+A       src/services/recommendationEngine.js
+A       src/services/teamSkillExtractor.js
+A       src/utils/skillExtractor.js
+
+Description:
+AI Feature Enhancements:
+
+* Added AI-based problem recommendation feature
+* Integrated backend services for skill extraction and matching
+* Created necessary models and APIs for recommendations
+* Connected AI feature with participant hackathon page
+* removed useless emojis
+* some basic important ui changes
+  
+
+Database / Schema Changes:
+- YES
+Notes / Dependencies:
+YES
+(npm install natural)
+
+
