@@ -82,7 +82,7 @@ const ParticipantDashboard = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <Link to={`/user/hackathon/${hackathon.id}`} style={styles.detailsLink}>View Hackathon Details &rarr;</Link>
           <span style={{ color: '#cbd5e1' }}>|</span>
-          <Link to={`/hackathon/${hackathon.id}/discussion`} style={styles.detailsLink}>Join Discussion 💬</Link>
+          <Link to={`/hackathon/${hackathon.id}/discussion`} style={styles.detailsLink}>Join Discussion</Link>
         </div>
       </div>
 

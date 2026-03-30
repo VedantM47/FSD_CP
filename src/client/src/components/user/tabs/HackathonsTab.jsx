@@ -18,7 +18,8 @@ const HackathonsTab = ({ hackathons, navigate }) => {
             <th>Role</th>
             <th>Status</th>
             <th>Result</th>
-            <th>Action</th>
+            <th>View</th>
+            <th>Discussion</th>
           </tr>
         </thead>
         <tbody>
@@ -51,6 +52,15 @@ const HackathonsTab = ({ hackathons, navigate }) => {
                   title="View hackathon"
                 >
                   ↗
+                </a>
+              </td>
+              <td>
+                <a
+                  className="action-icon"
+                  onClick={() => navigate(`/hackathon/${h._id}/discussion`)}
+                  title="View discussion"
+                >
+                  Discuss
                 </a>
               </td>
             </tr>

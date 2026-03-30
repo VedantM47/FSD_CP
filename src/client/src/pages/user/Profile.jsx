@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import ProfileHeader from "../../components/user/ProfileHeader";
 import ProfileTabs from "../../components/user/ProfileTabs";

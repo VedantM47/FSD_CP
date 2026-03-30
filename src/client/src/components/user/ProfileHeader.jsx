@@ -9,13 +9,13 @@ const ProfileHeader = ({ user, stats }) => {
         <div className="profile-header__avatar">{initial}</div>
 
         <div className="profile-header__info">
-          <h2>{user.fullName}</h2>
+          <h2>{user?.fullName}</h2>
           <p>
-            <span className="icon">@</span> {user.email}
+            <span className="icon">@</span> {user?.email}
           </p>
-          {user.college && <p>{user.college}</p>}
-          {user.department && <p>{user.department}</p>}
-          {user.year && <p>{user.year}</p>}
+          {user?.college && <p>{user.college}</p>}
+          {user?.department && <p>{user.department}</p>}
+          {user?.year && <p>{user.year}</p>}
         </div>
       </div>
 
