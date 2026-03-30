@@ -35,6 +35,11 @@ function CreateHackathon() {
   /* ================= ROUNDS STATE ================= */
   const [rounds, setRounds] = useState([]);
 
+  /* ================= PRIZES STATE ================= */
+  const [prizes, setPrizes] = useState([
+    { position: '', amount: '' }
+  ]);
+
   /* ================= FORM ================= */
   const [formData, setFormData] = useState({
     title: "",
@@ -91,6 +96,14 @@ function CreateHackathon() {
             startDate: round.startDate?.slice(0, 16) || '',
             endDate: round.endDate?.slice(0, 16) || '',
             submissionRequirements: round.submissionRequirements || ''
+          })));
+        }
+
+        // Load existing prizes
+        if (data.prizes && Array.isArray(data.prizes) && data.prizes.length > 0) {
+          setPrizes(data.prizes.map(prize => ({
+            position: prize.position || '',
+            amount: prize.amount || ''
           })));
         }
 
@@ -200,6 +213,23 @@ function CreateHackathon() {
     setRounds(rounds.filter((_, i) => i !== index));
   };
 
+  /* ================= PRIZES HANDLERS ================= */
+  const handlePrizeChange = (index, field, value) => {
+    const updated = [...prizes];
+    updated[index][field] = value;
+    setPrizes(updated);
+  };
+
+  const handleAddPrize = () => {
+    setPrizes([...prizes, { position: '', amount: '' }]);
+  };
+
+  const handleRemovePrize = (index) => {
+    if (prizes.length > 1) {
+      setPrizes(prizes.filter((_, i) => i !== index));
+    }
+  };
+
   /* ================= HANDLERS ================= */
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -233,6 +263,16 @@ function CreateHackathon() {
       return;
     }
 
+    // Validate prizes
+    const validPrizes = prizes.filter(
+      prize => prize.position.trim() && prize.amount && !isNaN(prize.amount) && Number(prize.amount) > 0
+    );
+
+    if (validPrizes.length === 0) {
+      setError("Please add at least one prize with position name and valid amount.");
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
@@ -252,6 +292,9 @@ function CreateHackathon() {
         JSON.stringify(selectedOrganizers.map((o) => o._id)),
       );
       payload.append("problemStatements", JSON.stringify(validProblemStatements));
+      
+      // Add prizes
+      payload.append("prizes", JSON.stringify(validPrizes));
       
       // Add rounds (optional)
       if (rounds.length > 0) {
@@ -417,7 +460,7 @@ function CreateHackathon() {
               {/* --- Team & Rewards Section --- */}
               <section className="form-section-card">
                 <div className="form-section-header">
-                  <h2 className="form-section-title-new">Team & Rewards</h2>
+                  <h2 className="form-section-title-new">Team Size</h2>
                 </div>
                 <div className="form-grid">
                   <div className="form-group">
@@ -442,17 +485,112 @@ function CreateHackathon() {
                       min="1"
                     />
                   </div>
-                  <div className="form-group-full">
-                    <label className="form-label-new">Prize Pool</label>
-                    <input
-                      type="text"
-                      name="prizePool"
-                      className="form-input-new"
-                      placeholder="e.g., $10,000"
-                      value={formData.prizePool}
-                      onChange={handleChange}
-                    />
+                </div>
+              </section>
+
+              {/* --- Prize Distribution Section --- */}
+              <section className="form-section-card">
+                <div className="form-section-header">
+                  <h2 className="form-section-title-new">Prize Distribution</h2>
+                  <p style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '5px', marginBottom: 0 }}>
+                    Define prize positions and amounts. Total prize pool will be calculated automatically.
+                  </p>
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {prizes.map((prize, index) => (
+                    <div key={index} style={{ 
+                      padding: '20px', 
+                      border: '1.5px solid #e5e7eb', 
+                      borderRadius: '12px',
+                      backgroundColor: '#f9fafb'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '600', color: '#374151' }}>
+                          Prize {index + 1}
+                        </h3>
+                        {prizes.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePrize(index)}
+                            style={{
+                              padding: '6px 12px',
+                              fontSize: '0.8rem',
+                              color: '#dc2626',
+                              backgroundColor: '#fee2e2',
+                              border: '1px solid #fca5a5',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontWeight: '600'
+                            }}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+                        <div>
+                          <label className="form-label-new">Position Name</label>
+                          <input
+                            type="text"
+                            className="form-input-new"
+                            placeholder="e.g., 1st Prize, 2nd Prize, Best Innovation"
+                            value={prize.position}
+                            onChange={(e) => handlePrizeChange(index, 'position', e.target.value)}
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="form-label-new">Amount (₹)</label>
+                          <input
+                            type="number"
+                            className="form-input-new"
+                            placeholder="e.g., 20000"
+                            value={prize.amount}
+                            onChange={(e) => handlePrizeChange(index, 'amount', e.target.value)}
+                            min="0"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {/* Total Prize Pool Display */}
+                  <div style={{
+                    padding: '16px 20px',
+                    background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                    border: '2px solid #3b82f6',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <span style={{ fontSize: '1rem', fontWeight: '700', color: '#1e40af' }}>
+                      Total Prize Pool:
+                    </span>
+                    <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1e3a8a' }}>
+                      ₹{prizes.reduce((sum, prize) => sum + (Number(prize.amount) || 0), 0).toLocaleString('en-IN')}
+                    </span>
                   </div>
+                  
+                  <button
+                    type="button"
+                    onClick={handleAddPrize}
+                    style={{
+                      padding: '12px 24px',
+                      fontSize: '0.9rem',
+                      color: '#2563eb',
+                      backgroundColor: '#eff6ff',
+                      border: '1.5px solid #bfdbfe',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      alignSelf: 'flex-start'
+                    }}
+                  >
+                    + Add Another Prize
+                  </button>
                 </div>
               </section>
 
@@ -1036,7 +1174,7 @@ function CreateHackathon() {
       </main>
       <footer className="admin-footer">
         <div className="footer-content">
-          <span className="footer-brand">HackPlatform</span>
+          <span className="footer-brand">HackHub</span>
         </div>
       </footer>
     </div>

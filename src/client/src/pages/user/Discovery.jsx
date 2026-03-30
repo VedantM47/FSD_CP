@@ -39,7 +39,7 @@ const Discovery = () => {
 
     const isUserRegistered = !!registrationRecord || isInTeam;
 
-    // 🕒 FIX: DATE CHECK LOGIC
+    // FIX: DATE CHECK LOGIC
     // Grab the raw date before we format it into a string
     const rawDeadline = h.registrationDeadline || h.endDate;
     // Check if right now is past the deadline

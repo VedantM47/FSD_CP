@@ -11,11 +11,11 @@ const formatDate = (iso) => {
 };
 
 const TYPE_ICON = {
-    hackathon_start: '🟢',
-    hackathon_end: '🔵',
-    deadline: '🔴',
-    presentation: '🟣',
-    result: '🏆',
+    hackathon_start: 'Start',
+    hackathon_end: 'End',
+    deadline: 'Deadline',
+    presentation: 'Present',
+    result: 'Result',
 };
 
 const TYPE_LABEL = {
@@ -95,7 +95,7 @@ const CalendarListView = ({ events, onEventClick }) => {
                                 onClick={() => setExpandedHackathon(isOpen ? null : h.name)}
                             >
                                 <div className="hackathon-card-info">
-                                    <span className="hackathon-card-name">🏆 {h.name}</span>
+                                    <span className="hackathon-card-name">{h.name}</span>
                                     <span className="hackathon-card-dates">
                                         {start ? formatDate(start) : '?'} → {end ? formatDate(end) : '?'}
                                     </span>
@@ -117,7 +117,7 @@ const CalendarListView = ({ events, onEventClick }) => {
                                             style={{ cursor: 'pointer' }}
                                         >
                                             <div className="tl-icon">
-                                                {TYPE_ICON[event.type] || '📅'}
+                                                {TYPE_ICON[event.type] || 'Event'}
                                             </div>
                                             <div className="tl-body">
                                                 <div className="tl-label">

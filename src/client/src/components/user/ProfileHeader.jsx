@@ -15,7 +15,7 @@ const ProfileHeader = ({ user, stats }) => {
           </p>
           {user.college && <p>{user.college}</p>}
           {user.department && <p>{user.department}</p>}
-          {user.year && <p><span className="icon">📍</span> {user.year}</p>}
+          {user.year && <p>{user.year}</p>}
         </div>
       </div>
 

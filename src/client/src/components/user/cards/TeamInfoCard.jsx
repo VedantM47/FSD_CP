@@ -9,7 +9,7 @@ const TeamInfoCard = ({ team }) => {
       <ul className="mt-3 space-y-1 text-sm text-gray-600">
         {team.members.map((m, i) => (
           <li key={i}>
-            {m.leader ? "👑" : "👤"} {m.name}
+            {m.leader ? "Leader: " : ""}{m.name}
           </li>
         ))}
       </ul>

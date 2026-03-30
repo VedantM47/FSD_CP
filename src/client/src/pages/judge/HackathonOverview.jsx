@@ -314,6 +314,65 @@ const HackathonOverview = () => {
               </div>
             )}
 
+            {/* Prize Distribution Section */}
+            {hackathon.prizes && hackathon.prizes.length > 0 && (
+              <div style={{ marginTop: '24px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>
+                  Prize Distribution
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {hackathon.prizes.map((prize, index) => (
+                    <div 
+                      key={index}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '14px 18px',
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '10px'
+                      }}
+                    >
+                      <span style={{ 
+                        fontSize: '0.95rem', 
+                        fontWeight: '600', 
+                        color: '#0f172a' 
+                      }}>
+                        {prize.position}
+                      </span>
+                      <span style={{ 
+                        fontSize: '1.1rem', 
+                        fontWeight: '800', 
+                        color: '#059669' 
+                      }}>
+                        ₹{prize.amount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  ))}
+                  
+                  {/* Total Prize Pool */}
+                  <div style={{
+                    marginTop: '8px',
+                    padding: '16px 18px',
+                    background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                    border: '2px solid #3b82f6',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <span style={{ fontSize: '1rem', fontWeight: '700', color: '#1e40af' }}>
+                      Total Prize Pool:
+                    </span>
+                    <span style={{ fontSize: '1.3rem', fontWeight: '800', color: '#1e3a8a' }}>
+                      ₹{hackathon.prizes.reduce((sum, prize) => sum + prize.amount, 0).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="overview-info-grid">
               <div className="overview-info-item">
                 <div className="info-icon">

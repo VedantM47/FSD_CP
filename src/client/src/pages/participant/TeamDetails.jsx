@@ -144,7 +144,7 @@ const TeamDetails = () => {
                     <div style={styles.card}>
                         <h2 style={styles.cardTitle}>Status</h2>
                         {isMember ? (
-                            <div style={styles.statusBox}>✅ You are in this team</div>
+                            <div style={styles.statusBox}>You are in this team</div>
                         ) : isPending ? (
                             <div style={styles.pendingBox}>
                                 <p>Your request is pending</p>

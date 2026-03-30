@@ -65,7 +65,7 @@ const OverviewTab = ({ user, hackathons, teams, navigate, onUpdate }) => {
                   <strong>Status:</strong> {h.status}
                 </p>
                 <p className="deadline">
-                  🕐 Ends:{" "}
+                  Ends:{" "}
                   {h.endDate
                     ? new Date(h.endDate).toLocaleDateString("en-US", {
                       year: "numeric",
@@ -132,7 +132,7 @@ const OverviewTab = ({ user, hackathons, teams, navigate, onUpdate }) => {
             .filter((m) => m.status === "accepted")
             .map((m, i) => (
               <div key={i} className="team-member-row">
-                <span className="name">👤 {m.name}</span>
+                <span className="name">{m.name}</span>
                 <span className="role">{m.role}</span>
               </div>
             ))}

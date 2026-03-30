@@ -620,7 +620,7 @@ const SettingsTab = ({ user, onUpdate }) => {
       <div className="settings-sidebar">
         {/* Notification Preferences */}
         <div className="settings-card shadow-sm">
-          <h3 className="settings-card__title">🔔 Notifications</h3>
+          <h3 className="settings-card__title">Notifications</h3>
           {[
             ["Email Alerts", "Receive general email updates", "emailAlerts"],
             ["Team Invites", "Notify when invited to teams", "teamInvites"],
@@ -640,7 +640,7 @@ const SettingsTab = ({ user, onUpdate }) => {
 
         {/* Privacy Settings */}
         <div className="settings-card shadow-sm">
-          <h3 className="settings-card__title">🔒 Privacy</h3>
+          <h3 className="settings-card__title">Privacy</h3>
           {[
             ["Public Profile", "Allow others to see your profile", "publicProfile"],
             ["Allow Team Invites", "Others can invite you to teams", "allowInvites"],

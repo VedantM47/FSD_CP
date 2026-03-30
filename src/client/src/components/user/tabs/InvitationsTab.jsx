@@ -25,7 +25,6 @@ const InvitationsTab = ({ invitations = [], onUpdate }) => {
   if (invitations.length === 0) {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '20px', border: '1px solid #f1f5f9' }}>
-        <div style={{ fontSize: '3.5rem', marginBottom: '15px' }}>📭</div>
         <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#1e293b', fontWeight: '700' }}>No Pending Invitations</h2>
         <p style={{ color: '#64748b', marginTop: '8px', fontSize: '1rem' }}>When a team leader invites you to join their team, it will appear here.</p>
       </div>
@@ -44,13 +43,13 @@ const InvitationsTab = ({ invitations = [], onUpdate }) => {
       {invitations.map(inv => (
         <div key={inv.teamId} style={{ background: '#fff', borderRadius: '16px', padding: '24px', border: '1px solid #fde68a', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
-            <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', flexShrink: 0 }}>
-              📨
+            <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', flexShrink: 0, color: '#fff', fontWeight: 'bold' }}>
+              INV
             </div>
             <div>
               <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: '700', color: '#0f172a' }}>{inv.teamName}</h3>
               <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.9rem' }}>
-                🏆 <strong>{inv.hackathonName}</strong> · Led by <strong>{inv.leaderName}</strong>
+                <strong>{inv.hackathonName}</strong> · Led by <strong>{inv.leaderName}</strong>
               </p>
             </div>
           </div>

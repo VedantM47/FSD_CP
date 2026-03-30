@@ -166,7 +166,7 @@ const RegisterHackathon = () => {
       };
 
       await registerTeam(payload);
-      alert("✅ Team Registered! Invites sent.");
+      alert("Team Registered! Invites sent.");
       navigate(`/user/hackathon/${id}`);
     } catch (error) {
       console.error(error);

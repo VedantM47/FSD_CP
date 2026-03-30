@@ -448,15 +448,64 @@ const SingleHackathon = () => {
 
           <div id="Prizes" className="sh-content-card">
             <h2 className="sh-card-title">Prizes & Rewards</h2>
-            <div className="prize-banner">
-              <div className="prize-icon">PRIZE</div>
-              <div className="prize-details">
-                <span className="prize-label">Total Prize Pool</span>
-                <span className="prize-amount">
-                  {hackathon.prizePool || "Coming Soon"}
-                </span>
+            
+            {hackathon.prizes && hackathon.prizes.length > 0 ? (
+              <div>
+                {/* Prize Distribution List */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+                  {hackathon.prizes.map((prize, index) => (
+                    <div 
+                      key={index}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '16px 20px',
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '10px'
+                      }}
+                    >
+                      <span style={{ 
+                        fontSize: '1rem', 
+                        fontWeight: '600', 
+                        color: '#0f172a' 
+                      }}>
+                        {prize.position}
+                      </span>
+                      <span style={{ 
+                        fontSize: '1.2rem', 
+                        fontWeight: '800', 
+                        color: '#059669' 
+                      }}>
+                        ₹{prize.amount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Total Prize Pool Banner */}
+                <div className="prize-banner">
+                  <div className="prize-icon">PRIZE</div>
+                  <div className="prize-details">
+                    <span className="prize-label">Total Prize Pool</span>
+                    <span className="prize-amount">
+                      ₹{hackathon.prizes.reduce((sum, prize) => sum + prize.amount, 0).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="prize-banner">
+                <div className="prize-icon">PRIZE</div>
+                <div className="prize-details">
+                  <span className="prize-label">Total Prize Pool</span>
+                  <span className="prize-amount">
+                    {hackathon.prizePool || "Coming Soon"}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div id="Rules" className="sh-content-card">

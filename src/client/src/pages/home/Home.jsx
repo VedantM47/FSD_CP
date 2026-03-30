@@ -109,7 +109,6 @@ const Home = () => {
             <section className="home-hero">
                 <div className="hero-content">
                     <div className="hero-badge">
-                        <span>🚀</span>
                         <span>The Hackathon Hosting Platform</span>
                     </div>
 
@@ -210,7 +209,7 @@ const Home = () => {
             {/* ===== CTA ===== */}
             <section className="cta-section">
                 <div className="cta-box">
-                    <h2 className="cta-title">Ready to Hack? 🚀</h2>
+                    <h2 className="cta-title">Ready to Hack?</h2>
                     <p className="cta-subtitle">
                         Join thousands of developers, designers, and innovators building the
                         future — one hackathon at a time.

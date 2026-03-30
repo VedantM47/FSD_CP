@@ -1175,6 +1175,11 @@ body {
 
 /* ========== VIEW HACKATHON STYLES ========== */
 
+/* Remove padding for view hackathon page */
+.admin-main.view-hackathon {
+  padding: 0;
+}
+
 /* Hero Section */
 .hackathon-hero {
   background: linear-gradient(135deg, #043873 0%, #4f9cf9 100%);

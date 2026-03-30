@@ -23,7 +23,27 @@ const hackathonSchema = new mongoose.Schema(
       default: 4, 
     },
 
-    prizePool: String,
+    prizePool: String, // Legacy field - kept for backward compatibility
+    
+    // Dynamic Prize Distribution
+    prizes: [
+      {
+        position: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        amount: {
+          type: Number,
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
     image: String, 
     rules: String,
     terms: String,

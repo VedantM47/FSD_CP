@@ -112,7 +112,7 @@ const Calendar = () => {
         const socket = getSocket();
 
         const handleCalendarUpdate = (payload) => {
-            console.log('📅 Real-time calendar update received:', payload);
+            console.log('Real-time calendar update received:', payload);
 
             // Silently re-fetch so the calendar reflects the new hackathon dates
             fetchEvents(true).then(() => {
@@ -220,14 +220,14 @@ const Calendar = () => {
                         onClick={() => setShowAll(false)}
                         title="Only hackathons you are registered for"
                     >
-                        👤 My Events
+                        My Events
                     </button>
                     <button
                         className={`view-btn ${showAll ? 'active' : ''}`}
                         onClick={() => setShowAll(true)}
                         title="All open / ongoing hackathons"
                     >
-                        🌐 All Hackathons
+                        All Hackathons
                     </button>
                 </div>
             </div>

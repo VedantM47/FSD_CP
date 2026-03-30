@@ -98,6 +98,45 @@ export const createHackathon = async (req, res, next) => {
       }
     }
 
+    // 2.5. Parse and Validate Prizes
+    let prizes = [];
+    if (hackathonData.prizes) {
+      try {
+        prizes = typeof hackathonData.prizes === 'string'
+          ? JSON.parse(hackathonData.prizes)
+          : hackathonData.prizes;
+
+        if (!Array.isArray(prizes)) {
+          prizes = [];
+        }
+
+        // Validate each prize
+        prizes = prizes
+          .filter(prize => prize.position && prize.position.trim() && prize.amount && !isNaN(prize.amount) && Number(prize.amount) > 0)
+          .map(prize => ({
+            position: prize.position.trim(),
+            amount: Number(prize.amount),
+            createdAt: new Date(),
+          }));
+
+        // Require at least one prize
+        if (prizes.length === 0) {
+          return next({ statusCode: 400, message: 'At least one prize is required.' });
+        }
+
+        hackathonData.prizes = prizes;
+
+        // Calculate total prize pool for backward compatibility
+        const totalPrizePool = prizes.reduce((sum, prize) => sum + prize.amount, 0);
+        hackathonData.prizePool = `₹${totalPrizePool.toLocaleString('en-IN')}`;
+      } catch (error) {
+        log.warn('CREATE_HACKATHON', 'Error parsing prizes', error);
+        return next({ statusCode: 400, message: 'Invalid prizes format.' });
+      }
+    } else {
+      return next({ statusCode: 400, message: 'At least one prize is required.' });
+    }
+
     // 3. Parse Judges
     let judgeIds = [];
     if (hackathonData.judges) {
@@ -386,6 +425,7 @@ export const updateHackathon = async (req, res, next) => {
       organizers: newOrganizerIds,
       problemStatements: rawProblemStatements,
       rounds: rawRounds,
+      prizes: rawPrizes,
       ...updateData
     } = req.body;
 
@@ -463,6 +503,44 @@ export const updateHackathon = async (req, res, next) => {
       }
     }
 
+    // Parse and validate prizes
+    if (rawPrizes !== undefined) {
+      try {
+        let parsedPrizes = typeof rawPrizes === 'string'
+          ? JSON.parse(rawPrizes)
+          : rawPrizes;
+
+        if (!Array.isArray(parsedPrizes)) {
+          parsedPrizes = [];
+        }
+
+        // Validate and clean prizes
+        parsedPrizes = parsedPrizes
+          .filter(prize => prize.position && prize.position.trim() && prize.amount && !isNaN(prize.amount) && Number(prize.amount) > 0)
+          .map(prize => ({
+            position: prize.position.trim(),
+            amount: Number(prize.amount),
+            createdAt: prize.createdAt || new Date(),
+          }));
+
+        // Require at least one prize
+        if (parsedPrizes.length === 0) {
+          return next({ statusCode: 400, message: 'At least one prize is required.' });
+        }
+
+        updateData.prizes = parsedPrizes;
+
+        // Calculate total prize pool for backward compatibility
+        const totalPrizePool = parsedPrizes.reduce((sum, prize) => sum + prize.amount, 0);
+        updateData.prizePool = `₹${totalPrizePool.toLocaleString('en-IN')}`;
+
+        log.info('UPDATE_HACKATHON', `Parsed ${updateData.prizes.length} prizes`);
+      } catch (parseError) {
+        log.warn('UPDATE_HACKATHON', 'Failed to parse prizes', parseError);
+        return next({ statusCode: 400, message: 'Invalid prizes format.' });
+      }
+    }
+
     // Parse incoming IDs and use standardized keys
     if (newJudgeIds) {
       const parsedJudges = Array.isArray(newJudgeIds) ? newJudgeIds : JSON.parse(newJudgeIds);
@@ -532,7 +610,7 @@ export const updateHackathonStatus = async (req, res, next) => {
 
     log.success('UPDATE_STATUS', `Status changed: "${hackathon.title}" ${oldStatus} → ${status}`);
 
-    // 🔔 Real-time: status changes may make hackathon visible/invisible on the calendar
+    // Real-time: status changes may make hackathon visible/invisible on the calendar
     emitCalendarUpdate('status_changed', hackathon._id);
 
     res.status(200).json({

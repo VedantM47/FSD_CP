@@ -108,14 +108,12 @@ const FindMembers = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
                   {user.college && (
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                      <span style={{ fontSize: '1rem', color: '#94a3b8' }}>🎓</span>
                       <span style={{ fontSize: '0.9rem', color: '#475569', lineHeight: '1.4' }}>{user.college}</span>
                     </div>
                   )}
                   
                   {(user.major || user.degree || user.year) && (
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                      <span style={{ fontSize: '1rem', color: '#94a3b8' }}>📚</span>
                       <span style={{ fontSize: '0.9rem', color: '#475569', lineHeight: '1.4' }}>
                         {[user.degree, user.major, user.year ? `Year: ${user.year}` : ''].filter(Boolean).join(' • ')}
                       </span>

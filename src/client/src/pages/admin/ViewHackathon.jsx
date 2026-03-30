@@ -128,7 +128,28 @@ function ViewHackathon() {
 
             <div className="info-card">
               <h3 className="info-label">Prize Pool</h3>
-              <p className="info-value">{hackathon.prizePool}</p>
+              {hackathon.prizes && hackathon.prizes.length > 0 ? (
+                <div>
+                  {hackathon.prizes.map((prize, index) => (
+                    <div key={index} style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: '0.9rem', color: '#64748b' }}>{prize.position}:</span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#059669' }}>
+                        ₹{prize.amount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  ))}
+                  <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontWeight: '700' }}>Total:</span>
+                      <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#059669' }}>
+                        ₹{hackathon.prizes.reduce((sum, prize) => sum + prize.amount, 0).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="info-value">{hackathon.prizePool}</p>
+              )}
             </div>
           </div>
 
@@ -272,7 +293,7 @@ function ViewHackathon() {
       {/* ================= FOOTER ================= */}
       <footer className="admin-footer">
         <div className="footer-content">
-          <span className="footer-brand">HackPlatform</span>
+          <span className="footer-brand">HackHub</span>
         </div>
       </footer>
     </div>
