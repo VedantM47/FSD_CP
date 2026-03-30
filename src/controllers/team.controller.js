@@ -2,6 +2,7 @@ import Team from "../models/team.model.js";
 import Hackathon from "../models/hackathon.model.js";
 import User from "../models/user.model.js";
 import log from "../utils/logger.js";
+import { sendEmail } from "../utils/email.js";
 
 /* ================= UPDATED CREATE TEAM ================= */
 export const createTeam = async (req, res, next) => {
@@ -90,9 +91,25 @@ export const createTeam = async (req, res, next) => {
           hackathonId: hackathonId, 
           role: "participant" 
         },
-        teams: team._id // Store reference in the user's teams array
       }
     });
+
+    // 6. SEND INVITE EMAILS
+    if (members.length > 0) {
+      const invitedUsers = await User.find({ _id: { $in: members } }).select('email fullName');
+      invitedUsers.forEach(invitedUser => {
+        sendEmail({
+          to: invitedUser.email,
+          subject: `You've been invited to join team "${name}"`,
+          html: `
+            <h1>Team Invitation</h1>
+            <p>Hi ${invitedUser.fullName},</p>
+            <p><strong>${req.user.fullName}</strong> has invited you to join their team <strong>"${name}"</strong> for the hackathon.</p>
+            <p>Log in to your dashboard to accept the invitation.</p>
+          `
+        }).catch(err => log.error('EMAIL_ERROR', `Failed to send invite to ${invitedUser.email}`, err));
+      });
+    }
 
     log.success('CREATE_TEAM', `Team created and User role synced: "${name}" (id=${team._id})`);
     
@@ -125,7 +142,7 @@ export const getTeamDetails = async (req, res, next) => {
 
     const team = await Team.findById(teamId)
       .populate("leader", "fullName email")
-      .populate("members.userId", "fullName email");
+      .populate("members.userId", "fullName email skills");
 
     if (!team) {
       log.warn('GET_TEAM', `Team not found: ${teamId}`);
@@ -136,9 +153,24 @@ export const getTeamDetails = async (req, res, next) => {
     }
 
     log.success('GET_TEAM', `Returning team: "${team.name}"`);
+
+    const teamObj = team.toObject();
+    const skills = new Set();
+    teamObj.members
+      .filter((m) => m.status === "accepted")
+      .forEach((m) => {
+        if (m.userId?.skills) {
+          m.userId.skills.forEach((s) => skills.add(s));
+        }
+      });
+    if (teamObj.leader?.skills) {
+      teamObj.leader.skills.forEach((s) => skills.add(s));
+    }
+    teamObj.teamSkills = Array.from(skills);
+
     res.status(200).json({
       success: true,
-      data: team,
+      data: teamObj,
     });
   } catch (err) {
     log.error('GET_TEAM', 'Failed to fetch team', err);
@@ -153,6 +185,7 @@ export const getTeamDetails = async (req, res, next) => {
 export const requestJoinTeam = async (req, res, next) => {
   try {
     log.info('JOIN_TEAM', `Join request`, { teamId: req.params.teamId, by: req.user?.email });
+    const { message } = req.body;
     const team = await Team.findById(req.params.teamId);
 
     if (!team) {
@@ -194,9 +227,36 @@ export const requestJoinTeam = async (req, res, next) => {
     team.members.push({
       userId: req.user._id,
       status: "pending",
+      message: message || ""
     });
 
     await team.save();
+    
+    // Sync User Role (Register User for Hackathon if not already)
+    await User.findByIdAndUpdate(req.user._id, {
+      $addToSet: { 
+        hackathonRoles: { 
+          hackathonId: team.hackathonId, 
+          role: "participant" 
+        } 
+      }
+    });
+
+    // Notify Leader
+    const leader = await User.findById(team.leader).select('email fullName');
+    if (leader) {
+      sendEmail({
+        to: leader.email,
+        subject: `New join request for your team "${team.name}"`,
+        html: `
+          <h1>Join Request</h1>
+          <p>Hi ${leader.fullName},</p>
+          <p><strong>${req.user.fullName}</strong> has requested to join your team <strong>"${team.name}"</strong>.</p>
+          ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
+          <p>Log in to your team headquarters to review the request.</p>
+        `
+      }).catch(err => log.error('EMAIL_ERROR', `Failed to notify leader ${leader.email}`, err));
+    }
 
     log.success('JOIN_TEAM', `Join request sent to "${team.name}" by ${req.user.email}`);
     res.status(200).json({
@@ -237,8 +297,31 @@ export const manageTeamMember = async (req, res, next) => {
       }
     }
 
-    member.status = status;
+    if (status === "accepted") {
+      member.status = status;
+    } else if (status === "rejected") {
+      // Remove entirely if rejected/kicked
+      team.members = team.members.filter(m => m.userId.toString() !== memberId);
+    }
+    
     await team.save();
+
+    // AUTO-WITHDRAW other requests if accepted
+    if (status === "accepted") {
+      log.info('MANAGE_MEMBER', `Auto-withdrawing other requests for user: ${memberId}`);
+      await Team.updateMany(
+        { 
+          hackathonId: team.hackathonId, 
+          _id: { $ne: team._id },
+          "members.userId": memberId,
+          "members.status": "pending"
+        },
+        {
+          $pull: { members: { userId: memberId } }
+        }
+      );
+    }
+
     log.info('MANAGE_MEMBER', `Member status updated to "${status}"`);
 
     const user = await User.findById(memberId);
@@ -279,6 +362,18 @@ export const manageTeamMember = async (req, res, next) => {
     }
 
     await user.save();
+
+    // Notify User
+    sendEmail({
+      to: user.email,
+      subject: `Your membership for team "${team.name}" was ${status}`,
+      html: `
+        <h1>Team Status Update</h1>
+        <p>Hi ${user.fullName},</p>
+        <p>Your request to join team <strong>"${team.name}"</strong> has been <strong>${status}</strong> by the team leader.</p>
+        ${status === 'accepted' ? '<p>You can now access the project submission portal.</p>' : '<p>You can now join or create another team.</p>'}
+      `
+    }).catch(err => log.error('EMAIL_ERROR', `Failed to notify user ${user.email}`, err));
 
     log.success('MANAGE_MEMBER', `Member ${status}: ${user.email}`);
     res.status(200).json({
@@ -418,6 +513,16 @@ export const leaveTeam = async (req, res, next) => {
 
     await team.save();
 
+    // CRITICAL SYNC: Remove participant role from the user
+    await User.findByIdAndUpdate(req.user._id, {
+      $pull: { 
+        hackathonRoles: { 
+          hackathonId: team.hackathonId, 
+          role: "participant" 
+        } 
+      }
+    });
+
     log.success('LEAVE_TEAM', `User left team: "${team.name}"`);
     res.status(200).json({
       success: true,
@@ -445,6 +550,20 @@ export const deleteTeam = async (req, res, next) => {
       });
     }
 
+    // CRITICAL SYNC: Remove participant role from ALL members
+    const memberIds = team.members.map(m => m.userId);
+    await User.updateMany(
+      { _id: { $in: memberIds } },
+      {
+        $pull: { 
+          hackathonRoles: { 
+            hackathonId: team.hackathonId, 
+            role: "participant" 
+          } 
+        }
+      }
+    );
+
     log.success('DELETE_TEAM', `Team deleted: "${team.name}"`);
     res.status(200).json({
       success: true,
@@ -456,5 +575,213 @@ export const deleteTeam = async (req, res, next) => {
       statusCode: 500,
       message: err.message,
     });
+  }
+};
+
+/* ================= WITHDRAW JOIN REQUEST ================= */
+export const withdrawJoinRequest = async (req, res, next) => {
+  try {
+    const { teamId } = req.params;
+    log.info('WITHDRAW_REQUEST', `Withdrawing request`, { teamId, by: req.user?.email });
+
+    const team = await Team.findById(teamId);
+    if (!team) {
+      log.warn('WITHDRAW_REQUEST', `Team not found: ${teamId}`);
+      return next({ statusCode: 404, message: "Team not found" });
+    }
+
+    const memberIndex = team.members.findIndex(
+      m => m.userId.toString() === req.user._id.toString() && m.status === "pending"
+    );
+
+    if (memberIndex === -1) {
+      log.warn('WITHDRAW_REQUEST', `No pending request found for user in team: ${teamId}`);
+      return next({ statusCode: 404, message: "No pending request found" });
+    }
+
+    team.members.splice(memberIndex, 1);
+    await team.save();
+
+    // Check if user has any other membership in this hackathon (pending or accepted)
+    const otherMembership = await Team.exists({
+      hackathonId: team.hackathonId,
+      "members.userId": req.user._id
+    });
+
+    if (!otherMembership) {
+      log.info('WITHDRAW_REQUEST', `No other memberships found, pulling participant role for ${req.user.email}`);
+      await User.findByIdAndUpdate(req.user._id, {
+        $pull: { 
+          hackathonRoles: { 
+            hackathonId: team.hackathonId, 
+            role: "participant" 
+          } 
+        }
+      });
+    }
+
+    log.success('WITHDRAW_REQUEST', `Request withdrawn from team: "${team.name}"`);
+    res.status(200).json({
+      success: true,
+      message: "Request withdrawn successfully",
+    });
+  } catch (err) {
+    log.error('WITHDRAW_REQUEST', 'Failed to withdraw request', err);
+    next({ statusCode: 500, message: err.message });
+  }
+};
+
+/* ================= DISCOVER MEMBERS ================= */
+export const discoverMembers = async (req, res, next) => {
+  try {
+    const { teamId } = req.params;
+    const team = await Team.findById(teamId);
+    
+    if (!team) {
+      return next({ statusCode: 404, message: "Team not found" });
+    }
+
+    // Find all users who are already in an accepted team for this hackathon
+    const teamsInHackathon = await Team.find({ hackathonId: team.hackathonId });
+    const unavailableUserIds = new Set();
+    
+    teamsInHackathon.forEach(t => {
+      t.members.forEach(m => {
+        if (m.status === 'accepted') {
+          unavailableUserIds.add(m.userId.toString());
+        }
+        // Also exclude users who already have a pending/invited status for the current team
+        if (t._id.toString() === teamId && (m.status === 'pending' || m.status === 'invited')) {
+          unavailableUserIds.add(m.userId.toString());
+        }
+      });
+      // Exclude leaders too
+      unavailableUserIds.add(t.leader.toString());
+    });
+
+    const availableUsers = await User.find({
+      systemRole: 'user',
+      _id: { $nin: Array.from(unavailableUserIds) }
+    }).select('fullName email skills college major year degree _id');
+
+    res.status(200).json({
+      success: true,
+      data: availableUsers
+    });
+
+  } catch (err) {
+    log.error('DISCOVER_MEMBERS', 'Failed to fetch discoverable members', err);
+    next({ statusCode: 500, message: err.message });
+  }
+};
+
+/* ================= INVITE MEMBER ================= */
+export const inviteMember = async (req, res, next) => {
+  try {
+    const { teamId } = req.params;
+    const { userId } = req.body;
+    const team = await Team.findById(teamId);
+
+    if (!team) {
+      return next({ statusCode: 404, message: "Team not found" });
+    }
+
+    // Check team size
+    const acceptedCount = team.members.filter(m => m.status === 'accepted').length;
+    const maxSize = team.maxSize || 4; // default to 4 if not set
+    if (acceptedCount >= maxSize) {
+      return next({ statusCode: 400, message: "Team is already full" });
+    }
+
+    // Check if user is already invited or pending
+    const existingMember = team.members.find(m => m.userId.toString() === userId);
+    if (existingMember) {
+      return next({ statusCode: 400, message: "User is already invited or requested to join" });
+    }
+
+    // Add invitation
+    team.members.push({ userId, status: 'invited' });
+    await team.save();
+
+    res.status(200).json({ success: true, message: "Invitation sent successfully" });
+
+  } catch (err) {
+    log.error('INVITE_MEMBER', 'Failed to invite member', err);
+    next({ statusCode: 500, message: err.message });
+  }
+};
+
+/* ================= RESPOND TO INVITE ================= */
+export const respondToInvite = async (req, res, next) => {
+  try {
+    const { teamId } = req.params;
+    const { action } = req.body; // 'accept' or 'decline'
+    const team = await Team.findById(teamId);
+
+    if (!team) return next({ statusCode: 404, message: "Team not found" });
+
+    const memberIndex = team.members.findIndex(m => m.userId.toString() === req.user._id.toString() && m.status === 'invited');
+    if (memberIndex === -1) {
+      return next({ statusCode: 404, message: "No invitation found" });
+    }
+
+    if (action === 'accept') {
+      const acceptedCount = team.members.filter(m => m.status === 'accepted').length;
+      const maxSize = team.maxSize || 4;
+      if (acceptedCount >= maxSize) {
+        return next({ statusCode: 400, message: "Team is already full" });
+      }
+
+      // Check if user is already accepted in another team for this hackathon
+      const isAlreadyInTeam = await Team.findOne({
+        hackathonId: team.hackathonId,
+        $or: [
+          { leader: req.user._id },
+          { members: { $elemMatch: { userId: req.user._id, status: 'accepted' } } }
+        ]
+      });
+
+      if (isAlreadyInTeam) {
+        return next({ statusCode: 400, message: "You are already in a team for this hackathon" });
+      }
+
+      team.members[memberIndex].status = 'accepted';
+      await team.save();
+
+      // AUTO-WITHDRAW other requests/invitations in the same hackathon
+      const otherTeams = await Team.find({
+        hackathonId: team.hackathonId,
+        _id: { $ne: team._id },
+        'members.userId': req.user._id
+      });
+
+      for (const otherTeam of otherTeams) {
+        otherTeam.members = otherTeam.members.filter(m => m.userId.toString() !== req.user._id.toString());
+        await otherTeam.save();
+      }
+
+      // SYNC ROLE
+      await User.findByIdAndUpdate(req.user._id, {
+        $addToSet: { 
+          hackathonRoles: { 
+            hackathonId: team.hackathonId, 
+            role: "participant" 
+          }
+        }
+      });
+
+      res.status(200).json({ success: true, message: "Invitation accepted" });
+    } else if (action === 'decline') {
+      // Remove the member entry
+      team.members.splice(memberIndex, 1);
+      await team.save();
+      res.status(200).json({ success: true, message: "Invitation declined" });
+    } else {
+      return next({ statusCode: 400, message: "Invalid action" });
+    }
+
+  } catch (err) {
+    log.error('RESPOND_INVITE', 'Failed to respond to invite', err);
+    next({ statusCode: 500, message: err.message });
   }
 };

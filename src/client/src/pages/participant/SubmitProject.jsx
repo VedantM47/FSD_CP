@@ -123,7 +123,7 @@ const SubmitProject = () => {
       <div className="sp-wrapper">
         <div className="sp-container">
           <div className="sp-form-card locked-state">
-            <div className="locked-icon">🔒</div>
+            <div className="locked-icon">LOCKED</div>
             <h2 className="sp-section-title">Portal Locked</h2>
             <p className="locked-msg">
               Submissions are only accepted when the status is <strong>'ongoing'</strong>. 
@@ -143,7 +143,6 @@ const SubmitProject = () => {
       <div className="sp-wrapper">
         <div className="sp-container">
           <div className="sp-form-card locked-state">
-            <div className="locked-icon">⚠️</div>
             <h2 className="sp-section-title">Ineligible for Submission</h2>
             <p className="locked-msg">
               Your team <strong>{userTeam?.name}</strong> does not meet the minimum requirements for this hackathon.
@@ -169,7 +168,7 @@ const SubmitProject = () => {
     return (
       <div className="sp-wrapper">
         <div className="sp-success-container">
-          <div className="sp-success-icon">🚀</div>
+          <div className="sp-success-icon">SUCCESS</div>
           <h1 className="sp-success-title">Submission Received</h1>
           <p className="sp-success-desc">
             Your project <strong>{formData.title}</strong> has been logged. Judges will review it shortly.

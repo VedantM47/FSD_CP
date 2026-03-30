@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "../../styles/judge.css";
 import "../../styles/judge-additional.css";
 
@@ -17,13 +18,13 @@ const Footer = () => {
           <h4 className="footer-heading">About</h4>
           <ul className="footer-links">
             <li>
-              <a href="#">Our Mission</a>
+              <Link to="/about">Our Mission</Link>
             </li>
             <li>
-              <a href="#">Team</a>
+              <Link to="/team">Team</Link>
             </li>
             <li>
-              <a href="#">Careers</a>
+              <Link to="/careers">Careers</Link>
             </li>
           </ul>
         </div>
@@ -32,13 +33,13 @@ const Footer = () => {
           <h4 className="footer-heading">Support</h4>
           <ul className="footer-links">
             <li>
-              <a href="#">FAQs</a>
+              <Link to="/faqs">FAQs</Link>
             </li>
             <li>
-              <a href="#">Contact</a>
+              <Link to="/contact">Contact</Link>
             </li>
             <li>
-              <a href="#">Help Center</a>
+              <Link to="/help">Help Center</Link>
             </li>
           </ul>
         </div>
@@ -47,13 +48,13 @@ const Footer = () => {
           <h4 className="footer-heading">Legal</h4>
           <ul className="footer-links">
             <li>
-              <a href="#">Terms of Service</a>
+              <Link to="/terms">Terms of Service</Link>
             </li>
             <li>
-              <a href="#">Privacy Policy</a>
+              <Link to="/privacy">Privacy Policy</Link>
             </li>
             <li>
-              <a href="#">Cookie Policy</a>
+              <Link to="/cookies">Cookie Policy</Link>
             </li>
           </ul>
         </div>

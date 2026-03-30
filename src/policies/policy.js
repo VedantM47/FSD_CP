@@ -22,7 +22,7 @@ VIEW_ADMIN_DASHBOARD: ({ user }) => user?.systemRole === 'admin' || user?.system
    TEAM POLICIES
 ===================================================== */
 
-/* 🔥 Team creation creates participation → no participant required */
+/* Team creation creates participation → no participant required */
 CREATE_TEAM: ({ user, hackathon, existingTeam }) => {
   if (!user || !hackathon) return false;
   if (hackathon.status !== 'open') return false;
@@ -72,20 +72,9 @@ DELETE_TEAM: ({ user, team }) => {
 },
 
 VIEW_TEAM_DETAILS: ({ user, team, hackathon }) => {
-  if (!user || !team || !hackathon) return false;
-  if (user.systemRole === 'admin') return true;
-  if (team.leader.equals(user._id)) return true;
-
-  const isMember = team.members.some(
-    m => m.userId.equals(user._id) && m.status === 'accepted'
-  );
-  if (isMember) return true;
-
-  return user.hackathonRoles?.some(
-    r =>
-      r.hackathonId.equals(hackathon._id) &&
-      (r.role === 'organizer' || r.role === 'judge')
-  );
+  if (!user || !team) return false;
+  // Allow any authenticated user to view team details (needed for team discovery)
+  return true;
 },
 
 /* =====================================================
@@ -98,6 +87,12 @@ CREATE_HACKATHON: ({ user }) => {
 
 UPDATE_HACKATHON: ({ user, hackathon }) => {
   if (!user || !hackathon) return false;
+  
+  // DYNAMIC CHECK: Lock editing if the event has started or finished
+  if (hackathon.status !== 'draft' && hackathon.status !== 'open') {
+    return false; 
+  }
+
   if (user.systemRole === 'admin' || user.systemRole === 'mentor') return true;
 
   return user.hackathonRoles?.some(
@@ -126,7 +121,16 @@ REMOVE_JUDGE: ({ user, hackathon }) => {
     r => r.hackathonId.equals(hackathon._id) && r.role === 'organizer'
   );
 },
+VIEW_ORGANIZER_DASHBOARD: ({ user }) => {
+    // 1. Let System Admins and Mentors in by default
+    if (['admin', 'mentor'].includes(user.systemRole)) return true;
 
+    // 2. Let regular users in ONLY if they have an organizer role for at least one hackathon
+    // This matches the context seen in your logs: {"role":"organizer"}
+    const isOrganizer = user.hackathonRoles?.some(r => r.role === 'organizer');
+    
+    return isOrganizer;
+  },
 /* =====================================================
    SUBMISSION POLICIES
 ===================================================== */
@@ -136,7 +140,7 @@ CREATE_SUBMISSION: ({ user, team, hackathon, existingSubmission }) => {
   // 1. Only the leader can submit
   if (!team.leader.equals(user._id)) return false;
   
-  // 2. 🔥 DYNAMIC CHECK: Compare against the Hackathon's specific min requirement
+  // 2. DYNAMIC CHECK: Compare against the Hackathon's specific min requirement
   // We use the new minTeamSize field we added to the model
   const acceptedMembers = team.members.filter(m => m.status === 'accepted');
   const minRequired = hackathon.minTeamSize || 1; // Fallback to 1 if not set

@@ -14,7 +14,7 @@ const DarkModeToggle = () => {
         bg-gray-200 dark:bg-gray-700
         text-gray-800 dark:text-gray-200"
     >
-      {dark ? "☀ Light" : "🌙 Dark"}
+      {dark ? "Light" : "Dark"}
     </button>
   );
 };

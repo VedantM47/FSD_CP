@@ -27,8 +27,12 @@ const teamSchema = new mongoose.Schema(
         },
         status: {
           type: String,
-          enum: ['pending', 'accepted'],
+          enum: ['pending', 'accepted', 'invited'],
           default: 'pending',
+        },
+        message: {
+          type: String,
+          trim: true,
         },
       },
     ],
@@ -45,6 +49,12 @@ const teamSchema = new mongoose.Schema(
     isLocked: {
       type: Boolean,
       default: false,
+    },
+
+    projectDescription: {
+      type: String,
+      trim: true,
+      default: '',
     },
 
     project: {

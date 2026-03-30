@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
             return userData;
         } catch (err) {
-            console.error("❌ Failed to hydrate user:", err);
+            console.error("Failed to hydrate user:", err);
             removeAuthToken();
             localStorage.removeItem("profile");
             setUser(null);

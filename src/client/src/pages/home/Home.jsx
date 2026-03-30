@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
 import { useAuth } from "../../context/AuthContext";
@@ -8,7 +8,6 @@ import "../../styles/home.css";
 /* =============== GATEWAY CARD DATA =============== */
 const gateways = [
     {
-        icon: "🔍",
         title: "Discover Hackathons",
         desc: "Browse upcoming hackathons, filter by tech stack, and find the perfect challenge for your team.",
         to: "/discovery",
@@ -16,7 +15,6 @@ const gateways = [
         bg: "#eff6ff",
     },
     {
-        icon: "📅",
         title: "Calendar",
         desc: "Track deadlines, submission dates, and presentation schedules in one unified timeline.",
         to: "/calendar",
@@ -24,7 +22,6 @@ const gateways = [
         bg: "#f5f3ff",
     },
     {
-        icon: "👤",
         title: "My Profile",
         desc: "Manage your skills, teams, and hackathon history. Showcase your achievements.",
         to: "/profile",
@@ -32,7 +29,6 @@ const gateways = [
         bg: "#ecfeff",
     },
     {
-        icon: "⚖️",
         title: "Judge Panel",
         desc: "Review submissions, score teams with criteria-based rubrics, and provide feedback.",
         to: "/judge/hackathons",
@@ -40,21 +36,20 @@ const gateways = [
         bg: "#fffbeb",
     },
     {
-        icon: "🛠",
+        title: "Organizer Dashboard",
+        desc: "Manage your assigned hackathons, teams, and event settings.",
+        to: "/organizer/dashboard",
+        accent: "#047857",
+        bg: "#ecfdf5",
+    },
+    {
         title: "Admin Dashboard",
         desc: "Create hackathons, manage teams, assign judges, and monitor platform activity.",
         to: "/admin/dashboard",
         accent: "#ef4444",
         bg: "#fef2f2",
-    },
-    {
-        icon: "📝",
-        title: "Register & Join",
-        desc: "Form a team, invite members, and register for any open hackathon in minutes.",
-        to: "/discovery",
-        accent: "#10b981",
-        bg: "#ecfdf5",
-    },
+        roleRequired: "admin"
+    }
 ];
 
 /* =============== STEPS DATA =============== */
@@ -84,9 +79,28 @@ const stats = [
     { value: "10,000+", label: "Participants" },
 ];
 
-/* =============== HOME PAGE COMPONENT =============== */
 const Home = () => {
-    const { isAuthenticated } = useAuth();
+    const navigate = useNavigate();
+    const { isAuthenticated, user } = useAuth();
+
+    const handleCardClick = (e, g) => {
+        e.preventDefault();
+
+        // 1. Mandatory Login Check
+        if (!isAuthenticated) {
+            return navigate('/login');
+        }
+
+        // 2. Admin Logic (Keep Alert)
+        if (g.roleRequired === 'admin' && user?.systemRole !== 'admin') {
+            return alert("Access Denied: You are not an Admin.");
+        }
+
+        // 3. Judge & Organizer - Direct Navigation (Old Way)
+        // The pages themselves will handle the filtering/empty states
+        navigate(g.to);
+    };
+
     return (
         <div className="min-h-screen flex flex-col">
             <Navbar />
@@ -95,7 +109,6 @@ const Home = () => {
             <section className="home-hero">
                 <div className="hero-content">
                     <div className="hero-badge">
-                        <span>🚀</span>
                         <span>The Hackathon Hosting Platform</span>
                     </div>
 
@@ -140,22 +153,22 @@ const Home = () => {
 
                 <div className="gateway-grid">
                     {gateways.map((g, i) => (
-                        <Link
+                        <div
                             key={i}
-                            to={g.to}
+                            onClick={(e) => handleCardClick(e, g)}
                             className="gateway-card"
                             style={{
                                 "--card-accent": g.accent,
                                 "--card-bg": g.bg,
+                                cursor: 'pointer'
                             }}
                         >
-                            <div className="card-icon">{g.icon}</div>
                             <div className="card-title">{g.title}</div>
                             <div className="card-desc">{g.desc}</div>
                             <div className="card-arrow">
                                 Go to {g.title} <span>→</span>
                             </div>
-                        </Link>
+                        </div>
                     ))}
                 </div>
             </section>
@@ -196,7 +209,7 @@ const Home = () => {
             {/* ===== CTA ===== */}
             <section className="cta-section">
                 <div className="cta-box">
-                    <h2 className="cta-title">Ready to Hack? 🚀</h2>
+                    <h2 className="cta-title">Ready to Hack?</h2>
                     <p className="cta-subtitle">
                         Join thousands of developers, designers, and innovators building the
                         future — one hackathon at a time.

@@ -24,7 +24,7 @@ const AuthForm = ({ type }) => {
     const fullName = isSignup ? form.fullName.value : null;
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      alert('❌ Error: Invalid email format.');
+      alert('Error: Invalid email format.');
       setLoading(false);
       return;
     }
@@ -50,7 +50,7 @@ const AuthForm = ({ type }) => {
     } catch (error) {
       console.error("Auth Error:", error);
       const msg = error.response?.data?.message || "Authentication failed.";
-      alert(`❌ Error: ${msg}`);
+      alert(`Error: ${msg}`);
     } finally {
       setLoading(false);
     }

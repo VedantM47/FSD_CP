@@ -424,6 +424,30 @@ body {
     margin-bottom: 32px;
 }
 
+.back-button {
+    background-color: #4F9CF9;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-button:hover {
+    background-color: #3a87e0;
+    transform: translateX(-2px);
+}
+
+.back-button:active {
+    transform: translateX(0);
+}
+
 .summary-pills {
     display: flex;
     gap: 16px;

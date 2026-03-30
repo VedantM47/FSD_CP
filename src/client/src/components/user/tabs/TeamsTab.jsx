@@ -15,7 +15,6 @@ const TeamsTab = ({ teams, navigate }) => {
         <div key={team._id} className="team-card">
           <div className="team-card__header">
             <h3 className="team-card__name">
-              <span className="team-icon">👥</span>
               {team.name}
             </h3>
 

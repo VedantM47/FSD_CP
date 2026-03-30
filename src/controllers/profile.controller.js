@@ -43,19 +43,26 @@ export const getMyProfile = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    // 4. Hackathon IDs user participated in (from hackathonRoles)
-    const hackathonRoleIds = (user.hackathonRoles || []).map(r => r.hackathonId);
+    // ─── FIX START: SECTION 4 (THE CRASH FIX) ──────────────────────────
+    // We check for both 'hackathonId' AND 'hId' to prevent undefined.toString() crashes
+    const hackathonRoleIds = (user.hackathonRoles || [])
+      .map(r => r.hackathonId || r.hId) 
+      .filter(Boolean); // Remove null/undefined values
+
     const hackathonsFromTeams = teams.map(t => t.hackathonId?._id).filter(Boolean);
+    
+    // Convert all to strings safely before creating the Set
     const allHackathonIds = [...new Set([
       ...hackathonRoleIds.map(id => id.toString()),
       ...hackathonsFromTeams.map(id => id.toString()),
     ])];
+    // ─── FIX END ──────────────────────────────────────────────────────
 
     const hackathons = await Hackathon.find({ _id: { $in: allHackathonIds } })
       .sort({ startDate: -1 })
       .lean();
 
-    // 5. Evaluations for user's teams (to gather scores/feedback)
+    // 5. Evaluations for user's teams
     const teamIds = teams.map(t => t._id);
     const evaluations = await Evaluation.find({ teamId: { $in: teamIds } })
       .populate('hackathonId', 'title')
@@ -78,12 +85,10 @@ export const getMyProfile = async (req, res, next) => {
           ? 'Team Member'
           : 'Solo';
 
-      // Determine status
       let status = 'Registered';
       if (h.status === 'ongoing') status = 'In Progress';
       else if (h.status === 'closed') status = 'Completed';
 
-      // Check for submission result
       const sub = submissions.find(s =>
         s.hackathonId?._id?.toString() === h._id.toString()
       );
@@ -129,7 +134,6 @@ export const getMyProfile = async (req, res, next) => {
 
     // 8. Format submissions for frontend
     const submissionsFormatted = submissions.map(s => {
-      // Find evaluations for this submission's team + hackathon
       const teamEvals = evaluations.filter(e =>
         e.teamId?.toString() === s.teamId?._id?.toString() &&
         e.hackathonId?._id?.toString() === s.hackathonId?._id?.toString()
@@ -151,20 +155,27 @@ export const getMyProfile = async (req, res, next) => {
       };
     });
 
+    // 8.5 Invitations — teams where user has status 'invited'
+    const invitedTeams = await Team.find({
+      members: { $elemMatch: { userId, status: 'invited' } }
+    })
+      .populate('hackathonId', 'title')
+      .populate('leader', 'fullName email')
+      .lean();
+
+    const invitations = invitedTeams.map(t => ({
+      teamId: t._id,
+      teamName: t.name,
+      hackathonName: t.hackathonId?.title || 'Unknown',
+      hackathonId: t.hackathonId?._id,
+      leaderName: t.leader?.fullName || 'Unknown',
+    }));
+
     // 9. Build response
     const profile = {
       user: {
-        _id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        college: user.college || '',
-        department: user.department || '',
-        year: user.year || '',
-        skills: user.skills || [],
-        github: user.github || '',
-        linkedin: user.linkedin || '',
-        systemRole: user.systemRole,
-        authProvider: user.authProvider,
+        ...user,
+        password: undefined,
       },
       stats: {
         hackathonsParticipated: hackathons.length,
@@ -174,9 +185,10 @@ export const getMyProfile = async (req, res, next) => {
       hackathons: hackathonDetails,
       teams: teamsFormatted,
       submissions: submissionsFormatted,
+      invitations,
     };
 
-    log.success('PROFILE', `Profile aggregated: ${hackathons.length} hackathons, ${teams.length} teams, ${submissions.length} submissions`);
+    log.success('PROFILE', `Profile aggregated: ${hackathons.length} hackathons`);
     res.status(200).json({ success: true, data: profile });
   } catch (err) {
     log.error('PROFILE', 'Failed to aggregate profile', err);

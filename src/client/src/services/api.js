@@ -67,7 +67,13 @@ export const updateHackathon = (id, data) => API.patch(`/hackathons/${id}`, data
 export const updateHackathonStatus = (id, status) => API.patch(`/hackathons/${id}/status`, { status });
 export const sendAdminBroadcast = (data) => API.post("/admin/broadcast", data, getAuthHeaders());
 export const getAdminEmailQueueStatus = () => API.get('/admin/email-queue', getAuthHeaders());
-export const getAdminUsers = () => API.get('/admin/users', getAuthHeaders());
+export const getAdminUsers = (page = 1, limit = 10, search = '') => {
+  const params = new URLSearchParams();
+  params.set('page', page.toString());
+  params.set('limit', limit.toString());
+  if (search) params.set('search', search);
+  return API.get(`/admin/users?${params.toString()}`, getAuthHeaders());
+};
 export const updateAdminUserRole = (data) => API.post('/admin/users/role', data, getAuthHeaders());
 
 /* ================= HACKATHON APIs ================= */
@@ -91,7 +97,11 @@ export const getParticipantDashboard = (hackathonId) => API.get(`/participant/ha
 
 /* ================= TEAM APIs ================= */
 export const registerTeam = (data) => API.post("/teams", data);
-export const requestJoinTeam = (teamId) => API.post(`/teams/${teamId}/join`);
+export const requestJoinTeam = (teamId, message) => API.post(`/teams/${teamId}/join`, { message });
+export const withdrawJoinRequest = (teamId) => API.post(`/teams/${teamId}/withdraw`);
+export const discoverMembers = (teamId) => API.get(`/teams/${teamId}/discover-members`);
+export const inviteMember = (teamId, data) => API.post(`/teams/${teamId}/invite`, data);
+export const respondToInvite = (teamId, data) => API.post(`/teams/${teamId}/invites/respond`, data);
 
 /* ================= CALENDAR ================= */
 export const getCalendarEvents = () => API.get('/calendar');

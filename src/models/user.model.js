@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Hackathon',
         },
+        hId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Hackathon',
+        },
         role: {
           type: String,
           enum: ['participant', 'judge', 'organizer'],
@@ -82,17 +86,27 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
+    major: {
+      type: String,
+      trim: true,
+    },
+
     year: {
       type: Number,
     },
 
     bio: { type: String, trim: true },
-    residence: { type: String, trim: true },
+    dateOfBirth: { type: Date },
+    state: { type: String, trim: true },
+    city: { type: String, trim: true },
     gender: { type: String, enum: ['Male', 'Female', 'Other', 'Prefer Not to Say'] },
     degree: { type: String, trim: true },
     graduationYear: { type: Number },
     interests: [{ type: String }],
     resumeUrl: { type: String },
+    website: { type: String, trim: true },
+    collegeState: { type: String, trim: true },
+    collegeCity: { type: String, trim: true },
 
     skills: [
       {

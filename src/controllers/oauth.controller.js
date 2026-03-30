@@ -15,13 +15,13 @@ export const oauthCallback = async (req, res) => {
     // Use env var for redirect
     const targetURL = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login-success?token=${token}`;
     
-    console.log("🚀 Redirecting to:", targetURL);
+    console.log("Redirecting to:", targetURL);
     
     // Direct browser redirect
     return res.redirect(targetURL); 
 
   } catch (error) {
-    console.error("🔥 Error in Callback:", error.message);
+    console.error("Error in Callback:", error.message);
     return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=server_error`);
   }
 };

@@ -1,4 +1,3 @@
-// src/models/hackathon.model.js
 import mongoose from 'mongoose';
 
 const hackathonSchema = new mongoose.Schema(
@@ -15,18 +14,37 @@ const hackathonSchema = new mongoose.Schema(
     presentationDate: Date,
     resultDate: Date,
 
-    // FIX: Adding Minimum and Defaulting Maximum
     minTeamSize: {
       type: Number,
-      default: 1, // Default 1 member (Solo allowed)
+      default: 1, 
     },
     maxTeamSize: {
       type: Number,
       default: 4, 
     },
 
-    prizePool: String,
-    image: String, // Cloudinary URL
+    prizePool: String, // Legacy field - kept for backward compatibility
+    
+    // Dynamic Prize Distribution
+    prizes: [
+      {
+        position: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        amount: {
+          type: Number,
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
+    image: String, 
     rules: String,
     terms: String,
 
@@ -36,6 +54,7 @@ const hackathonSchema = new mongoose.Schema(
       default: 'draft',
     },
 
+    // Isko 'judgeUserId' hi rakha hai kyunki assignJudge controller yahi maangta hai
     judges: [
       {
         judgeUserId: {
@@ -43,6 +62,67 @@ const hackathonSchema = new mongoose.Schema(
           ref: 'User',
         },
         assignedAt: Date,
+      },
+    ],
+
+    // Isko wapas 'organizerUserId' kar diya hai taaki populate crash na ho
+    organizers: [
+      {
+        organizerUserId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+        assignedAt: Date,
+      },
+    ],
+
+    // Problem Statements for hackathon
+    problemStatements: [
+      {
+        title: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        description: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
+    // Rounds for hackathon
+    rounds: [
+      {
+        name: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        description: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        startDate: {
+          type: Date,
+        },
+        endDate: {
+          type: Date,
+        },
+        submissionRequirements: {
+          type: String,
+          trim: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
 

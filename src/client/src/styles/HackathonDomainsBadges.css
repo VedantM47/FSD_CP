@@ -1,0 +1,192 @@
+/* Hackathon Domains Badges */
+
+.domains-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.domains-badges.small .domain-badge {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.domains-badges.small .badge-icon {
+  font-size: 14px;
+}
+
+.domains-badges.medium .domain-badge {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.domains-badges.medium .badge-icon {
+  font-size: 16px;
+}
+
+.domains-badges.large .domain-badge {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.domains-badges.large .badge-icon {
+  font-size: 18px;
+}
+
+/* Domain Badge */
+.domain-badge {
+  position: relative;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+  cursor: default;
+}
+
+.domain-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.badge-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.badge-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* Tooltip on hover */
+.badge-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 10;
+  margin-bottom: 8px;
+}
+
+.domain-badge:hover .badge-tooltip {
+  opacity: 1;
+}
+
+/* Empty State */
+.domains-badges.empty {
+  color: #999;
+  font-style: italic;
+  font-size: 14px;
+  padding: 12px 0;
+}
+
+/* Horizontal Layout */
+.domains-badges.horizontal {
+  display: flex;
+  gap: 8px;
+}
+
+/* Vertical Stack */
+.domains-badges.vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* With Background */
+.domains-badges.with-bg {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+/* Grid Layout */
+.domains-badges.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.domains-badges.grid .domain-badge {
+  justify-content: center;
+}
+
+/* Different Colors */
+.domain-badge.variant-tech {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.domain-badge.variant-social {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.domain-badge.variant-business {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.domain-badge.variant-other {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .domains-badges {
+    gap: 8px;
+  }
+
+  .domain-badge {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+
+  .badge-icon {
+    font-size: 14px;
+  }
+
+  .badge-text {
+    max-width: 150px;
+  }
+
+  .domains-badges.grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+
+  .badge-tooltip {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .domain-badge {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+
+  .badge-icon {
+    font-size: 12px;
+  }
+
+  .badge-text {
+    max-width: 100px;
+  }
+}

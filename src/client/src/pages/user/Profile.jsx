@@ -8,6 +8,7 @@ import HackathonsTab from "../../components/user/tabs/HackathonsTab";
 import TeamsTab from "../../components/user/tabs/TeamsTab";
 import SubmissionsTab from "../../components/user/tabs/SubmissionsTab";
 import SettingsTab from "../../components/user/tabs/SettingsTab";
+import InvitationsTab from "../../components/user/tabs/InvitationsTab";
 import { getMyProfile } from "../../services/api";
 import "../../styles/profile.css";
 
@@ -25,7 +26,7 @@ const Profile = () => {
       const res = await getMyProfile();
       setProfile(res.data.data);
     } catch (err) {
-      console.error("❌ Profile fetch error:", err);
+      console.error("Profile fetch error:", err);
       setError(
         err?.response?.data?.message || "Failed to load profile"
       );
@@ -64,7 +65,7 @@ const Profile = () => {
     );
   }
 
-  const { user, stats, hackathons, teams, submissions } = profile;
+  const { user, stats, hackathons, teams, submissions, invitations } = profile;
 
   return (
     <div className="profile-page">
@@ -72,13 +73,15 @@ const Profile = () => {
 
       <div className="profile-layout">
         <ProfileHeader user={user} stats={stats} />
-        <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+        <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} invitationCount={invitations?.length || 0} />
 
         {activeTab === "Overview" && (
           <OverviewTab
+            user={user}
             hackathons={hackathons}
             teams={teams}
             navigate={navigate}
+            onUpdate={fetchProfile}
           />
         )}
 
@@ -97,17 +100,21 @@ const Profile = () => {
         {activeTab === "Settings" && (
           <SettingsTab user={user} onUpdate={fetchProfile} />
         )}
+
+        {activeTab === "Invitations" && (
+          <InvitationsTab invitations={invitations || []} onUpdate={fetchProfile} />
+        )}
       </div>
 
       {/* Footer */}
       <footer className="profile-footer">
         <div className="profile-footer__inner">
-          <span className="profile-footer__brand">Hackplatform</span>
+          <span className="profile-footer__brand">HackHub</span>
           <div className="profile-footer__links">
-            <a href="#about">About</a>
-            <a href="#faqs">FAQs</a>
-            <a href="#contact">Contact</a>
-            <a href="#terms">Terms & Privacy</a>
+            <Link to="/about">About</Link>
+            <Link to="/faqs">FAQs</Link>
+            <Link to="/contact">Contact</Link>
+            <Link to="/terms">Terms & Privacy</Link>
           </div>
         </div>
       </footer>

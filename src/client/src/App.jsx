@@ -31,6 +31,8 @@ import RegisterHackathon from "./pages/participant/RegisterHackathon";
 import JoinTeam from "./pages/participant/JoinTeam";
 import SubmitProject from "./pages/participant/SubmitProject";
 import ManageTeam from "./pages/participant/ManageTeam";
+import TeamDetails from "./pages/participant/TeamDetails";
+import FindMembers from "./pages/participant/FindMembers";
 
 /* Hackathon Pages */
 import Discussion from "./pages/hackathon/Discussion";
@@ -54,8 +56,8 @@ function App() {
       </Route>
 
       {/* ===== ORGANIZER & ADMIN SHARED ROUTES ===== */}
-      <Route element={<ProtectedRoute allowedRoles={["admin", "mentor"]} />}>
-        <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
+      <Route element={<ProtectedRoute allowedRoles={["admin", "mentor","user"]} />}>
+       
         <Route path="/admin/hackathons/create" element={<CreateHackathon />} />
         <Route path="/admin/hackathons/:id" element={<ViewHackathon />} />
         <Route path="/admin/hackathons/:id/edit" element={<CreateHackathon />} />
@@ -65,6 +67,7 @@ function App() {
       {/* ===== PROTECTED ROUTES (any authenticated user) ===== */}
       <Route element={<ProtectedRoute />}>
         {/* Judge Routes */}
+         <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
         <Route path="/judge/hackathons" element={<AssignedHackathons />} />
         <Route path="/judge/hackathons/:id" element={<HackathonOverview />} />
         <Route path="/judge/hackathons/:id/submissions" element={<TeamSubmissions />} />
@@ -88,6 +91,8 @@ function App() {
         <Route path="/user/hackathon/:id/JoinTeam" element={<JoinTeam />} />
         <Route path="/user/hackathon/:id/submit" element={<SubmitProject />} />
         <Route path="/user/hackathon/:id/manage-team" element={<ManageTeam />} />
+        <Route path="/user/hackathon/:id/team/:teamId" element={<TeamDetails />} />
+        <Route path="/user/hackathon/:id/team/:teamId/find-members" element={<FindMembers />} />
       </Route>
 
       {/* Fallback */}

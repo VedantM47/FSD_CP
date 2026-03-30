@@ -45,7 +45,7 @@ const RefreshBanner = ({ visible }) => (
             zIndex: 9999,
         }}
     >
-        ✅ Calendar updated in real time
+        Calendar updated in real time
     </div>
 );
 
@@ -112,7 +112,7 @@ const Calendar = () => {
         const socket = getSocket();
 
         const handleCalendarUpdate = (payload) => {
-            console.log('📅 Real-time calendar update received:', payload);
+            console.log('Real-time calendar update received:', payload);
 
             // Silently re-fetch so the calendar reflects the new hackathon dates
             fetchEvents(true).then(() => {
@@ -202,13 +202,13 @@ const Calendar = () => {
                         className={`view-btn ${viewMode === 'month' ? 'active' : ''}`}
                         onClick={() => setViewMode('month')}
                     >
-                        📅 Month
+                        Month
                     </button>
                     <button
                         className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                         onClick={() => setViewMode('list')}
                     >
-                        📋 List
+                        List
                     </button>
                 </div>
 
@@ -220,14 +220,14 @@ const Calendar = () => {
                         onClick={() => setShowAll(false)}
                         title="Only hackathons you are registered for"
                     >
-                        👤 My Events
+                        My Events
                     </button>
                     <button
                         className={`view-btn ${showAll ? 'active' : ''}`}
                         onClick={() => setShowAll(true)}
                         title="All open / ongoing hackathons"
                     >
-                        🌐 All Hackathons
+                        All Hackathons
                     </button>
                 </div>
             </div>
@@ -244,7 +244,7 @@ const Calendar = () => {
 
             {!error && events.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-                    <p>🗓️ No hackathon events found.</p>
+                    <p>No hackathon events found.</p>
                     {showAll
                         ? <p>No open hackathons have been created yet.</p>
                         : <p>Register for a hackathon to see its schedule here, or switch to <strong>All Hackathons</strong>.</p>

@@ -2,8 +2,10 @@ import Hackathon from '../models/hackathon.model.js';
 import Team from '../models/team.model.js';
 import User from '../models/user.model.js';
 import Discussion from '../models/discussion.model.js';
+import Submission from '../models/submission.model.js';
 import log from '../utils/logger.js';
 import { getIO } from '../utils/socket.js';
+import mongoose from 'mongoose';
 
 // Helper — emit a calendar refresh signal to all connected clients
 const emitCalendarUpdate = (action, hackathonId) => {
@@ -25,40 +27,171 @@ export const createHackathon = async (req, res, next) => {
   try {
     log.info('CREATE_HACKATHON', 'Creating hackathon', { title: req.body.title, by: req.user?.email || 'unauthenticated' });
 
-    // 🔥 NEW: Validate Team Sizes
-    const { minTeamSize, maxTeamSize } = req.body;
-    if (minTeamSize && maxTeamSize && Number(minTeamSize) > Number(maxTeamSize)) {
-      return next({
-        statusCode: 400,
-        message: "Minimum team size cannot be greater than maximum team size.",
-      });
+    // Explicitly set the creator ID
+    const hackathonData = {
+      ...req.body,
+      createdBy: req.user._id
+    };
+
+    // 1. Parse and Validate Problem Statements
+    let problemStatements = [];
+    if (hackathonData.problemStatements) {
+      try {
+        problemStatements = typeof hackathonData.problemStatements === 'string'
+          ? JSON.parse(hackathonData.problemStatements)
+          : hackathonData.problemStatements;
+
+        if (!Array.isArray(problemStatements)) {
+          problemStatements = [];
+        }
+
+        // Validate each problem statement
+        problemStatements = problemStatements
+          .filter(ps => ps.title && ps.title.trim() && ps.description && ps.description.trim())
+          .map(ps => ({
+            title: ps.title.trim(),
+            description: ps.description.trim(),
+            createdAt: new Date(),
+          }));
+
+        // Require at least one problem statement
+        if (problemStatements.length === 0) {
+          return next({ statusCode: 400, message: 'At least one problem statement is required.' });
+        }
+
+        hackathonData.problemStatements = problemStatements;
+      } catch (error) {
+        log.warn('CREATE_HACKATHON', 'Error parsing problem statements', error);
+        return next({ statusCode: 400, message: 'Invalid problem statements format.' });
+      }
+    } else {
+      return next({ statusCode: 400, message: 'At least one problem statement is required.' });
     }
 
-    const hackathonData = { ...req.body };
-    if (req.file) {
-      hackathonData.image = req.file.path;
+    // 2. Parse and Validate Rounds (Optional)
+    let rounds = [];
+    if (hackathonData.rounds) {
+      try {
+        rounds = typeof hackathonData.rounds === 'string'
+          ? JSON.parse(hackathonData.rounds)
+          : hackathonData.rounds;
+
+        if (!Array.isArray(rounds)) {
+          rounds = [];
+        }
+
+        // Validate each round
+        rounds = rounds
+          .filter(round => round.name && round.name.trim() && round.description && round.description.trim())
+          .map(round => ({
+            name: round.name.trim(),
+            description: round.description.trim(),
+            startDate: round.startDate || null,
+            endDate: round.endDate || null,
+            submissionRequirements: round.submissionRequirements?.trim() || '',
+            createdAt: new Date(),
+          }));
+
+        hackathonData.rounds = rounds;
+      } catch (error) {
+        log.warn('CREATE_HACKATHON', 'Error parsing rounds', error);
+        hackathonData.rounds = [];
+      }
     }
 
+    // 2.5. Parse and Validate Prizes
+    let prizes = [];
+    if (hackathonData.prizes) {
+      try {
+        prizes = typeof hackathonData.prizes === 'string'
+          ? JSON.parse(hackathonData.prizes)
+          : hackathonData.prizes;
+
+        if (!Array.isArray(prizes)) {
+          prizes = [];
+        }
+
+        // Validate each prize
+        prizes = prizes
+          .filter(prize => prize.position && prize.position.trim() && prize.amount && !isNaN(prize.amount) && Number(prize.amount) > 0)
+          .map(prize => ({
+            position: prize.position.trim(),
+            amount: Number(prize.amount),
+            createdAt: new Date(),
+          }));
+
+        // Require at least one prize
+        if (prizes.length === 0) {
+          return next({ statusCode: 400, message: 'At least one prize is required.' });
+        }
+
+        hackathonData.prizes = prizes;
+
+        // Calculate total prize pool for backward compatibility
+        const totalPrizePool = prizes.reduce((sum, prize) => sum + prize.amount, 0);
+        hackathonData.prizePool = `₹${totalPrizePool.toLocaleString('en-IN')}`;
+      } catch (error) {
+        log.warn('CREATE_HACKATHON', 'Error parsing prizes', error);
+        return next({ statusCode: 400, message: 'Invalid prizes format.' });
+      }
+    } else {
+      return next({ statusCode: 400, message: 'At least one prize is required.' });
+    }
+
+    // 3. Parse Judges
+    let judgeIds = [];
+    if (hackathonData.judges) {
+      judgeIds = typeof hackathonData.judges === 'string' ? JSON.parse(hackathonData.judges) : hackathonData.judges;
+      hackathonData.judges = Array.isArray(judgeIds) ? judgeIds.map(id => ({ judgeUserId: id, assignedAt: new Date() })) : [];
+    }
+
+    if (judgeIds.length > MAX_JUDGES) {
+      return next({ statusCode: 400, message: `Maximum ${MAX_JUDGES} judges allowed.` });
+    }
+
+    // 3. Parse Organizers
+    let organizerIds = [];
+    if (hackathonData.organizers) {
+      organizerIds = typeof hackathonData.organizers === 'string' ? JSON.parse(hackathonData.organizers) : hackathonData.organizers;
+
+      // Ensure the creator is always in the organizer list
+      if (!organizerIds.includes(req.user._id.toString())) {
+        organizerIds.push(req.user._id.toString());
+      }
+
+      hackathonData.organizers = organizerIds.map(id => ({
+       organizerUserId: id,
+        assignedAt: new Date()
+      }));
+    }
+
+    // 4. Validate Team Sizes
+    if (hackathonData.minTeamSize && hackathonData.maxTeamSize && Number(hackathonData.minTeamSize) > Number(hackathonData.maxTeamSize)) {
+      return next({ statusCode: 400, message: "Minimum team size cannot be greater than maximum team size." });
+    }
+
+    if (req.file) hackathonData.image = req.file.path;
+
+    // 5. Save Hackathon
     const hackathon = await Hackathon.create(hackathonData);
 
-    log.success('CREATE_HACKATHON', `Hackathon created: "${hackathon.title}" (id=${hackathon._id})`);
+    // 6. Sync User Roles
+    if (judgeIds.length > 0) {
+      await User.updateMany({ _id: { $in: judgeIds } }, { $addToSet: { hackathonRoles: { hId: hackathon._id, role: 'judge' } } });
+    }
+    if (organizerIds.length > 0) {
+      await User.updateMany({ _id: { $in: organizerIds } }, { $addToSet: { hackathonRoles: { hId: hackathon._id, role: 'organizer' } } });
+    }
 
-    // 🔔 Real-time: notify all calendar clients that new hackathon events exist
+    log.success('CREATE_HACKATHON', `Hackathon created: "${hackathon.title}" with ${problemStatements.length} problem statements`);
     emitCalendarUpdate('created', hackathon._id);
 
-    res.status(201).json({
-      success: true,
-      data: hackathon,
-    });
+    res.status(201).json({ success: true, data: hackathon });
   } catch (err) {
-    log.error('CREATE_HACKATHON', 'Failed to create hackathon', err);
-    next({
-      statusCode: 400,
-      message: err.message,
-    });
+    log.error('CREATE_HACKATHON', 'Failed to create', err);
+    next({ statusCode: 400, message: err.message });
   }
 };
-
 
 /* ================= GET ALL HACKATHONS ================= */
 /* Public */
@@ -87,27 +220,22 @@ export const getAllHackathons = async (req, res, next) => {
 export const getHackathonById = async (req, res, next) => {
   try {
     log.info('GET_HACKATHON', `Fetching hackathon`, { id: req.params.id });
-    const hackathon = await Hackathon.findById(req.params.id);
+    
+    // FIX: Updated populate path to 'organizers.userId'
+    const hackathon = await Hackathon.findById(req.params.id)
+      .populate('judges.judgeUserId', 'fullName email')
+      .populate('organizers.organizerUserId', 'fullName email');
 
     if (!hackathon) {
       log.warn('GET_HACKATHON', `Not found: ${req.params.id}`);
-      return next({
-        statusCode: 404,
-        message: 'Hackathon not found',
-      });
+      return next({ statusCode: 404, message: 'Hackathon not found' });
     }
 
     log.success('GET_HACKATHON', `Found: "${hackathon.title}"`);
-    res.status(200).json({
-      success: true,
-      data: hackathon,
-    });
+    res.status(200).json({ success: true, data: hackathon });
   } catch (err) {
     log.error('GET_HACKATHON', 'Failed to fetch hackathon', err);
-    next({
-      statusCode: 400,
-      message: err.message,
-    });
+    next({ statusCode: 400, message: err.message });
   }
 };
 
@@ -284,86 +412,172 @@ export const searchHackathons = async (req, res, next) => {
   }
 };
 
-/* ================= UPDATE HACKATHON ================= */
-/* Admin / Mentor */
+
 /* ================= UPDATE HACKATHON ================= */
 /* Admin / Mentor */
 export const updateHackathon = async (req, res, next) => {
   try {
-    log.info('UPDATE_HACKATHON', 'Updating hackathon', { id: req.params.id, fields: Object.keys(req.body), by: req.user?.email });
+    log.info('UPDATE_HACKATHON', 'Updating hackathon', { id: req.params.id, by: req.user?.email });
 
-    // 🔥 NEW: Validate Team Sizes during update
-    const { minTeamSize, maxTeamSize, judges: newJudgeIds, ...updateData } = req.body;
+    const {
+      minTeamSize,
+      maxTeamSize,
+      judges: newJudgeIds,
+      organizers: newOrganizerIds,
+      problemStatements: rawProblemStatements,
+      rounds: rawRounds,
+      prizes: rawPrizes,
+      ...updateData
+    } = req.body;
+
+    // Add team sizes back into the update payload after validation
+    if (minTeamSize !== undefined) updateData.minTeamSize = minTeamSize;
+    if (maxTeamSize !== undefined) updateData.maxTeamSize = maxTeamSize;
 
     if (minTeamSize && maxTeamSize && Number(minTeamSize) > Number(maxTeamSize)) {
-      return next({
-        statusCode: 400,
-        message: "Minimum team size cannot be greater than maximum team size.",
-      });
+      return next({ statusCode: 400, message: "Minimum team size cannot be greater than maximum team size." });
     }
 
-    // Include min/max team sizes in updateData
-    if (minTeamSize) updateData.minTeamSize = minTeamSize;
-    if (maxTeamSize) updateData.maxTeamSize = maxTeamSize;
+    if (req.file) updateData.image = req.file.path;
 
-    if (req.file) {
-      updateData.image = req.file.path;
-    }
+    // Parse and validate problem statements
+    if (rawProblemStatements !== undefined) {
+      try {
+        let parsedProblemStatements = typeof rawProblemStatements === 'string'
+          ? JSON.parse(rawProblemStatements)
+          : rawProblemStatements;
 
-    // 2. Format strings into the exact object structure Mongoose demands
-    if (newJudgeIds && Array.isArray(newJudgeIds)) {
-      updateData.judges = newJudgeIds.map(id => ({
-        judgeUserId: id,
-        assignedAt: new Date()
-      }));
-    }
+        if (!Array.isArray(parsedProblemStatements)) {
+          parsedProblemStatements = [];
+        }
 
-    // 3. Save the Hackathon document
-    const hackathon = await Hackathon.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true, runValidators: true }
-    );
+        // Validate and clean problem statements
+        parsedProblemStatements = parsedProblemStatements
+          .filter(ps => ps.title && ps.title.trim() && ps.description && ps.description.trim())
+          .map(ps => ({
+            title: ps.title.trim(),
+            description: ps.description.trim(),
+            createdAt: ps.createdAt || new Date(),
+          }));
 
-    if (!hackathon) {
-      log.warn('UPDATE_HACKATHON', `Not found: ${req.params.id}`);
-      return next({ statusCode: 404, message: 'Hackathon not found' });
-    }
+        // Require at least one problem statement
+        if (parsedProblemStatements.length === 0) {
+          return next({ statusCode: 400, message: 'At least one problem statement is required.' });
+        }
 
-    // 4. BULLETPROOF SYNC: Judge roles synchronization
-    if (newJudgeIds && Array.isArray(newJudgeIds)) {
-      const incomingIds = newJudgeIds.map(id => id.toString());
-
-      await User.updateMany(
-        { 'hackathonRoles.hackathonId': hackathon._id, 'hackathonRoles.role': 'judge' },
-        { $pull: { hackathonRoles: { hackathonId: hackathon._id, role: 'judge' } } }
-      );
-
-      if (incomingIds.length > 0) {
-        await User.updateMany(
-          { _id: { $in: incomingIds } },
-          { $push: { hackathonRoles: { hackathonId: hackathon._id, role: 'judge' } } }
-        );
+        updateData.problemStatements = parsedProblemStatements;
+        log.info('UPDATE_HACKATHON', `Parsed ${updateData.problemStatements.length} problem statements`);
+      } catch (parseError) {
+        log.warn('UPDATE_HACKATHON', 'Failed to parse problem statements', parseError);
+        return next({ statusCode: 400, message: 'Invalid problem statements format.' });
       }
+    }
 
-      log.info('UPDATE_HACKATHON', `Force-synced judge roles. Active judges: ${incomingIds.length}`);
+    // Parse and validate rounds (optional)
+    if (rawRounds !== undefined) {
+      try {
+        let parsedRounds = typeof rawRounds === 'string'
+          ? JSON.parse(rawRounds)
+          : rawRounds;
+
+        if (!Array.isArray(parsedRounds)) {
+          parsedRounds = [];
+        }
+
+        // Validate and clean rounds
+        parsedRounds = parsedRounds
+          .filter(round => round.name && round.name.trim() && round.description && round.description.trim())
+          .map(round => ({
+            name: round.name.trim(),
+            description: round.description.trim(),
+            startDate: round.startDate || null,
+            endDate: round.endDate || null,
+            submissionRequirements: round.submissionRequirements?.trim() || '',
+            createdAt: round.createdAt || new Date(),
+          }));
+
+        updateData.rounds = parsedRounds;
+        log.info('UPDATE_HACKATHON', `Parsed ${updateData.rounds.length} rounds`);
+      } catch (parseError) {
+        log.warn('UPDATE_HACKATHON', 'Failed to parse rounds', parseError);
+        updateData.rounds = [];
+      }
+    }
+
+    // Parse and validate prizes
+    if (rawPrizes !== undefined) {
+      try {
+        let parsedPrizes = typeof rawPrizes === 'string'
+          ? JSON.parse(rawPrizes)
+          : rawPrizes;
+
+        if (!Array.isArray(parsedPrizes)) {
+          parsedPrizes = [];
+        }
+
+        // Validate and clean prizes
+        parsedPrizes = parsedPrizes
+          .filter(prize => prize.position && prize.position.trim() && prize.amount && !isNaN(prize.amount) && Number(prize.amount) > 0)
+          .map(prize => ({
+            position: prize.position.trim(),
+            amount: Number(prize.amount),
+            createdAt: prize.createdAt || new Date(),
+          }));
+
+        // Require at least one prize
+        if (parsedPrizes.length === 0) {
+          return next({ statusCode: 400, message: 'At least one prize is required.' });
+        }
+
+        updateData.prizes = parsedPrizes;
+
+        // Calculate total prize pool for backward compatibility
+        const totalPrizePool = parsedPrizes.reduce((sum, prize) => sum + prize.amount, 0);
+        updateData.prizePool = `₹${totalPrizePool.toLocaleString('en-IN')}`;
+
+        log.info('UPDATE_HACKATHON', `Parsed ${updateData.prizes.length} prizes`);
+      } catch (parseError) {
+        log.warn('UPDATE_HACKATHON', 'Failed to parse prizes', parseError);
+        return next({ statusCode: 400, message: 'Invalid prizes format.' });
+      }
+    }
+
+    // Parse incoming IDs and use standardized keys
+    if (newJudgeIds) {
+      const parsedJudges = Array.isArray(newJudgeIds) ? newJudgeIds : JSON.parse(newJudgeIds);
+      if (parsedJudges.length > MAX_JUDGES) return next({ statusCode: 400, message: `Max ${MAX_JUDGES} judges allowed.` });
+      updateData.judges = parsedJudges.map(id => ({ judgeUserId: id, assignedAt: new Date() }));
+    }
+
+    if (newOrganizerIds) {
+      const parsedOrganizers = Array.isArray(newOrganizerIds) ? newOrganizerIds : JSON.parse(newOrganizerIds);
+      updateData.organizers = parsedOrganizers.map(id => ({ organizerUserId: id, assignedAt: new Date() }));
+    }
+
+    const hackathon = await Hackathon.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
+    if (!hackathon) return next({ statusCode: 404, message: 'Hackathon not found' });
+
+    // Sync Roles
+    const hId = hackathon._id;
+    if (newJudgeIds) {
+      const parsedJudges = Array.isArray(newJudgeIds) ? newJudgeIds : JSON.parse(newJudgeIds);
+      await User.updateMany({ 'hackathonRoles.hId': hId, 'hackathonRoles.role': 'judge' }, { $pull: { hackathonRoles: { hId: hId, role: 'judge' } } });
+      await User.updateMany({ _id: { $in: parsedJudges } }, { $addToSet: { hackathonRoles: { hId: hId, role: 'judge' } } });
+    }
+
+    if (newOrganizerIds) {
+      const parsedOrganizers = Array.isArray(newOrganizerIds) ? newOrganizerIds : JSON.parse(newOrganizerIds);
+      await User.updateMany({ 'hackathonRoles.hId': hId, 'hackathonRoles.role': 'organizer' }, { $pull: { hackathonRoles: { hId: hId, role: 'organizer' } } });
+      await User.updateMany({ _id: { $in: parsedOrganizers } }, { $addToSet: { hackathonRoles: { hId: hId, role: 'organizer' } } });
     }
 
     log.success('UPDATE_HACKATHON', `Updated: "${hackathon.title}"`);
-
-    // 🔔 Real-time: notify calendar clients that hackathon dates may have changed
     emitCalendarUpdate('updated', hackathon._id);
 
-    res.status(200).json({
-      success: true,
-      data: hackathon,
-    });
+    res.status(200).json({ success: true, data: hackathon });
   } catch (err) {
-    log.error('UPDATE_HACKATHON', 'Failed to update hackathon', err);
-    next({
-      statusCode: 400,
-      message: err.message,
-    });
+    log.error('UPDATE_HACKATHON', 'Failed to update', err);
+    next({ statusCode: 400, message: err.message });
   }
 };
 /* ================= UPDATE HACKATHON STATUS ================= */
@@ -397,7 +611,7 @@ export const updateHackathonStatus = async (req, res, next) => {
 
     log.success('UPDATE_STATUS', `Status changed: "${hackathon.title}" ${oldStatus} → ${status}`);
 
-    // 🔔 Real-time: status changes may make hackathon visible/invisible on the calendar
+    // Real-time: status changes may make hackathon visible/invisible on the calendar
     emitCalendarUpdate('status_changed', hackathon._id);
 
     res.status(200).json({
@@ -450,8 +664,8 @@ export const getTeamsByHackathon = async (req, res, next) => {
     log.info('GET_TEAMS_BY_HACKATHON', 'Fetching teams', { hackathonId });
 
     const teams = await Team.find({ hackathonId })
-      .populate('leader', 'fullName email privacySettings')
-      .populate('members.userId', 'fullName email privacySettings');
+      .populate('leader', 'fullName email privacySettings skills')
+      .populate('members.userId', 'fullName email privacySettings skills');
 
     // Enforce privacy settings to hide emails where requested
     const sanitizedTeams = teams.map((t) => {
@@ -466,6 +680,23 @@ export const getTeamsByHackathon = async (req, res, next) => {
           }
         });
       }
+
+      // Aggregate team skills
+      const skills = new Set();
+      if (teamObj.members) {
+        teamObj.members
+          .filter((m) => m.status === "accepted")
+          .forEach((m) => {
+            if (m.userId?.skills) {
+              m.userId.skills.forEach((s) => skills.add(s));
+            }
+          });
+      }
+      if (teamObj.leader?.skills) {
+        teamObj.leader.skills.forEach((s) => skills.add(s));
+      }
+      teamObj.teamSkills = Array.from(skills);
+
       return teamObj;
     });
 

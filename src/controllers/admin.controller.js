@@ -429,16 +429,100 @@ export const getEmailQueueStatus = async (req, res) => {
   res.status(200).json({ success: true, data: status });
 };
 
+/* ================= GET USERS WITH PAGINATION & SEARCH ================= */
+export const getAdminUsers = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10, search = '' } = req.query;
+    
+    log.info('GET_ADMIN_USERS', 'Fetching users with pagination', { 
+      page, 
+      limit, 
+      search: search || 'none',
+      by: req.user?.email 
+    });
+
+    // Validate pagination parameters
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.min(50, Math.max(1, parseInt(limit))); // Max 50 per page
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build comprehensive search filter
+    let filter = {};
+    if (search && search.trim()) {
+      const searchTerm = search.trim();
+      
+      // Create regex for partial matching (case-insensitive)
+      const searchRegex = new RegExp(searchTerm.split(' ').map(term => 
+        term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // Escape special regex characters
+      ).join('.*'), 'i');
+      
+      // Search across multiple fields
+      filter = {
+        $or: [
+          { fullName: searchRegex },
+          { email: searchRegex },
+          { phone: searchRegex },
+          { college: searchRegex },
+          { department: searchRegex },
+          { systemRole: searchRegex },
+          { bio: searchRegex },
+          { skills: { $in: [searchRegex] } },
+          { interests: { $in: [searchRegex] } }
+        ]
+      };
+    }
+
+    // Execute queries in parallel
+    const [users, total] = await Promise.all([
+      User.find(filter)
+        .select('fullName email systemRole hackathonRoles phone college department')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      User.countDocuments(filter)
+    ]);
+
+    log.success('GET_ADMIN_USERS', `Returning ${users.length} of ${total} users (page ${pageNum})`);
+
+    res.status(200).json({
+      success: true,
+      data: users,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+        hasNextPage: pageNum < Math.ceil(total / limitNum),
+        hasPrevPage: pageNum > 1
+      }
+    });
+  } catch (err) {
+    log.error('GET_ADMIN_USERS', 'Failed to fetch users', err);
+    next({
+      statusCode: 500,
+      message: 'Failed to fetch users',
+      error: err.message,
+    });
+  }
+};
+
 /* ================= UPDATE USER ROLE ================= */
 export const updateUserRole = async (req, res, next) => {
   try {
     const { userId, systemRole, hackathonId, hackathonRole } = req.body;
     log.info('UPDATE_USER_ROLE', 'Role update request', { userId, systemRole, hackathonId, hackathonRole, by: req.user?.email });
 
+    // Validation
     if (!userId) {
       return next({ statusCode: 400, message: 'userId is required.' });
     }
 
+    if (!systemRole && !hackathonRole) {
+      return next({ statusCode: 400, message: 'At least one role (systemRole or hackathonRole) must be provided.' });
+    }
+
+    // Find user
     const targetUser = await User.findById(userId);
     if (!targetUser) {
       return next({ statusCode: 404, message: 'User not found.' });
@@ -446,11 +530,12 @@ export const updateUserRole = async (req, res, next) => {
 
     // Update systemRole if provided
     if (systemRole) {
-      const validRoles = ['user', 'admin', 'mentor'];
+      const validRoles = ['user', 'admin', 'mentor', 'judge'];
       if (!validRoles.includes(systemRole)) {
         return next({ statusCode: 400, message: `Invalid systemRole. Must be one of: ${validRoles.join(', ')}` });
       }
       targetUser.systemRole = systemRole;
+      log.info('UPDATE_USER_ROLE', `Updating systemRole to: ${systemRole}`);
     }
 
     // Update hackathon-specific role if provided
@@ -469,7 +554,10 @@ export const updateUserRole = async (req, res, next) => {
       targetUser.hackathonRoles = targetUser.hackathonRoles.filter(
         r => !r.hackathonId.equals(hackathonId)
       );
+      
+      // Add new role
       targetUser.hackathonRoles.push({ hackathonId, role: hackathonRole });
+      log.info('UPDATE_USER_ROLE', `Adding hackathon role: ${hackathonRole} for hackathon: ${hackathonId}`);
 
       // If assigning as judge, also update the hackathon.judges array
       if (hackathonRole === 'judge') {
@@ -477,13 +565,16 @@ export const updateUserRole = async (req, res, next) => {
         if (!alreadyJudge) {
           hackathon.judges.push({ judgeUserId: userId, assignedAt: new Date() });
           await hackathon.save();
+          log.info('UPDATE_USER_ROLE', `Added user to hackathon.judges array`);
         }
       }
     }
 
+    // Save user with updated roles
     await targetUser.save();
 
-    log.success('UPDATE_USER_ROLE', `Role updated for ${targetUser.email}`);
+    log.success('UPDATE_USER_ROLE', `Role updated successfully for ${targetUser.email}`);
+    
     res.status(200).json({
       success: true,
       message: 'User role updated successfully.',

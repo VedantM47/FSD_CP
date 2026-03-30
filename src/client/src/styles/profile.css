@@ -919,6 +919,225 @@
     color: #fff;
 }
 
+/* ======================================
+   SETTINGS RE-DESIGN (PHASE 3)
+   ====================================== */
+.settings-container {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 1024px) {
+    .settings-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.settings-header {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 24px 32px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 8px;
+}
+
+.settings-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e3a5f;
+    margin: 0 0 4px;
+}
+
+.settings-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+}
+
+.btn-edit-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #1d4ed8;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-edit-profile:hover {
+    background: #1e40af;
+}
+
+.btn-save-profile {
+    padding: 10px 24px;
+    background: #22c55e;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-cancel-edit {
+    padding: 10px 20px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.settings-section {
+    background: #fff;
+    padding: 28px 32px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 24px;
+    padding-bottom: 12px;
+    border-bottom: 1.5px solid #f1f5f9;
+}
+
+.fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 24px;
+}
+
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.profile-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.read-only-value {
+    font-size: 15px;
+    color: #1e3a5f;
+    background: #f8fafc;
+    padding: 10px 14px;
+    border-radius: 8px;
+    min-height: 20px;
+    border: 1px solid transparent;
+}
+
+.read-only-value .placeholder {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.profile-field input,
+.profile-field select,
+.profile-field textarea {
+    padding: 10px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #1e3a5f;
+    background: #fff;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.profile-field input:focus,
+.profile-field select:focus,
+.profile-field textarea:focus {
+    border-color: #1d4ed8;
+}
+
+.skill-tag {
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #dbeafe;
+}
+
+.skill-tag button {
+    background: none;
+    border: none;
+    color: #1d4ed8;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    line-height: 1;
+}
+
+.skill-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    margin-top: 8px;
+}
+
+.settings-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.shadow-sm {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.success-message {
+    color: #16a34a;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 12px;
+}
+
+.error-message {
+    color: #dc2626;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 12px;
+}
+
 .profile-footer__links {
     display: flex;
     gap: 20px;
