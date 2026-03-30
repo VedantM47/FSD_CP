@@ -322,3 +322,66 @@ YES
 (npm install natural)
 
 
+### LOG 7
+Date: 30/03/2026
+Contributor: Ojas
+- Type of Change:  Bug Fix 
+ Files Modified:
+        
+A       BRANDING_VERIFICATION.md
+A       NAVBAR_FOOTER_FIXES_SUMMARY.md
+D       PROBLEM_STATEMENTS_DISPLAY_FIX.md
+D       PROBLEM_STATEMENTS_IMPLEMENTATION.md
+D       QUICK_START_AI_RECOMMENDER.md
+M       src/client/src/components/auth/SocialButtons.jsx
+M       src/client/src/components/common/DarkModeToggle.jsx
+M       src/client/src/components/common/Footer.jsx
+M       src/client/src/components/judge/Footer.jsx
+M       src/client/src/components/user/CalendarListView.jsx
+M       src/client/src/components/user/EventModal.jsx
+M       src/client/src/components/user/ProfileHeader.jsx
+M       src/client/src/components/user/cards/TeamCard.jsx
+M       src/client/src/components/user/cards/TeamInfoCard.jsx
+M       src/client/src/components/user/tabs/InvitationsTab.jsx
+M       src/client/src/components/user/tabs/OverviewTab.jsx
+M       src/client/src/components/user/tabs/SettingsTab.jsx
+M       src/client/src/components/user/tabs/TeamsTab.jsx
+M       src/client/src/context/AuthContext.jsx
+M       src/client/src/pages/admin/AdminDashboard.jsx
+M       src/client/src/pages/admin/CreateHackathon.jsx
+M       src/client/src/pages/admin/HackathonDashboard.jsx
+M       src/client/src/pages/admin/ViewHackathon.jsx
+M       src/client/src/pages/home/Home.jsx
+M       src/client/src/pages/judge/HackathonOverview.jsx
+M       src/client/src/pages/participant/FindMembers.jsx
+M       src/client/src/pages/participant/RegisterHackathon.jsx
+M       src/client/src/pages/participant/SingleHackathon.jsx
+M       src/client/src/pages/participant/TeamDetails.jsx
+M       src/client/src/pages/user/Calendar.jsx
+M       src/client/src/pages/user/Discovery.jsx
+M       src/client/src/pages/user/Profile.jsx
+M       src/client/src/pages/user/PublicProfile.jsx
+M       src/client/src/services/socket.js
+M       src/client/src/styles/admin.css
+M       src/config/github.passport.js
+M       src/controllers/hackathon.controller.js
+M       src/controllers/oauth.controller.js
+M       src/models/hackathon.model.js
+M       src/policies/policy.js
+M       src/routes/oauth.routes.js
+M       src/utils/socket.js
+
+Description:
+UI UX changes done:
+1. prize distribution fixed
+2. ui changes
+3. navbar and footer fixeed
+4. emojis removed
+
+Database / Schema Changes:
+- YES
+
+
+Notes / Dependencies:
+NA
+
