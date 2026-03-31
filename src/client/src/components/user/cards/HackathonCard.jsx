@@ -9,24 +9,35 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
   const isRegistrationClosed = hackathon.isRegistrationClosed; // Naya prop fetch kiya
 
   const renderMainButton = () => {
-    // Case 1: Agar user already registered hai
+    // Case 1: If user is already registered
     if (isRegistered) {
       return (
         <button
-          className="btn-registered"
+          className="btn-success"
           onClick={onViewDetails}
+          style={{
+            flex: 1,
+            background: "#10b981",
+            color: "white",
+            border: "none",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            cursor: "pointer"
+          }}
         >
           <span
             style={{
-              background: "#10b981",
-              color: "white",
+              background: "white",
+              color: "#10b981",
               borderRadius: "50%",
-              width: "16px",
-              height: "16px",
+              width: "18px",
+              height: "18px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "10px",
+              fontSize: "12px",
               fontWeight: "700",
             }}
           >
@@ -37,7 +48,7 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
       );
     }
 
-    // Case 2: Agar hackathon DRAFT mein hai
+    // Case 2: If hackathon is in DRAFT
     if (isDraft) {
       return (
         <button
@@ -56,7 +67,7 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
       );
     }
 
-    // Case 3: Agar registration band ho gayi hai (Date passed ya Admin closed it)
+    // Case 3: If registration is closed (Date passed or Admin closed it)
     if (isOngoing || isClosed || isRegistrationClosed) {
       return (
         <button
@@ -126,17 +137,17 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
         </div>
       </div>
 
-      <div
-        className="card-actions"
-      >
+      <div className="card-actions">
         {renderMainButton()}
-        <button
-          className="btn-secondary"
-          onClick={onViewDetails}
-          style={{ flex: 1 }}
-        >
-          View Details
-        </button>
+        {!isRegistered && (
+          <button
+            className="btn-secondary"
+            onClick={onViewDetails}
+            style={{ flex: 1 }}
+          >
+            View Details
+          </button>
+        )}
       </div>
     </div>
   );

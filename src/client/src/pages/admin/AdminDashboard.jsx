@@ -50,7 +50,7 @@ function AdminDashboard() {
         setStats(dashboardRes.data.data);
         setHackathons(hackathonsRes.data.data || []);
       } catch (err) {
-        console.error('❌ ADMIN DASHBOARD ERROR:', err);
+        console.error('ADMIN DASHBOARD ERROR:', err);
 
         if (!isMounted) return;
 
@@ -179,7 +179,6 @@ function AdminDashboard() {
             {queueStatus && (
               <div style={{ marginTop: '15px', padding: '14px 20px', borderRadius: '10px', background: queueStatus.smtpConfigured ? '#ecfdf5' : '#fef3c7', border: `1px solid ${queueStatus.smtpConfigured ? '#6ee7b7' : '#fcd34d'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '600', color: queueStatus.smtpConfigured ? '#065f46' : '#92400e' }}>
-                  <span style={{ fontSize: '1.3rem' }}>{queueStatus.smtpConfigured ? '📡' : '⚠️'}</span>
                   <span>Email {queueStatus.smtpConfigured ? 'SMTP Ready' : 'SMTP Not Configured — Add EMAIL_USER & EMAIL_PASS to .env'}</span>
                 </div>
                 <div style={{ display: 'flex', gap: '20px', fontSize: '0.85rem', color: '#4b5563' }}>
@@ -192,7 +191,7 @@ function AdminDashboard() {
 
           {/* BROADCAST SECTION */}
           <section className="applications-section" style={{ marginTop: '40px' }}>
-            <h2 className="section-title">📧 Communication & Broadcasts</h2>
+            <h2 className="section-title">Communication & Broadcasts</h2>
             <div style={{ background: '#fff', padding: '25px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
               <form onSubmit={handleBroadcast}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
@@ -250,7 +249,7 @@ function AdminDashboard() {
                   type="submit" 
                   disabled={isBroadcasting}
                   style={{ background: isBroadcasting ? '#9ca3af' : '#2563eb', color: 'white', padding: '12px 24px', borderRadius: '6px', border: 'none', fontSize: '1rem', fontWeight: 'bold', cursor: isBroadcasting ? 'not-allowed' : 'pointer', width: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center', transition: 'background 0.2s' }}>
-                  {isBroadcasting ? 'Sending...' : '🚀 Send Broadcast'}
+                  {isBroadcasting ? 'Sending...' : 'Send Broadcast'}
                 </button>
               </form>
             </div>
@@ -284,7 +283,7 @@ function AdminDashboard() {
       <footer className="admin-footer">
         <div className="footer-content">
           <div className="footer-left">
-            <span className="footer-brand">HackPlatform</span>
+            <span className="footer-brand">HackHub</span>
           </div>
           <div className="footer-right">
             <a href="#about" className="footer-link">About</a>

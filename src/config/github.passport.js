@@ -36,7 +36,7 @@ passport.use('github', new GitHubStrategy(
         user.githubId = profile.id;
         user.authProvider = 'github'; 
         await user.save();
-        console.log(`🔗 Linked GitHub to existing account: ${user.email}`);
+        console.log(`Linked GitHub to existing account: ${user.email}`);
       }
 
       // 5. Success - pass user to next middleware

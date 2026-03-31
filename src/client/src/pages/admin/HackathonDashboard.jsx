@@ -70,6 +70,29 @@ function HackathonDashboard() {
       <main className="admin-main">
         {/* ─── ACTION HEADER ─── */}
         <div className="admin-container" style={{ marginTop: '20px' }}>
+          {/* Back Button */}
+          <button
+            onClick={() => navigate('/admin/dashboard')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#043873',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginBottom: '16px',
+              padding: '8px 0',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'color 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.color = '#4f9cf9'}
+            onMouseLeave={(e) => e.target.style.color = '#043873'}
+          >
+            ← Back to Dashboard
+          </button>
+
           <div className="admin-controls-card" style={{ background: '#fff', padding: '20px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
             <div className="admin-controls-left">
               <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '800' }}>{hackathon.title}</h3>
@@ -132,6 +155,123 @@ function HackathonDashboard() {
             <p style={{ color: '#334155', lineHeight: '1.6' }}>{hackathon.description}</p>
           </section>
 
+          {/* PROBLEM STATEMENTS */}
+          {hackathon.problemStatements && hackathon.problemStatements.length > 0 && (
+            <section className="view-section">
+              <h2 style={{ fontSize: '1.1rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', marginBottom: '15px' }}>Problem Statements</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {hackathon.problemStatements.map((ps, index) => (
+                  <div 
+                    key={index} 
+                    style={{ 
+                      padding: '20px', 
+                      backgroundColor: '#f8fafc', 
+                      borderRadius: '12px',
+                      border: '1px solid #e2e8f0'
+                    }}
+                  >
+                    <h3 style={{ 
+                      margin: '0 0 12px 0', 
+                      fontSize: '1.05rem', 
+                      fontWeight: '600', 
+                      color: '#0f172a' 
+                    }}>
+                      {index + 1}. {ps.title}
+                    </h3>
+                    <p style={{ 
+                      margin: 0, 
+                      fontSize: '0.95rem', 
+                      lineHeight: '1.6', 
+                      color: '#475569',
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {ps.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ROUNDS */}
+          {hackathon.rounds && hackathon.rounds.length > 0 && (
+            <section className="view-section">
+              <h2 style={{ fontSize: '1.1rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', marginBottom: '15px' }}>Rounds</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {hackathon.rounds.map((round, index) => (
+                  <div 
+                    key={index} 
+                    style={{ 
+                      padding: '20px', 
+                      backgroundColor: '#fef3c7', 
+                      borderRadius: '12px',
+                      border: '1px solid #fbbf24'
+                    }}
+                  >
+                    <h3 style={{ 
+                      margin: '0 0 12px 0', 
+                      fontSize: '1.05rem', 
+                      fontWeight: '600', 
+                      color: '#92400e' 
+                    }}>
+                      Round {index + 1}: {round.name}
+                    </h3>
+                    <p style={{ 
+                      margin: '0 0 12px 0', 
+                      fontSize: '0.95rem', 
+                      lineHeight: '1.6', 
+                      color: '#78350f',
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {round.description}
+                    </p>
+                    
+                    {(round.startDate || round.endDate) && (
+                      <div style={{ 
+                        display: 'flex', 
+                        gap: '20px', 
+                        marginBottom: '12px',
+                        fontSize: '0.85rem',
+                        color: '#92400e'
+                      }}>
+                        {round.startDate && (
+                          <div>
+                            <strong>Start:</strong> {new Date(round.startDate).toLocaleString()}
+                          </div>
+                        )}
+                        {round.endDate && (
+                          <div>
+                            <strong>End:</strong> {new Date(round.endDate).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {round.submissionRequirements && (
+                      <div style={{ 
+                        marginTop: '12px',
+                        padding: '12px',
+                        backgroundColor: '#fffbeb',
+                        borderRadius: '8px',
+                        border: '1px solid #fcd34d'
+                      }}>
+                        <strong style={{ color: '#92400e', fontSize: '0.9rem' }}>Submission Requirements:</strong>
+                        <p style={{ 
+                          margin: '8px 0 0 0', 
+                          fontSize: '0.9rem', 
+                          color: '#78350f',
+                          whiteSpace: 'pre-wrap'
+                        }}>
+                          {round.submissionRequirements}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section className="view-section">
             <h2 style={{ fontSize: '1.1rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', marginBottom: '15px' }}>Rules</h2>
             <p style={{ color: '#334155', lineHeight: '1.6' }}>{hackathon.rules}</p>
@@ -139,7 +279,41 @@ function HackathonDashboard() {
 
           <section className="view-section">
             <h2 style={{ fontSize: '1.1rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', marginBottom: '15px' }}>Prize Pool</h2>
-            <p style={{ color: '#334155', fontWeight: '600', fontSize: '1.2rem', color: '#059669' }}>{hackathon.prizePool}</p>
+            {hackathon.prizes && hackathon.prizes.length > 0 ? (
+              <div>
+                {hackathon.prizes.map((prize, index) => (
+                  <div key={index} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    padding: '10px 15px', 
+                    background: '#f8fafc', 
+                    borderRadius: '8px', 
+                    marginBottom: '10px',
+                    border: '1px solid #e2e8f0'
+                  }}>
+                    <span style={{ fontWeight: '600', color: '#334155' }}>{prize.position}</span>
+                    <span style={{ fontWeight: '700', color: '#059669', fontSize: '1.1rem' }}>
+                      ₹{prize.amount.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                ))}
+                <div style={{ 
+                  marginTop: '15px', 
+                  paddingTop: '15px', 
+                  borderTop: '2px solid #e2e8f0',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0f172a' }}>Total Prize Pool:</span>
+                  <span style={{ fontSize: '1.4rem', fontWeight: '800', color: '#059669' }}>
+                    ₹{hackathon.prizes.reduce((sum, prize) => sum + prize.amount, 0).toLocaleString('en-IN')}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p style={{ color: '#334155', fontWeight: '600', fontSize: '1.2rem', color: '#059669' }}>{hackathon.prizePool}</p>
+            )}
           </section>
         </div>
       </main>

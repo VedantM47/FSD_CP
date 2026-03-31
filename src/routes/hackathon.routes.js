@@ -14,11 +14,6 @@ import {
   assignJudgeToHackathon,
   removeJudgeFromHackathon,
   searchHackathons,
-  addDomain,
-  removeDomain,
-  updateDomainOrder,
-  getDomainStats,
-  getDomainTemplates,
 } from '../controllers/hackathon.controller.js';
    
 import Hackathon from '../models/hackathon.model.js';
@@ -35,9 +30,6 @@ router.get('/:hackathonId/teams', getTeamsByHackathon);
 
 
 /* ================= PUBLIC DISCOVERY ================= */
-
-// Get domain templates (MUST be before /:id)
-router.get("/templates/domains", getDomainTemplates);
 
 // Anyone logged-in can discover hackathons
 router.get("/search", auth, searchHackathons);
@@ -125,52 +117,6 @@ router.delete(
     return { user: req.user };
   }),
   deleteHackathon
-);
-
-/* ================= DOMAIN MANAGEMENT ================= */
-
-// ADD DOMAIN
-// Policy expects: { user, hackathon }
-router.post(
-  '/:hackathonId/domains',
-  auth,
-  authorize('UPDATE_HACKATHON', async (req) => {
-    const hackathon = await Hackathon.findById(req.params.hackathonId);
-    return { user: req.user, hackathon };
-  }),
-  addDomain
-);
-
-// REMOVE DOMAIN
-// Policy expects: { user, hackathon }
-router.delete(
-  '/:hackathonId/domains/:domainId',
-  auth,
-  authorize('UPDATE_HACKATHON', async (req) => {
-    const hackathon = await Hackathon.findById(req.params.hackathonId);
-    return { user: req.user, hackathon };
-  }),
-  removeDomain
-);
-
-// UPDATE DOMAIN ORDER
-// Policy expects: { user, hackathon }
-router.patch(
-  '/:hackathonId/domains/reorder',
-  auth,
-  authorize('UPDATE_HACKATHON', async (req) => {
-    const hackathon = await Hackathon.findById(req.params.hackathonId);
-    return { user: req.user, hackathon };
-  }),
-  updateDomainOrder
-);
-
-// GET DOMAIN STATS
-// Policy expects: { user, hackathon }
-router.get(
-  '/:hackathonId/domains/stats/:hackathonId',
-  auth,
-  getDomainStats
 );
 
 export default router;

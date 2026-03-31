@@ -23,7 +23,27 @@ const hackathonSchema = new mongoose.Schema(
       default: 4, 
     },
 
-    prizePool: String,
+    prizePool: String, // Legacy field - kept for backward compatibility
+    
+    // Dynamic Prize Distribution
+    prizes: [
+      {
+        position: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        amount: {
+          type: Number,
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
     image: String, 
     rules: String,
     terms: String,
@@ -56,23 +76,18 @@ const hackathonSchema = new mongoose.Schema(
       },
     ],
 
-    // Domains for hackathon
-    domains: [
+    // Problem Statements for hackathon
+    problemStatements: [
       {
-        id: {
-          type: String,
-          lowercase: true,
-          trim: true,
-        },
-        name: {
+        title: {
           type: String,
           required: true,
+          trim: true,
         },
-        description: String,
-        icon: String,
-        order: {
-          type: Number,
-          default: 0,
+        description: {
+          type: String,
+          required: true,
+          trim: true,
         },
         createdAt: {
           type: Date,
@@ -81,19 +96,35 @@ const hackathonSchema = new mongoose.Schema(
       },
     ],
 
-    // Domain selection settings
-    allowDomainSelection: {
-      type: Boolean,
-      default: true,
-    },
-    multiDomainSelection: {
-      type: Boolean,
-      default: true,
-    },
-    maxDomainsPerEntry: {
-      type: Number,
-      default: 3,
-    },
+    // Rounds for hackathon
+    rounds: [
+      {
+        name: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        description: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        startDate: {
+          type: Date,
+        },
+        endDate: {
+          type: Date,
+        },
+        submissionRequirements: {
+          type: String,
+          trim: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -102,9 +133,6 @@ const hackathonSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// Index for faster domain lookups
-hackathonSchema.index({ 'domains.id': 1 });
 
 const Hackathon = mongoose.model('Hackathon', hackathonSchema);
 export default Hackathon;

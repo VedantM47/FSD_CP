@@ -54,10 +54,10 @@ const PublicProfile = () => {
               <div style={styles.headerLinks}>
                 {user.website && (
                   <a href={user.website} target="_blank" rel="noreferrer" style={styles.linkItem}>
-                    🌐 {user.website.replace(/^https?:\/\//, '')}
+                    {user.website.replace(/^https?:\/\//, '')}
                   </a>
                 )}
-                <span style={styles.linkItem}>📧 {user.email}</span>
+                <span style={styles.linkItem}>{user.email}</span>
               </div>
             </div>
           </div>
@@ -79,7 +79,7 @@ const PublicProfile = () => {
             </div>
             {user.resumeUrl && (
               <a href={user.resumeUrl} target="_blank" rel="noreferrer" style={styles.btnResume}>
-                📄 View Resume
+                View Resume
               </a>
             )}
           </div>
@@ -90,7 +90,7 @@ const PublicProfile = () => {
           <div style={styles.column}>
             {/* Education Card */}
             <div style={styles.card}>
-              <h3 style={styles.cardTitle}>🎓 Education</h3>
+              <h3 style={styles.cardTitle}>Education</h3>
               <div style={styles.infoGroup}>
                 <InfoItem label="College/University" value={user.college} />
                 <div style={styles.row}>
@@ -107,7 +107,7 @@ const PublicProfile = () => {
 
             {/* Personal Info Card */}
             <div style={styles.card}>
-              <h3 style={styles.cardTitle}>👤 Personal Information</h3>
+              <h3 style={styles.cardTitle}>Personal Information</h3>
               <div style={styles.infoGroup}>
                 <InfoItem label="Date of Birth" value={user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : null} />
                 <InfoItem label="Gender" value={user.gender} />
@@ -123,7 +123,7 @@ const PublicProfile = () => {
           <div style={styles.column}>
             {/* Skills Card */}
             <div style={styles.card}>
-              <h3 style={styles.cardTitle}>🛠 Skills</h3>
+              <h3 style={styles.cardTitle}>Skills</h3>
               <div style={styles.pillContainer}>
                 {user.skills && user.skills.length > 0 ? (
                   user.skills.map(skill => (
@@ -137,7 +137,7 @@ const PublicProfile = () => {
 
             {/* Interests Card */}
             <div style={styles.card}>
-              <h3 style={styles.cardTitle}>🌟 Interests</h3>
+              <h3 style={styles.cardTitle}>Interests</h3>
               <div style={styles.pillContainer}>
                 {user.interests && user.interests.length > 0 ? (
                   user.interests.map(interest => (

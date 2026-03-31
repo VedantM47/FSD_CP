@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
 const TYPE_ICON = {
-    hackathon_start: '🟢',
-    hackathon_end: '🔵',
-    deadline: '🔴',
-    presentation: '🟣',
-    result: '🏆',
+    hackathon_start: 'Start',
+    hackathon_end: 'End',
+    deadline: 'Deadline',
+    presentation: 'Presentation',
+    result: 'Result',
 };
 
 const TYPE_BADGE_CLASS = {
@@ -72,7 +72,7 @@ const EventModal = ({ event, isOpen, onClose }) => {
 
     const badgeClass = TYPE_BADGE_CLASS[event.type] || '';
     const typeLabel = TYPE_LABEL[event.type] || event.type;
-    const icon = TYPE_ICON[event.type] || '📅';
+    const icon = TYPE_ICON[event.type] || 'Event';
     const hackathonName = event.hackathon || event.hackathonName || '';
 
     return (
@@ -116,7 +116,7 @@ const EventModal = ({ event, isOpen, onClose }) => {
                             color: '#dc2626', fontWeight: 600, fontSize: '0.85rem',
                             marginTop: '12px'
                         }}>
-                            ⚠️ Deadline in less than 24 hours!
+                            Deadline in less than 24 hours!
                         </div>
                     )}
 

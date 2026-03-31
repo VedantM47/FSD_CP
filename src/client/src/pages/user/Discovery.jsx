@@ -17,27 +17,29 @@ const Discovery = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [allHackathons, setAllHackathons] = useState([]);
   const [userRoles, setUserRoles] = useState([]); 
+  const [userTeams, setUserTeams] = useState([]); // Track user's teams
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [visibleCount, setVisibleCount] = useState(6);
 
   /**
    * ── Map backend hackathon → shape HackathonCard expects ──
-   * Includes a robust comparison to handle both hId and hackathonId fields
-   */
- /**
-   * ── Map backend hackathon → shape HackathonCard expects ──
    */
   const toCardShape = (h) => {
+    // Check if user has participant role for this hackathon
     const registrationRecord = userRoles.find((role) => {
       const roleHackathonId = String(role.hId || role.hackathonId || "");
       const currentHackathonId = String(h._id || "");
       return roleHackathonId === currentHackathonId && role.role === 'participant';
     });
 
-    const isUserRegistered = !!registrationRecord;
+    // ALSO check if user is part of any team for this hackathon (covers invite scenario)
+    const teamRecord = userTeams.find(t => String(t.hackathonId) === String(h._id));
+    const isInTeam = !!teamRecord;
 
-    // 🕒 FIX: DATE CHECK LOGIC
+    const isUserRegistered = !!registrationRecord || isInTeam;
+
+    // FIX: DATE CHECK LOGIC
     // Grab the raw date before we format it into a string
     const rawDeadline = h.registrationDeadline || h.endDate;
     // Check if right now is past the deadline
@@ -76,9 +78,10 @@ const Discovery = () => {
         setError(null);
 
         // 1. Fetch User Data to check which hackathons they are in
+        let userData = null;
         try {
           const userRes = await API.get("/users/me", getAuthHeaders());
-          const userData = userRes.data?.data || userRes.data;
+          userData = userRes.data?.data || userRes.data;
           setUserRoles(userData?.hackathonRoles || []);
         } catch (authErr) {
           console.log("Visitor mode: Proceeding without user roles.");
@@ -93,6 +96,31 @@ const Discovery = () => {
         const raw = hackRes.data?.data ?? [];
         setAllHackathons(raw);
 
+        // 3. For each hackathon, check if user is in a team (if logged in)
+        if (userData) {
+          const teamsPromises = raw.map(async (hackathon) => {
+            try {
+              const teamsRes = await API.get(`/hackathons/${hackathon._id}/teams`, getAuthHeaders());
+              const allTeams = teamsRes.data?.data || [];
+              
+              // Find if user is in any team for this hackathon
+              const userTeam = allTeams.find(team => 
+                team.members?.some(m => 
+                  String(m.userId?._id || m.userId) === String(userData._id)
+                )
+              );
+              
+              return userTeam ? { hackathonId: hackathon._id, team: userTeam } : null;
+            } catch (err) {
+              return null;
+            }
+          });
+
+          const teamsResults = await Promise.all(teamsPromises);
+          const userTeamsData = teamsResults.filter(Boolean);
+          setUserTeams(userTeamsData);
+        }
+
       } catch (err) {
         setError(err?.response?.data?.message || "Failed to load hackathons.");
       } finally {
@@ -104,14 +132,14 @@ const Discovery = () => {
 
   /* ── Memoized Filtering and Mapping ── */
   const filteredHackathons = useMemo(() => {
-    // Map data only when both roles and hackathons are loaded
+    // Map data only when both roles, teams, and hackathons are loaded
     const shaped = allHackathons.map(toCardShape);
     
     if (activeFilter === "All") return shaped;
     return shaped.filter((h) =>
       h.tags.some((tag) => tag.toLowerCase() === activeFilter.toLowerCase())
     );
-  }, [activeFilter, allHackathons, userRoles]);
+  }, [activeFilter, allHackathons, userRoles, userTeams]);
 
   const visibleHackathons = filteredHackathons.slice(0, visibleCount);
   const hasMore = visibleCount < filteredHackathons.length;
@@ -139,7 +167,7 @@ const Discovery = () => {
 
         {!loading && error && (
           <div className="empty-state-message">
-            <p>⚠️ {error}</p>
+            <p>{error}</p>
             <button className="btn-secondary" onClick={() => window.location.reload()}>
               Retry
             </button>

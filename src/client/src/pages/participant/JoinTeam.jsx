@@ -6,6 +6,7 @@ import {
   withdrawJoinRequest,
   getMe,
 } from "../../services/api";
+import Navbar from "../../components/common/Navbar";
 import "../../styles/JoinTeam.css";
 
 const JoinTeam = () => {
@@ -96,8 +97,10 @@ const JoinTeam = () => {
   });
 
   return (
-    <div
-      style={{
+    <div>
+      <Navbar />
+      <div
+        style={{
         background: "#f9fafb",
         minHeight: "100vh",
         padding: "40px 20px",
@@ -588,6 +591,7 @@ const JoinTeam = () => {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 };

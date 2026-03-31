@@ -5,7 +5,6 @@ const TeamCard = ({ team }) => {
       {/* ===== Header ===== */}
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-2">
-          <span className="text-blue-500 text-lg">👥</span>
           <h3 className="font-semibold text-gray-900">
             {team.name}
           </h3>

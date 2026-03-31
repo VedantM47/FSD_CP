@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import API, { getAuthHeaders } from '../../services/api';
+import Navbar from '../../components/common/Navbar';
 
 const ManageTeam = () => {
   const navigate = useNavigate();
@@ -67,18 +68,24 @@ const ManageTeam = () => {
   };
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb', color: '#6b7280', fontSize: '1.2rem', fontWeight: 'bold' }}>
-      Loading Team Headquarters...
+    <div>
+      <Navbar />
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb', color: '#6b7280', fontSize: '1.2rem', fontWeight: 'bold' }}>
+        Loading Team Headquarters...
+      </div>
     </div>
   );
   
   if (error) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}>
-      <div style={{ background: '#fff', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', textAlign: 'center', maxWidth: '400px' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🚫</div>
-        <h2 style={{ margin: '0 0 10px 0', color: '#111827' }}>Oops!</h2>
-        <p style={{ color: '#6b7280', marginBottom: '30px' }}>{error}</p>
-        <button onClick={() => navigate(`/user/hackathon/${id}`)} style={{ background: '#2563eb', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>Back to Hackathon</button>
+    <div>
+      <Navbar />
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}>
+        <div style={{ background: '#fff', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', textAlign: 'center', maxWidth: '400px' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '20px', fontWeight: 'bold', color: '#dc2626' }}>ERROR</div>
+          <h2 style={{ margin: '0 0 10px 0', color: '#111827' }}>Oops!</h2>
+          <p style={{ color: '#6b7280', marginBottom: '30px' }}>{error}</p>
+          <button onClick={() => navigate(`/user/hackathon/${id}`)} style={{ background: '#2563eb', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>Back to Hackathon</button>
+        </div>
       </div>
     </div>
   );
@@ -90,7 +97,9 @@ const ManageTeam = () => {
   const pendingMembers = team.members.filter(m => m.status === 'pending');
 
   return (
-    <div style={styles.container}>
+    <div>
+      <Navbar />
+      <div style={styles.container}>
       <div style={styles.headerNav}>
         <button onClick={() => navigate(`/user/hackathon/${id}`)} style={styles.backLink}>
            ← Return to Dashboard
@@ -181,7 +190,7 @@ const ManageTeam = () => {
           <div style={styles.requestStack}>
             {pendingMembers.length === 0 ? (
               <div style={styles.emptyRequests}>
-                <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📫</div>
+                <div style={{ fontSize: '1.2rem', marginBottom: '10px', fontWeight: 'bold', color: '#6b7280' }}>No Requests</div>
                 <p>No pending requests at the moment.</p>
               </div>
             ) : (
@@ -243,6 +252,7 @@ const ManageTeam = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

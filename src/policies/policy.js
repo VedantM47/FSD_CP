@@ -22,7 +22,7 @@ VIEW_ADMIN_DASHBOARD: ({ user }) => user?.systemRole === 'admin' || user?.system
    TEAM POLICIES
 ===================================================== */
 
-/* 🔥 Team creation creates participation → no participant required */
+/* Team creation creates participation → no participant required */
 CREATE_TEAM: ({ user, hackathon, existingTeam }) => {
   if (!user || !hackathon) return false;
   if (hackathon.status !== 'open') return false;
@@ -140,7 +140,7 @@ CREATE_SUBMISSION: ({ user, team, hackathon, existingSubmission }) => {
   // 1. Only the leader can submit
   if (!team.leader.equals(user._id)) return false;
   
-  // 2. 🔥 DYNAMIC CHECK: Compare against the Hackathon's specific min requirement
+  // 2. DYNAMIC CHECK: Compare against the Hackathon's specific min requirement
   // We use the new minTeamSize field we added to the model
   const acceptedMembers = team.members.filter(m => m.status === 'accepted');
   const minRequired = hackathon.minTeamSize || 1; // Fallback to 1 if not set

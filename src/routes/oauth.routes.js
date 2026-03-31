@@ -7,7 +7,7 @@ import { oauthCallback } from '../controllers/oauth.controller.js';
 const router = express.Router();
 
 /**
- * 🛠️ FORCE REGISTRATION: 
+ * FORCE REGISTRATION: 
  * Hum yahan strategy ko manually 'github' naam de rahe hain. 
  * Isse "Unknown authentication strategy" error 100% solve ho jayega.
  */
@@ -25,7 +25,7 @@ if (githubCredentialsPresent) {
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        console.log("📥 GitHub Login Attempt:", profile.username);
+        console.log("GitHub Login Attempt:", profile.username);
         const email = profile.emails?.[0]?.value || null;
 
         let user = await User.findOne({
@@ -74,13 +74,13 @@ router.get('/google/callback',
 );
 
 /* ================= GITHUB ================= */
-// 🚀 Trigger GitHub Auth
+// Trigger GitHub Auth
 router.get('/github', (req, res, next) => {
-  console.log("🔗 Initiating GitHub OAuth...");
+  console.log("Initiating GitHub OAuth...");
   passport.authenticate('github', { scope: ['user:email'], session: false })(req, res, next);
 });
 
-// 📥 Handle GitHub Callback
+// Handle GitHub Callback
 router.get('/github/callback',
   passport.authenticate('github', {
     session: false,

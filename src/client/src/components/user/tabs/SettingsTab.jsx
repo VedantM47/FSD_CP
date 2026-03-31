@@ -66,6 +66,21 @@ const SettingsTab = ({ user, onUpdate }) => {
     }
   }, [user]);
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.skill-search-container')) {
+        setShowSkillDropdown(false);
+      }
+      if (!e.target.closest('.interest-search-container')) {
+        setShowInterestDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const [isEditing, setIsEditing] = useState(false);
 
   const [saving, setSaving] = useState(false);
@@ -87,34 +102,93 @@ const SettingsTab = ({ user, onUpdate }) => {
   });
 
   const [skills, setSkills] = useState(user?.skills || []);
-  const [skillInput, setSkillInput] = useState("");
   const [interests, setInterests] = useState(user?.interests || []);
-  const [interestInput, setInterestInput] = useState("");
+  
+  // Skill search state
+  const [skillSearchQuery, setSkillSearchQuery] = useState("");
+  const [showSkillDropdown, setShowSkillDropdown] = useState(false);
+  
+  // Interest search state
+  const [interestSearchQuery, setInterestSearchQuery] = useState("");
+  const [showInterestDropdown, setShowInterestDropdown] = useState(false);
 
-  const handleAddSkill = (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      const newSkill = skillInput.trim();
-      if (newSkill && (!skills.includes(newSkill))) {
-        setSkills([...skills, newSkill]);
-        setSkillInput("");
-      }
+  // Predefined skills list
+  const predefinedSkills = [
+    "JavaScript", "Python", "Java", "C++", "C#", "TypeScript", "React", "Angular", "Vue.js",
+    "Node.js", "Express.js", "Django", "Flask", "Spring Boot", "ASP.NET",
+    "HTML", "CSS", "Tailwind CSS", "Bootstrap", "Material UI",
+    "MongoDB", "MySQL", "PostgreSQL", "Redis", "Firebase",
+    "Git", "Docker", "Kubernetes", "AWS", "Azure", "Google Cloud",
+    "Machine Learning", "Deep Learning", "Data Science", "AI", "NLP",
+    "React Native", "Flutter", "Swift", "Kotlin", "Android", "iOS",
+    "GraphQL", "REST API", "Microservices", "DevOps", "CI/CD",
+    "TensorFlow", "PyTorch", "Scikit-learn", "Pandas", "NumPy",
+    "Figma", "Adobe XD", "UI/UX Design", "Photoshop", "Illustrator",
+    "Blockchain", "Solidity", "Web3", "Ethereum", "Smart Contracts",
+    "Testing", "Jest", "Mocha", "Selenium", "Cypress",
+    "Agile", "Scrum", "Project Management", "Leadership", "Communication"
+  ];
+
+  // Predefined interests list
+  const predefinedInterests = [
+    "Web Development", "Mobile Development", "Game Development", "AI/ML",
+    "Data Science", "Cybersecurity", "Cloud Computing", "DevOps",
+    "Blockchain", "IoT", "AR/VR", "Robotics",
+    "UI/UX Design", "Product Design", "Graphic Design",
+    "Competitive Programming", "Open Source", "Hackathons",
+    "Entrepreneurship", "Startups", "Innovation",
+    "Teaching", "Mentoring", "Public Speaking",
+    "Research", "Academia", "Writing", "Blogging"
+  ];
+
+  // Filter skills based on search
+  const filteredSkills = predefinedSkills.filter(skill => 
+    skill.toLowerCase().includes(skillSearchQuery.toLowerCase()) &&
+    !skills.includes(skill)
+  );
+
+  // Filter interests based on search
+  const filteredInterests = predefinedInterests.filter(interest => 
+    interest.toLowerCase().includes(interestSearchQuery.toLowerCase()) &&
+    !interests.includes(interest)
+  );
+
+  const addSkillFromSearch = (skill) => {
+    if (!skills.includes(skill)) {
+      setSkills([...skills, skill]);
+      setSkillSearchQuery("");
+      setShowSkillDropdown(false);
+    }
+  };
+
+  const addCustomSkill = () => {
+    const trimmed = skillSearchQuery.trim();
+    if (trimmed && !skills.includes(trimmed)) {
+      setSkills([...skills, trimmed]);
+      setSkillSearchQuery("");
+      setShowSkillDropdown(false);
+    }
+  };
+
+  const addInterestFromSearch = (interest) => {
+    if (!interests.includes(interest)) {
+      setInterests([...interests, interest]);
+      setInterestSearchQuery("");
+      setShowInterestDropdown(false);
+    }
+  };
+
+  const addCustomInterest = () => {
+    const trimmed = interestSearchQuery.trim();
+    if (trimmed && !interests.includes(trimmed)) {
+      setInterests([...interests, trimmed]);
+      setInterestSearchQuery("");
+      setShowInterestDropdown(false);
     }
   };
 
   const removeSkill = (skillToRemove) => {
     setSkills(skills.filter(s => s !== skillToRemove));
-  };
-
-  const handleAddInterest = (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      const newInterest = interestInput.trim();
-      if (newInterest && (!interests.includes(newInterest))) {
-        setInterests([...interests, newInterest]);
-        setInterestInput("");
-      }
-    }
   };
 
   const removeInterest = (interestToRemove) => {
@@ -132,17 +206,26 @@ const SettingsTab = ({ user, onUpdate }) => {
       setSaving(true);
       setError("");
       
+      // Filter out empty skills and interests
+      const validSkills = skills.filter(s => s && s.trim());
+      const validInterests = interests.filter(i => i && i.trim());
+      
       const payload = {
         ...form,
         notificationPreferences: notifications,
         privacySettings: privacy,
-        skills,
-        interests
+        skills: validSkills,
+        interests: validInterests
       };
 
       await updateMyProfile(payload);
       setSuccess(true);
       setIsEditing(false);
+      
+      // Update local state with filtered values
+      setSkills(validSkills);
+      setInterests(validInterests);
+      
       if (onUpdate) onUpdate();
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to save changes");
@@ -160,7 +243,7 @@ const SettingsTab = ({ user, onUpdate }) => {
         </div>
         {!isEditing ? (
           <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>
-            ✏️ Edit Profile
+            Edit Profile
           </button>
         ) : (
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -222,25 +305,310 @@ const SettingsTab = ({ user, onUpdate }) => {
         {/* Skills */}
         <div className="settings-section">
           <h3 className="section-title">Skills & Interests</h3>
+          
+          {/* Skills Section */}
+          <div className="settings-field" style={{ marginBottom: '24px' }}>
+            <label>Skills</label>
+            {!isEditing ? (
+              <div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: skills.length === 0 ? '12px' : '0' }}>
+                  {skills.length > 0 ? (
+                    skills.map(skill => (
+                      <span key={skill} className="skill-tag">{skill}</span>
+                    ))
+                  ) : (
+                    <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '12px' }}>No skills added yet. Click "Edit Profile" to add skills.</p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {/* Search Input */}
+                <div className="skill-search-container" style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    value={skillSearchQuery}
+                    onChange={(e) => {
+                      setSkillSearchQuery(e.target.value);
+                      setShowSkillDropdown(true);
+                    }}
+                    onFocus={() => setShowSkillDropdown(true)}
+                    placeholder="Search or type a skill..."
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      fontSize: '0.95rem',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      outline: 'none'
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addCustomSkill();
+                      }
+                    }}
+                  />
+                  
+                  {/* Dropdown */}
+                  {showSkillDropdown && skillSearchQuery && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      maxHeight: '200px',
+                      overflowY: 'auto',
+                      backgroundColor: 'white',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      marginTop: '4px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                      zIndex: 10
+                    }}>
+                      {filteredSkills.length > 0 ? (
+                        filteredSkills.slice(0, 10).map(skill => (
+                          <div
+                            key={skill}
+                            onClick={() => addSkillFromSearch(skill)}
+                            style={{
+                              padding: '10px 12px',
+                              cursor: 'pointer',
+                              borderBottom: '1px solid #f3f4f6',
+                              fontSize: '0.9rem',
+                              transition: 'background 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#f9fafb'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
+                          >
+                            {skill}
+                          </div>
+                        ))
+                      ) : null}
+                      
+                      {/* Add custom option */}
+                      {skillSearchQuery.trim() && (
+                        <div
+                          onClick={addCustomSkill}
+                          style={{
+                            padding: '10px 12px',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            color: '#2563eb',
+                            fontWeight: '600',
+                            backgroundColor: '#eff6ff',
+                            borderTop: filteredSkills.length > 0 ? '2px solid #e5e7eb' : 'none'
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = '#dbeafe'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = '#eff6ff'}
+                        >
+                          + Add "{skillSearchQuery.trim()}"
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Display added skills */}
+                {skills.length === 0 ? (
+                  <div style={{ 
+                    padding: '20px', 
+                    textAlign: 'center', 
+                    backgroundColor: '#f9fafb', 
+                    borderRadius: '8px',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <p style={{ margin: '0', color: '#6b7280', fontSize: '0.9rem' }}>
+                      No skills added yet. Search or type above to add skills.
+                    </p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {skills.map((skill, index) => (
+                      <span key={index} className="skill-tag" style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '6px',
+                        padding: '6px 12px'
+                      }}>
+                        {skill}
+                        <button
+                          type="button"
+                          onClick={() => removeSkill(skill)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#dc2626',
+                            cursor: 'pointer',
+                            fontSize: '1.1rem',
+                            lineHeight: '1',
+                            padding: '0',
+                            marginLeft: '4px'
+                          }}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Interests Section */}
           <div className="settings-field">
-            <label>Skills (press Enter)</label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
-              {skills.map(skill => (
-                <span key={skill} className="skill-tag">
-                  {skill}
-                  {isEditing && <button onClick={() => removeSkill(skill)}>&times;</button>}
-                </span>
-              ))}
-            </div>
-            {isEditing && (
-              <input
-                type="text"
-                className="skill-input"
-                value={skillInput}
-                onChange={(e) => setSkillInput(e.target.value)}
-                onKeyDown={handleAddSkill}
-                placeholder="Add a skill..."
-              />
+            <label>Interests</label>
+            {!isEditing ? (
+              <div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: interests.length === 0 ? '12px' : '0' }}>
+                  {interests.length > 0 ? (
+                    interests.map(interest => (
+                      <span key={interest} className="skill-tag" style={{ background: '#fef3c7', color: '#d97706', borderColor: '#fde68a' }}>
+                        {interest}
+                      </span>
+                    ))
+                  ) : (
+                    <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '12px' }}>No interests added yet. Click "Edit Profile" to add interests.</p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {/* Search Input */}
+                <div className="interest-search-container" style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    value={interestSearchQuery}
+                    onChange={(e) => {
+                      setInterestSearchQuery(e.target.value);
+                      setShowInterestDropdown(true);
+                    }}
+                    onFocus={() => setShowInterestDropdown(true)}
+                    placeholder="Search or type an interest..."
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      fontSize: '0.95rem',
+                      border: '2px solid #fde68a',
+                      borderRadius: '8px',
+                      outline: 'none',
+                      backgroundColor: '#fffbeb'
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addCustomInterest();
+                      }
+                    }}
+                  />
+                  
+                  {/* Dropdown */}
+                  {showInterestDropdown && interestSearchQuery && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      maxHeight: '200px',
+                      overflowY: 'auto',
+                      backgroundColor: 'white',
+                      border: '1px solid #fde68a',
+                      borderRadius: '8px',
+                      marginTop: '4px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                      zIndex: 10
+                    }}>
+                      {filteredInterests.length > 0 ? (
+                        filteredInterests.slice(0, 10).map(interest => (
+                          <div
+                            key={interest}
+                            onClick={() => addInterestFromSearch(interest)}
+                            style={{
+                              padding: '10px 12px',
+                              cursor: 'pointer',
+                              borderBottom: '1px solid #fef3c7',
+                              fontSize: '0.9rem',
+                              transition: 'background 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#fffbeb'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
+                          >
+                            {interest}
+                          </div>
+                        ))
+                      ) : null}
+                      
+                      {/* Add custom option */}
+                      {interestSearchQuery.trim() && (
+                        <div
+                          onClick={addCustomInterest}
+                          style={{
+                            padding: '10px 12px',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            color: '#d97706',
+                            fontWeight: '600',
+                            backgroundColor: '#fef3c7',
+                            borderTop: filteredInterests.length > 0 ? '2px solid #fde68a' : 'none'
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = '#fde68a'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = '#fef3c7'}
+                        >
+                          + Add "{interestSearchQuery.trim()}"
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Display added interests */}
+                {interests.length === 0 ? (
+                  <div style={{ 
+                    padding: '20px', 
+                    textAlign: 'center', 
+                    backgroundColor: '#fffbeb', 
+                    borderRadius: '8px',
+                    border: '1px solid #fde68a'
+                  }}>
+                    <p style={{ margin: '0', color: '#92400e', fontSize: '0.9rem' }}>
+                      No interests added yet. Search or type above to add interests.
+                    </p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {interests.map((interest, index) => (
+                      <span key={index} className="skill-tag" style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '6px',
+                        padding: '6px 12px',
+                        background: '#fef3c7', 
+                        color: '#d97706', 
+                        borderColor: '#fde68a'
+                      }}>
+                        {interest}
+                        <button
+                          type="button"
+                          onClick={() => removeInterest(interest)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#dc2626',
+                            cursor: 'pointer',
+                            fontSize: '1.1rem',
+                            lineHeight: '1',
+                            padding: '0',
+                            marginLeft: '4px'
+                          }}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -252,7 +620,7 @@ const SettingsTab = ({ user, onUpdate }) => {
       <div className="settings-sidebar">
         {/* Notification Preferences */}
         <div className="settings-card shadow-sm">
-          <h3 className="settings-card__title">🔔 Notifications</h3>
+          <h3 className="settings-card__title">Notifications</h3>
           {[
             ["Email Alerts", "Receive general email updates", "emailAlerts"],
             ["Team Invites", "Notify when invited to teams", "teamInvites"],
@@ -272,7 +640,7 @@ const SettingsTab = ({ user, onUpdate }) => {
 
         {/* Privacy Settings */}
         <div className="settings-card shadow-sm">
-          <h3 className="settings-card__title">🔒 Privacy</h3>
+          <h3 className="settings-card__title">Privacy</h3>
           {[
             ["Public Profile", "Allow others to see your profile", "publicProfile"],
             ["Allow Team Invites", "Others can invite you to teams", "allowInvites"],

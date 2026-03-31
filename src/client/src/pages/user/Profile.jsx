@@ -26,7 +26,7 @@ const Profile = () => {
       const res = await getMyProfile();
       setProfile(res.data.data);
     } catch (err) {
-      console.error("❌ Profile fetch error:", err);
+      console.error("Profile fetch error:", err);
       setError(
         err?.response?.data?.message || "Failed to load profile"
       );
@@ -109,12 +109,12 @@ const Profile = () => {
       {/* Footer */}
       <footer className="profile-footer">
         <div className="profile-footer__inner">
-          <span className="profile-footer__brand">Hackplatform</span>
+          <span className="profile-footer__brand">HackHub</span>
           <div className="profile-footer__links">
-            <a href="#about">About</a>
-            <a href="#faqs">FAQs</a>
-            <a href="#contact">Contact</a>
-            <a href="#terms">Terms & Privacy</a>
+            <Link to="/about">About</Link>
+            <Link to="/faqs">FAQs</Link>
+            <Link to="/contact">Contact</Link>
+            <Link to="/terms">Terms & Privacy</Link>
           </div>
         </div>
       </footer>
