@@ -385,3 +385,47 @@ Database / Schema Changes:
 Notes / Dependencies:
 NA
 
+
+### Date: YYYY-MM-DD 
+### Contributor: <Your Name>
+- 🔧 Type of Change: [Feature / Bug Fix / Refactor / Docs / Setup]
+### Files Modified:
+- <file_path_1>
+- <file_path_2>
+
+### Description:
+- Brief explanation of what was done
+- Keep it concise but clear
+
+### Database / Schema Changes:
+- [Yes / No]
+- If Yes:
+  - What changed:
+  - Migration required: [Yes / No]
+
+### Notes / Dependencies:
+- Any important info others should know
+- Example: "Requires env update" or "Breaks previous API response"
+
+
+### LOG 8
+Date: 2/04/2026
+Contributor: Ojas
+- Type of Change:  Bug Fix 
+ Files Modified:
+        
+D       NAVBAR_FOOTER_FIXES_SUMMARY.md
+M       src/client/src/pages/participant/SingleHackathon.jsx
+
+Description:
+1. bug in dated and registeration of hackthon
+
+Database / Schema Changes:
+- NO
+
+
+Notes / Dependencies:
+NA
+
+
+
