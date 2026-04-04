@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../../components/common/Navbar"
 import Footer from "../../components/common/Footer";
-import { discoverMembers, inviteMember } from "../../services/api";
+import { searchHackathonMembers, inviteMember } from "../../services/api";
 
 const FindMembers = () => {
   const { id, teamId } = useParams();
@@ -12,21 +12,31 @@ const FindMembers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [invitingId, setInvitingId] = useState(null);
+  const [nameQuery, setNameQuery] = useState("");
+  const [tagQuery, setTagQuery] = useState("");
+
+  const fetchMembers = useCallback(async (name = "", tags = "") => {
+    try {
+      setLoading(true);
+      setError("");
+      const res = await searchHackathonMembers(id, name, tags);
+      setUsers(res.data.data || []);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load members.");
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const res = await discoverMembers(teamId);
-        setUsers(res.data.data || []);
-      } catch (err) {
-        setError(err?.response?.data?.message || "Failed to load discoverable members.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
-  }, [teamId]);
+    fetchMembers();
+  }, [fetchMembers]);
+
+  const formatSkill = (skill) => {
+    if (!skill || typeof skill !== 'string') return '';
+    const cleaned = skill.trim();
+    return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
+  };
 
   const handleInvite = async (userId) => {
     try {
@@ -42,6 +52,26 @@ const FindMembers = () => {
     } finally {
       setInvitingId(null);
     }
+  };
+
+  const applySearch = async () => {
+    const tagsString = tagQuery.split(',').map(t => t.trim()).filter(Boolean).join(',');
+    try {
+      setLoading(true);
+      setError("");
+      const res = await searchHackathonMembers(id, nameQuery.trim(), tagsString);
+      setUsers(res.data.data || []);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to load members.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearSearch = () => {
+    setNameQuery("");
+    setTagQuery("");
+    fetchMembers();
   };
 
   return (
@@ -64,6 +94,35 @@ const FindMembers = () => {
             <p style={{ margin: '5px 0 0', color: '#64748b', fontSize: '1.05rem' }}>
               Find and invite available participants to join your team.
             </p>
+
+            <div style={{ marginTop: '18px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+              <input
+                type="text"
+                value={nameQuery}
+                onChange={(e) => setNameQuery(e.target.value)}
+                placeholder="Search by name or email"
+                style={{ flexGrow: 1, minWidth: '220px', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#fff', outline: 'none' }}
+              />
+              <input
+                type="text"
+                value={tagQuery}
+                onChange={(e) => setTagQuery(e.target.value)}
+                placeholder="Search by skills (comma-separated tags)"
+                style={{ flexGrow: 2, minWidth: '240px', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#fff', outline: 'none' }}
+              />
+              <button
+                onClick={applySearch}
+                style={{ padding: '10px 18px', borderRadius: '10px', border: 'none', background: '#4f46e5', color: '#fff', fontWeight: '600', cursor: 'pointer' }}
+              >
+                Search
+              </button>
+              <button
+                onClick={clearSearch}
+                style={{ padding: '10px 18px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#fff', color: '#475569', fontWeight: '600', cursor: 'pointer' }}
+              >
+                Reset
+              </button>
+            </div>
           </div>
         </div>
 
@@ -125,7 +184,7 @@ const FindMembers = () => {
                       {user.skills && user.skills.length > 0 ? (
                         user.skills.slice(0, 4).map(skill => (
                           <span key={skill} style={{ padding: '4px 10px', background: '#f1f5f9', color: '#475569', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '600', border: '1px solid #e2e8f0' }}>
-                            {skill}
+                            {formatSkill(skill)}
                           </span>
                         ))
                       ) : (

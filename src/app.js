@@ -91,7 +91,7 @@ app.use('/api/oauth', oauthRoutes);
 app.use('/api/calendar', calendarRoutes);
 
 // Search & Recommendation Routes
-app.use('/api/ai', searchRoutes);
+app.use('/api/search', searchRoutes);
 app.use('/api/problems', problemRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 

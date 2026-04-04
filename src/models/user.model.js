@@ -111,6 +111,8 @@ const userSchema = new mongoose.Schema(
     skills: [
       {
         type: String,
+        trim: true,
+        lowercase: true,
       },
     ],
 

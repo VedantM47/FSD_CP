@@ -99,6 +99,14 @@ export const getParticipantDashboard = (hackathonId) => API.get(`/participant/ha
 export const registerTeam = (data) => API.post("/teams", data);
 export const requestJoinTeam = (teamId, message) => API.post(`/teams/${teamId}/join`, { message });
 export const withdrawJoinRequest = (teamId) => API.post(`/teams/${teamId}/withdraw`);
+export const searchHackathonMembers = (hackathonId, name = '', tags = '') => {
+  const params = new URLSearchParams();
+  params.set('hackathonId', hackathonId);
+  if (name) params.set('name', name);
+  if (tags) params.set('tags', tags);
+  return API.get(`/search?${params.toString()}`);
+};
+
 export const discoverMembers = (teamId) => API.get(`/teams/${teamId}/discover-members`);
 export const inviteMember = (teamId, data) => API.post(`/teams/${teamId}/invite`, data);
 export const respondToInvite = (teamId, data) => API.post(`/teams/${teamId}/invites/respond`, data);
