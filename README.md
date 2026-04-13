@@ -428,4 +428,30 @@ Notes / Dependencies:
 NA
 
 
+### LOG 9
+Changes in project log:
+
+Date: 2026-04-13
+Contributor: VEDANT
+
+🔧 Type of Change: Refactor / Bug Fix
+Files Modified:
+src/client/src/utils/designSystem.js
+src/client/src/styles/admin.css
+src/client/src/pages/admin/AdminDashboard.jsx
+src/client/src/pages/admin/OrganizerDashboard.jsx
+src/client/src/components/admin/RoleManagement.jsx
+src/client/src/styles/design-system-colors.css
+
+Description:
+* Mapped exact project brand hex colors (`#043873`, `#4F9CF9`, `#FFE492`, `#A7CEFC`) across CSS configuration and React components.
+* Fixed statistics card backgrounds to restore text readability in the Admin interfaces.
+* Scrapped unprofessional emojis mapping across all files and replaced them with standard Lucide React icons.
+* Enforced the target `Inter` Google font globally, overriding previous defaults.
+
+Database / Schema Changes:
+No
+
+Notes / Dependencies:
+NA
 
