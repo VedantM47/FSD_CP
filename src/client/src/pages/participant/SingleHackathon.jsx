@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import Footer from "../../components/judge/Footer";
-import API, { getAuthHeaders, getHackathonById } from "../../services/api";
-import "../../styles/SingleHackathon.css";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import Footer from '../../components/judge/Footer'; 
 import Navbar from "../../components/common/Navbar";
+import API, { getAuthHeaders, getHackathonById } from '../../services/api'; 
+import DiscussionLink from '../../components/common/DiscussionLink';
+import '../../styles/SingleHackathon.css';
 
 const SingleHackathon = () => {
   const navigate = useNavigate();

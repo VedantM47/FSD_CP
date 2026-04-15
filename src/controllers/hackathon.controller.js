@@ -1,6 +1,7 @@
 import Hackathon from '../models/hackathon.model.js';
 import Team from '../models/team.model.js';
 import User from '../models/user.model.js';
+import Discussion from '../models/discussion.model.js';
 import Submission from '../models/submission.model.js';
 import log from '../utils/logger.js';
 import { getIO } from '../utils/socket.js';
@@ -711,5 +712,25 @@ export const getTeamsByHackathon = async (req, res, next) => {
       statusCode: 500,
       message: err.message,
     });
+  }
+};
+
+/* ================= GET DISCUSSIONS BY HACKATHON ================= */
+export const getDiscussionsByHackathon = async (req, res, next) => {
+  try {
+    const { hackathonId } = req.params;
+    log.info('GET_DISCUSSIONS', 'Fetching discussions', { hackathonId });
+
+    const discussions = await Discussion.find({ hackathonId })
+      .populate('senderId', 'fullName email systemRole')
+      .sort({ createdAt: 1 });
+
+    res.status(200).json({
+      success: true,
+      data: discussions,
+    });
+  } catch (err) {
+    log.error('GET_DISCUSSIONS', 'Failed to fetch discussions', err);
+    next({ statusCode: 500, message: err.message });
   }
 };

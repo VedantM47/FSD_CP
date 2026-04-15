@@ -81,6 +81,12 @@ const OverviewTab = ({ user, hackathons, teams, navigate, onUpdate }) => {
                   >
                     View Hackathon
                   </button>
+                  <button
+                    className="btn-discussion"
+                    onClick={() => navigate(`/hackathon/${h._id}/discussion`)}
+                  >
+                    Discussion
+                  </button>
                 </div>
               </div>
             ))

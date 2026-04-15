@@ -30,7 +30,7 @@ CREATE_TEAM: ({ user, hackathon, existingTeam }) => {
 
   // Judges cannot create teams
   const isJudge = user.hackathonRoles?.some(
-    r => r.hackathonId.equals(hackathon._id) && r.role === 'judge'
+    r => (r.hackathonId || r.hId)?.equals(hackathon._id) && r.role === 'judge'
   );
   if (isJudge) return false;
 
@@ -96,7 +96,7 @@ UPDATE_HACKATHON: ({ user, hackathon }) => {
   if (user.systemRole === 'admin' || user.systemRole === 'mentor') return true;
 
   return user.hackathonRoles?.some(
-    r => r.hackathonId.equals(hackathon._id) && r.role === 'organizer'
+    r => (r.hackathonId || r.hId)?.equals(hackathon._id) && r.role === 'organizer'
   );
 },
 
@@ -109,7 +109,7 @@ ASSIGN_JUDGE: ({ user, hackathon }) => {
   if (user.systemRole === 'admin' || user.systemRole === 'mentor') return true;
 
   return user.hackathonRoles?.some(
-    r => r.hackathonId.equals(hackathon._id) && r.role === 'organizer'
+    r => (r.hackathonId || r.hId)?.equals(hackathon._id) && r.role === 'organizer'
   );
 },
 
@@ -118,7 +118,7 @@ REMOVE_JUDGE: ({ user, hackathon }) => {
   if (user.systemRole === 'admin' || user.systemRole === 'mentor') return true;
 
   return user.hackathonRoles?.some(
-    r => r.hackathonId.equals(hackathon._id) && r.role === 'organizer'
+    r => (r.hackathonId || r.hId)?.equals(hackathon._id) && r.role === 'organizer'
   );
 },
 VIEW_ORGANIZER_DASHBOARD: ({ user }) => {
@@ -182,7 +182,7 @@ VIEW_SUBMISSION: ({ user, team, submission }) => {
   }
 
   return user.hackathonRoles?.some(
-    r => r.hackathonId.equals(submission.hackathonId) && r.role === 'judge'
+    r => (r.hackathonId || r.hId)?.equals(submission.hackathonId) && r.role === 'judge'
   );
 },
 
@@ -195,7 +195,7 @@ CREATE_EVALUATION: ({ user, hackathon }) => {
   if (user.systemRole === 'admin') return true;
 
   return user.hackathonRoles?.some(
-    r => r.hackathonId.equals(hackathon._id) && r.role === 'judge'
+    r => (r.hackathonId || r.hId)?.equals(hackathon._id) && r.role === 'judge'
   );
 },
 
@@ -217,12 +217,12 @@ VIEW_EVALUATION: ({ user, hackathon, team }) => {
   if (user.systemRole === 'admin' || user.systemRole === 'mentor') return true;
 
   const isJudge = user.hackathonRoles?.some(
-    r => r.hackathonId.equals(hackathon._id) && r.role === 'judge'
+    r => (r.hackathonId || r.hId)?.equals(hackathon._id) && r.role === 'judge'
   );
   if (isJudge) return true;
 
   const isOrganizer = user.hackathonRoles?.some(
-    r => r.hackathonId.equals(hackathon._id) && r.role === 'organizer'
+    r => (r.hackathonId || r.hId)?.equals(hackathon._id) && r.role === 'organizer'
   );
   if (isOrganizer) return true;
 

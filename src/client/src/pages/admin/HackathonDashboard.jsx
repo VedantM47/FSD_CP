@@ -103,6 +103,22 @@ function HackathonDashboard() {
 
             <div className="admin-controls-actions">
               <button
+                className="btn-secondary"
+                onClick={() => navigate(`/admin/hackathons/${id}`)}
+                style={{ marginRight: '10px' }}
+              >
+                View Page
+              </button>
+              
+              <button
+                className="btn-secondary"
+                onClick={() => navigate(`/hackathon/${id}/discussion`)}
+                style={{ marginRight: '10px' }}
+              >
+                View Discussion
+              </button>
+
+              <button
                 className="btn-primary"
                 style={{ backgroundColor: '#111827', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
                 onClick={() => navigate(`/admin/hackathons/${id}/edit`)}

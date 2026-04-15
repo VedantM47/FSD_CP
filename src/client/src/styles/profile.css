@@ -291,6 +291,22 @@
     background: #eef3ff;
 }
 
+.btn-discussion {
+    padding: 8px 22px;
+    background: #fff;
+    color: #059669;
+    border: 1.5px solid #059669;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-discussion:hover {
+    background: #ecfdf5;
+}
+
 /* Activity Timeline */
 .activity-timeline {
     list-style: none;

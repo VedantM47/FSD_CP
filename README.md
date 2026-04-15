@@ -1,162 +1,329 @@
-# Hackathon Connect
+# Hackathon AI Recommendation System
 
-A comprehensive platform for managing hackathons, teams, and user participation. This backend system facilitates the creation and management of hackathons, team formations, and project submissions with a robust role-based access control system.
+AI-Driven Problem Statement Recommendation System for Hackathon Platform. This service provides intelligent problem statement recommendations to teams based on their skills, experience, and expertise.
+
+*Part of the larger Hackathon Platform that includes real-time discussions, teammate search, and comprehensive hackathon management features.*
 
 ## Features
 
--   **User Management** : Registration, OAuth (Google/GitHub), login, and profile management for Users, Judges, Mentors, and Organizers. Includes Notification & Privacy preferences with Skills tagging.
--   **Team Management** : Create, join, and manage teams with leader controls. Includes a "Manage Team" dashboard to accept/reject pending invites.
--   **Hackathon Management** : Full lifecycle management (Draft, Open, Ongoing, Closed). Includes Cloudinary banner image uploads and precise `datetime-local` registration deadlines.
--   **Submission System** : Submit projects and track status.
--   **Access Control** : Secure API with RBAC (Role-Based Access Control) and policies.
--   **Organizer System** : Users can apply to become Organizers, and Admins can review/approve these applications from the Admin Dashboard.
--   **Discovery & Search** : Interactive search bar connected to the backend to filter hackathons in real-time.
+- **NLP-based Skill Extraction**: Automatically extracts skills, domains, and tools from team member profiles
+- **Semantic Similarity Matching**: Uses embeddings to find semantically similar problem statements
+- **Intelligent Recommendations**: Combines rule-based filtering with AI ranking for scalable recommendations
+- **Real-time Discussion System**: Socket.IO-powered chat for hackathon participants with role-based messaging
+- **Tag-based Teammate Search**: Simple and efficient teammate discovery using skill tags
+- **RESTful API**: Easy integration with existing web backend
+- **MongoDB Integration**: Compatible with existing Mongoose schemas
 
-## Prerequisites
+## Tech Stack
 
--   **Node.js** : v20+ (recommended)
--   **MongoDB** : v7.0.0 or higher
--   **npm** : Installed with Node.js
--   **Cloudinary Account**: Required for image uploads
--   **Google/GitHub Developer Accounts**: Required for OAuth login
+- **Node.js** with Express.js
+- **MongoDB** with Mongoose
+- **Natural Language Processing**: `natural`, `compromise`
+- **Embedding Generation**: Custom TF-IDF based embeddings
+- **Real-time Communication**: Socket.IO for live discussions
+- **Authentication**: JWT with OAuth (GitHub, Google)
+
+## Additional Features
+
+### Real-time Discussion System
+- **Socket.IO Integration**: Real-time messaging within hackathon rooms
+- **Role-based Messaging**: Different colors and badges for Admin, Judge, Mentor, and User roles
+- **Message History**: Persistent chat history with timestamps and date grouping
+- **Threaded Conversations**: Support for nested replies and discussions
+- **Authentication**: JWT-based socket authentication for secure connections
+
+### Teammate Search
+- **Tag-based Matching**: Simple skill tag matching for teammate discovery
+- **Profile-based Search**: Searches across user skills, interests, bio, and department
+- **Match Scoring**: Returns results sorted by skill match count
+- **Performance Optimized**: Direct database queries without complex AI processing
+- **User-friendly Results**: Clear indication of matching skills for each result
+
+## Project Structure
+
+```
+hackathon-ai-recommendation/
+├── config/
+│   └── database.js          # MongoDB connection
+├── controllers/
+│   ├── problemController.js      # Problem statement CRUD
+│   └── recommendationController.js  # Recommendation endpoints
+├── models/
+│   ├── User.js              # Base user model (for reference)
+│   ├── Team.js              # Base team model (for reference)
+│   ├── Hackathon.js         # Base hackathon model (for reference)
+│   ├── Submission.js        # Base submission model (for reference)
+│   ├── TeamSkillProfile.js  # Team skill profile model
+│   ├── ProblemStatement.js  # Problem statement model
+│   ├── ProblemMetadata.js   # Problem metadata model
+│   ├── ProblemEmbedding.js  # Problem embedding model
+│   └── RecommendationResult.js  # Recommendation results model
+├── routes/
+│   ├── problemRoutes.js     # Problem statement routes
+│   └── recommendationRoutes.js  # Recommendation routes
+├── services/
+│   ├── nlpService.js        # NLP processing service
+│   ├── embeddingService.js  # Embedding generation service
+│   └── recommendationService.js  # Recommendation engine
+├── utils/
+│   ├── skillExtractor.js    # Skill extraction utilities
+│   ├── constants.js         # Constants
+│   └── validators.js        # Validation utilities
+├── server.js                # Main server file
+├── package.json
+└── README.md
+```
 
 ## Installation
 
-1.  **Clone the repository :**
-    ```bash
-    git clone https://github.com/IEEE-SB-VIT-Pune/Hackathon_Project_2025-26.git
-    cd Hackathon_Project_2025-26
-    ```
+1. **Clone the repository** (or navigate to the project directory)
 
-2.  **Install dependencies :**
-    ```bash
-    npm install
-    ```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-3.  **Environment Configuration :**
-    Copy the example environment file and update it with your credentials.
-    ```bash
-    cp .env.example .env
-    ```
-    Open `.env` and configure essential variables:
-    -   `PORT` : Server port (default : 8080)
-    -   `FRONTEND_URL`: Usually `http://localhost:5173`
-    -   `BACKEND_URL`: Usually `http://localhost:8080`
-    -   `MONGO_URI` : Your MongoDB connection string
-    -   `JWT_SECRET` : Secret key for JWT signing
-    -   `CLOUDINARY_*`: Cloudinary API keys for image uploads
-    -   `GOOGLE_CLIENT_*` & `GITHUB_CLIENT_*`: OAuth keys
+3. **Set up environment variables**:
+   Create a `.env` file in the root directory:
+   ```env
+   MONGODB_URI=mongodb://localhost:27017/hackathon-platform
+   PORT=3001
+   NODE_ENV=development
+   ```
 
-## Running the Application
+4. **Start MongoDB** (if running locally):
+   ```bash
+   mongod
+   ```
 
-This is a monolithic repository containing both the frontend (React/Vite) and backend (Express). You will need to run two terminal processes:
+5. **Run the server**:
+   ```bash
+   # Development mode (with nodemon)
+   npm run dev
 
-**Terminal 1 (Backend Server) :**
-```bash
-# Starts the backend API on port 8080
-npm run dev
-```
+   # Production mode
+   npm start
+   ```
 
-**Terminal 2 (Frontend Client) :**
-```bash
-cd src/client
-npm install
-npm run dev
-```
-
-## Seeding Dummy Data
-
-To quickly test the platform without manually creating accounts and hackathons, you can run the seed script. This drops existing collections and generates an Admin, Judge, 3 Participants, 4 Hackathons, Teams, and Organizer Applications.
-
-```bash
-# From the root directory:
-node src/seed.js
-```
-*Note: Default accounts use the password `password123`. See script output for exact emails.*
+The server will start on `http://localhost:3001` (or the port specified in `.env`).
 
 ## API Endpoints
 
-### User Routes (`/api/users`)
--   **Public**
-    -   `POST /register` : Register a new user
-    -   `POST /login` : User login
--   **Private (User)**
-    -   `GET /me` : Get current user profile
-    -   `PUT /me` : Update current user profile
--   **Admin**
-    -   `GET /` : Get all users
-    -   `GET /:id` : Get user by ID
-    -   `DELETE /:id` : Delete user
+### Health Check
+- **GET** `/health` - Check if service is running
 
-### Hackathon Routes (`/api/hackathons`)
--   **Public**
-    -   `GET /` : Get all hackathons
-    -   `GET /:id` : Get hackathon by ID
-    -   `GET /:hackathonId/teams` : Get teams for a hackathon
--   **Protected (Mentor/Admin/Organizer)**
-    -   `POST /` : Create hackathon
-    -   `PATCH /:id` : Update hackathon details
-    -   `PATCH /:id/status` : Update hackathon status
-    -   `DELETE /:id` : Delete hackathon
--   **Judge Management**
-    -   `POST /:hackathonId/judges` : Assign judge
-    -   `DELETE /:hackathonId/judges/:judgeUserId` : Remove judge
+### Problem Statements
 
-### Team Routes (`/api/teams`)
--   **Management**
-    -   `POST /` : Create team
-    -   `GET /:teamId` : Get team details
-    -   `PATCH /:teamId` : Update team details
-    -   `DELETE /:teamId` : Delete team
--   **Membership**
-    -   `POST /:teamId/join` : Request to join team
-    -   `GET /:teamId/requests` : View pending join requests
-    -   `PATCH /:teamId/member` : Accept/Reject member
-    -   `DELETE /:teamId/leave` : Leave team
+- **POST** `/api/problems` - Create a new problem statement
+  ```json
+  {
+    "source": "platform",
+    "title": "AI-Powered Learning Platform",
+    "description": "Build an AI-powered learning platform..."
+  }
+  ```
 
-### Submission Routes (`/api/submissions`)
--   `POST /` : Create submission (Leader only)
--   `PUT /:submissionId` : Update submission (Leader only)
--   `GET /:submissionId` : View submission (Judge/Member/Admin)
+- **GET** `/api/problems` - Get all problem statements
+  - Query params: `source`, `limit`, `skip`
 
-### Evaluation Routes (`/api/evaluations`)
--   `POST /hackathons/:hackathonId/teams/:teamId/evaluations` : Create evaluation (Judge)
--   `GET /hackathons/:hackathonId/teams/:teamId/evaluations` : Get evaluations for a team
--   `PATCH /:evaluationId` : Update evaluation (Judge - own)
--   `PATCH /:evaluationId/lock` : Lock evaluation (Admin/Faculty)
--   `DELETE /:evaluationId` : Delete evaluation (Admin/Faculty)
+- **GET** `/api/problems/:id` - Get a specific problem statement
 
-### Organizer Routes (`/api/organizer`)
--   `POST /apply` : Apply to become an organizer (User)
--   `GET /applications` : View pending organizer applications (Admin)
--   `PATCH /applications/:id` : Approve or reject organizer application (Admin)
+- **PUT** `/api/problems/:id` - Update a problem statement
 
-### System
--   `GET /test` : Health check
+- **DELETE** `/api/problems/:id` - Delete a problem statement
 
-## API Documentation & Testing
+### Recommendations
 
-A Postman collection is included or you can refer to `manual_testing.md` for cURL commands to test the endpoints locally.
--   **Variables** : Pre-configured variables for `base_url`, `admin` token, and `user` token.
+- **POST** `/api/recommendations/teams/:teamId/extract-skills` - Extract team skills
+  - Automatically extracts skills from team members' profiles
 
-## Folder Structure
-        src/
-        ├── models/        # Mongoose data models
-        ├── controllers/   # Route logic and controllers
-        ├── routes/        # API route definitions
-        ├── policies/      # Access control policies
-        ├── middlewares/   # Authentication and error handling
-        ├── config/        # Database and system configuration
-        └── utils/         # Helper functions (JWT, etc.)
+- **GET** `/api/recommendations/teams/:teamId/skills` - Get team skill profile
 
-## Roles
+- **POST** `/api/recommendations/teams/:teamId/generate` - Generate recommendations
+  ```json
+  {
+    "topN": 10,
+    "forceRegenerate": false
+  }
+  ```
 
--   **Admin** : Full system access.
--   **User** : Standard participant. Can create/join teams and submit projects.
--   **Mentor** : Can create hackathons.
--   **Organizer** : Manages specific hackathons.
--   **Judge** : Evaluates submissions.
+- **GET** `/api/recommendations/teams/:teamId` - Get stored recommendations
+  - Query params: `limit`
 
-## Resources
+- **GET** `/api/recommendations/teams/:teamId/stats` - Get recommendation statistics
 
--   [RBAC Guide](https ://medium.com/@nocobase/how-to-design-an-rbac-role-based-access-control-system-3b57ca9c6826) - Understanding Role-Based Access Control
+### Discussion System
+
+- **GET** `/api/hackathons/:hackathonId/discussion` - Get discussion history for a hackathon
+- **Socket.IO Events**:
+  - `join_hackathon` - Join a hackathon discussion room
+  - `send_message` - Send a message (with optional parentId for replies)
+  - `receive_message` - Listen for new messages in real-time
+
+### Teammate Search
+
+- **POST** `/api/ai/embed` - Prepare user profile for search (profile readiness check)
+- **GET** `/api/ai/search?tags=skill1,skill2` - Search for teammates by skill tags
+  - Returns users with matching skills, sorted by match count
+
+## Workflow
+
+### 1. Create Problem Statements
+```bash
+POST /api/problems
+{
+  "source": "SIH",
+  "title": "Smart City Solutions",
+  "description": "Develop IoT-based solutions for smart city management..."
+}
+```
+
+### 2. Extract Team Skills
+```bash
+POST /api/recommendations/teams/{teamId}/extract-skills
+```
+This extracts skills from:
+- Team leader's profile (skills, department, college)
+- Team members' profiles
+- Existing project information
+
+### 3. Generate Recommendations
+```bash
+POST /api/recommendations/teams/{teamId}/generate
+{
+  "topN": 10
+}
+```
+
+The system:
+1. Retrieves team skill profile
+2. Filters candidate problems using rule-based matching (domain/skill overlap)
+3. Ranks candidates using semantic similarity (embeddings)
+4. Returns top N recommendations
+5. Stores results in database
+
+## Integration with Web Backend
+
+This service is designed to integrate seamlessly with your existing web backend:
+
+1. **Shared Database**: Uses the same MongoDB database and Mongoose models
+2. **RESTful API**: Standard HTTP endpoints that can be called from your backend
+3. **Compatible Schemas**: Works with existing User, Team, Hackathon, and Submission models
+
+### Example Integration
+
+```javascript
+// In your web backend
+const axios = require('axios');
+
+// Generate recommendations for a team
+const generateRecommendations = async (teamId) => {
+  try {
+    // First, extract team skills
+    await axios.post(`http://localhost:3001/api/recommendations/teams/${teamId}/extract-skills`);
+    
+    // Then generate recommendations
+    const response = await axios.post(
+      `http://localhost:3001/api/recommendations/teams/${teamId}/generate`,
+      { topN: 10 }
+    );
+    
+    return response.data.data;
+  } catch (error) {
+    console.error('Error generating recommendations:', error);
+    throw error;
+  }
+};
+```
+
+## Data Flow
+
+```
+Problem Statement Input (Platform/SIH/External)
+    ↓
+NLP Processing (Offline)
+    ↓
+problem_metadata + problem_embeddings
+    ↓
+Team Skill Extraction
+    ↓
+team_skill_profile
+    ↓
+Candidate Retrieval (Rule-based)
+    ↓
+AI Ranking (Embeddings)
+    ↓
+recommendation_results
+```
+
+## Database Schemas
+
+### Feature-Specific Tables
+
+- **TeamSkillProfile**: Stores extracted skills, domains, and tools for each team
+- **ProblemStatement**: Stores problem statements from various sources
+- **ProblemMetadata**: Stores extracted metadata (domains, skills, difficulty, keywords)
+- **ProblemEmbedding**: Stores embedding vectors for semantic matching
+- **RecommendationResult**: Stores generated recommendations with match scores
+
+## Performance Considerations
+
+- **Rule-based Filtering**: First filters candidates to avoid brute-force vector matching
+- **Efficient Embeddings**: Uses lightweight TF-IDF based embeddings (can be upgraded to transformer models)
+- **Indexed Queries**: All models have appropriate indexes for fast queries
+- **Caching**: Recommendations are stored in database to avoid regeneration
+
+## Future Enhancements
+
+- [ ] Upgrade to transformer-based embeddings (e.g., Sentence-BERT)
+- [ ] Add batch processing for large problem statement imports
+- [ ] Implement recommendation caching with TTL
+- [ ] Add user feedback mechanism to improve recommendations
+- [ ] Support for custom skill dictionaries
+- [ ] Real-time recommendation updates
+
+## Recent Changes
+
+### Discussion Feature Implementation
+- **Real-time Chat System**: Added Socket.IO-based discussion system for hackathon participants
+- **Role-based UI**: Implemented different message colors and badges for Admin (Red), Judge (Purple), Mentor (Green), and User (Blue) roles
+- **Message Persistence**: Added MongoDB schema for storing discussion messages with support for threaded conversations
+- **Authentication**: Integrated JWT-based socket authentication for secure real-time connections
+- **Frontend Components**: Created reusable DiscussionPanel and Discussion page components with responsive design
+
+### Teammate Search Simplification
+- **Tag-based Search**: Converted from complex AI vector embeddings to simple skill tag matching
+- **Performance Improvement**: Removed heavy @xenova/transformers dependency, reducing memory usage and query time
+- **Simplified API**: Changed from natural language queries (`?q=looking for python expert`) to tag-based (`?tags=javascript,react`)
+- **User Experience**: Results now show exact matching skills, making search results more transparent
+- **Maintenance**: Eliminated complex AI model management while maintaining search functionality
+
+### Branding and Navigation Updates
+- **Consistent Branding**: Standardized all references to "HackHub" across the platform
+- **React Router Integration**: Converted all navigation links from `<a href>` to `<Link to>` for proper SPA behavior
+- **Footer Consistency**: Updated all footers to use consistent styling and navigation links
+
+## Troubleshooting
+
+### MongoDB Connection Issues
+- Ensure MongoDB is running
+- Check `MONGODB_URI` in `.env` file
+- Verify network connectivity
+
+### No Recommendations Generated
+- Ensure team skill profile exists (extract skills first)
+- Verify problem statements exist in database
+- Check if problem metadata and embeddings are generated
+
+### Low Match Scores
+- Update team skill profiles
+- Add more problem statements
+- Verify problem descriptions are detailed enough
+
+## License
+
+ISC
+
+## Support
+
+For issues or questions, please contact the AI team.

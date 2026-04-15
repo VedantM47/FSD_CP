@@ -14,6 +14,7 @@ import {
   assignJudgeToHackathon,
   removeJudgeFromHackathon,
   searchHackathons,
+  getDiscussionsByHackathon
 } from '../controllers/hackathon.controller.js';
    
 import Hackathon from '../models/hackathon.model.js';
@@ -28,6 +29,12 @@ router.get('/', getAllHackathons);
 // Get teams by hackathon ID
 router.get('/:hackathonId/teams', getTeamsByHackathon);
 
+// Get discussions by hackathon ID
+router.get(
+  '/:hackathonId/discussions',
+  auth,
+  getDiscussionsByHackathon
+);
 
 /* ================= PUBLIC DISCOVERY ================= */
 

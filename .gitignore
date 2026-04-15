@@ -1,14 +1,15 @@
-node_modules
+node_modules/
 .env
+.DS_Store
+*.log
+dist/
+build/
+.vscode/
+.idea/
 package-lock.json
 data.json
 ./vscode/c_cpp_properties.json
-.DS_Store
-/build
-/dist
 /logs
-.DS_Store
-.vscode/
 changes.txt
 Idea 2.0 user dashboard.mov
 test
