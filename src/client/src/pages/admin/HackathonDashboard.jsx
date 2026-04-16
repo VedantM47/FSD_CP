@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext'; 
-import Navbar from '../../components/common/Navbar'; 
+import { useAuth } from '../../context/AuthContext';
+import Navbar from '../../components/common/Navbar';
 import { getHackathonById } from '../../services/api';
 import '../../styles/admin.css';
 
 function HackathonDashboard() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth(); 
+  const { user } = useAuth();
 
   const [hackathon, setHackathon] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -109,7 +109,7 @@ function HackathonDashboard() {
               >
                 View Page
               </button>
-              
+
               <button
                 className="btn-secondary"
                 onClick={() => navigate(`/hackathon/${id}/discussion`)}
@@ -177,27 +177,27 @@ function HackathonDashboard() {
               <h2 style={{ fontSize: '1.1rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', marginBottom: '15px' }}>Problem Statements</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {hackathon.problemStatements.map((ps, index) => (
-                  <div 
-                    key={index} 
-                    style={{ 
-                      padding: '20px', 
-                      backgroundColor: '#f8fafc', 
+                  <div
+                    key={index}
+                    style={{
+                      padding: '20px',
+                      backgroundColor: '#f8fafc',
                       borderRadius: '12px',
                       border: '1px solid #e2e8f0'
                     }}
                   >
-                    <h3 style={{ 
-                      margin: '0 0 12px 0', 
-                      fontSize: '1.05rem', 
-                      fontWeight: '600', 
-                      color: '#0f172a' 
+                    <h3 style={{
+                      margin: '0 0 12px 0',
+                      fontSize: '1.05rem',
+                      fontWeight: '600',
+                      color: '#0f172a'
                     }}>
                       {index + 1}. {ps.title}
                     </h3>
-                    <p style={{ 
-                      margin: 0, 
-                      fontSize: '0.95rem', 
-                      lineHeight: '1.6', 
+                    <p style={{
+                      margin: 0,
+                      fontSize: '0.95rem',
+                      lineHeight: '1.6',
                       color: '#475569',
                       whiteSpace: 'pre-wrap'
                     }}>
@@ -215,37 +215,37 @@ function HackathonDashboard() {
               <h2 style={{ fontSize: '1.1rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', marginBottom: '15px' }}>Rounds</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {hackathon.rounds.map((round, index) => (
-                  <div 
-                    key={index} 
-                    style={{ 
-                      padding: '20px', 
-                      backgroundColor: '#fef3c7', 
+                  <div
+                    key={index}
+                    style={{
+                      padding: '20px',
+                      backgroundColor: '#fef3c7',
                       borderRadius: '12px',
                       border: '1px solid #fbbf24'
                     }}
                   >
-                    <h3 style={{ 
-                      margin: '0 0 12px 0', 
-                      fontSize: '1.05rem', 
-                      fontWeight: '600', 
-                      color: '#92400e' 
+                    <h3 style={{
+                      margin: '0 0 12px 0',
+                      fontSize: '1.05rem',
+                      fontWeight: '600',
+                      color: '#92400e'
                     }}>
                       Round {index + 1}: {round.name}
                     </h3>
-                    <p style={{ 
-                      margin: '0 0 12px 0', 
-                      fontSize: '0.95rem', 
-                      lineHeight: '1.6', 
+                    <p style={{
+                      margin: '0 0 12px 0',
+                      fontSize: '0.95rem',
+                      lineHeight: '1.6',
                       color: '#78350f',
                       whiteSpace: 'pre-wrap'
                     }}>
                       {round.description}
                     </p>
-                    
+
                     {(round.startDate || round.endDate) && (
-                      <div style={{ 
-                        display: 'flex', 
-                        gap: '20px', 
+                      <div style={{
+                        display: 'flex',
+                        gap: '20px',
                         marginBottom: '12px',
                         fontSize: '0.85rem',
                         color: '#92400e'
@@ -262,9 +262,9 @@ function HackathonDashboard() {
                         )}
                       </div>
                     )}
-                    
+
                     {round.submissionRequirements && (
-                      <div style={{ 
+                      <div style={{
                         marginTop: '12px',
                         padding: '12px',
                         backgroundColor: '#fffbeb',
@@ -272,9 +272,9 @@ function HackathonDashboard() {
                         border: '1px solid #fcd34d'
                       }}>
                         <strong style={{ color: '#92400e', fontSize: '0.9rem' }}>Submission Requirements:</strong>
-                        <p style={{ 
-                          margin: '8px 0 0 0', 
-                          fontSize: '0.9rem', 
+                        <p style={{
+                          margin: '8px 0 0 0',
+                          fontSize: '0.9rem',
                           color: '#78350f',
                           whiteSpace: 'pre-wrap'
                         }}>
@@ -298,12 +298,12 @@ function HackathonDashboard() {
             {hackathon.prizes && hackathon.prizes.length > 0 ? (
               <div>
                 {hackathon.prizes.map((prize, index) => (
-                  <div key={index} style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    padding: '10px 15px', 
-                    background: '#f8fafc', 
-                    borderRadius: '8px', 
+                  <div key={index} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    padding: '10px 15px',
+                    background: '#f8fafc',
+                    borderRadius: '8px',
                     marginBottom: '10px',
                     border: '1px solid #e2e8f0'
                   }}>
@@ -313,9 +313,9 @@ function HackathonDashboard() {
                     </span>
                   </div>
                 ))}
-                <div style={{ 
-                  marginTop: '15px', 
-                  paddingTop: '15px', 
+                <div style={{
+                  marginTop: '15px',
+                  paddingTop: '15px',
                   borderTop: '2px solid #e2e8f0',
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -328,7 +328,7 @@ function HackathonDashboard() {
                 </div>
               </div>
             ) : (
-              <p style={{ color: '#334155', fontWeight: '600', fontSize: '1.2rem', color: '#059669' }}>{hackathon.prizePool}</p>
+              <p style={{ fontWeight: '600', fontSize: '1.2rem', color: '#059669' }}>{hackathon.prizePool}</p>
             )}
           </section>
         </div>

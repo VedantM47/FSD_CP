@@ -28,7 +28,7 @@ if (credentialsPresent) {
           $or: [{ githubId: profile.id }, { email: email }] 
         });
         console.log(`✅ New GitHub User Created: ${user.fullName}`);
-      } else if (!user.githubId) {
+      if (!user.githubId) {
         // 4. If user exists by email but GitHub isn't linked, link it now
         user.githubId = profile.id;
         user.authProvider = 'github'; 

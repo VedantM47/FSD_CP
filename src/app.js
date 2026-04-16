@@ -37,7 +37,6 @@ import adminRoutes from './routes/admin.routes.js';
 import profileRoutes from './routes/profile.routes.js';
 import organizerRoutes from './routes/organizer.routes.js';
 import participantRoutes from './routes/participant.routes.js';
-import recommendationRoutes from './routes/recommendation.routes.js';
 
 // Resolve paths for ES modules
 const __filename = fileURLToPath(import.meta.url);

@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "../../components/common/Navbar"
 import Footer from "../../components/common/Footer";
-import { searchHackathonMembers, inviteMember } from "../../services/api";
-import { discoverMembers, inviteMember } from "../../services/api";
+import { discoverMembers, inviteMember, searchHackathonMembers } from "../../services/api";
 
 
 const FindMembers = () => {
