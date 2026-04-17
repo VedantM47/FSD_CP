@@ -5,7 +5,7 @@ import Hero from "../../components/user/Hero";
 import FilterBar from "../../components/user/FilterBar";
 import HackathonCard from "../../components/user/cards/HackathonCard";
 import Footer from "../../components/common/Footer";
-import API, { getAuthHeaders } from "../../services/api";
+import { API, getAuthHeaders } from "../../services/api";
 import "../../styles/discovery.css";
 
 const Discovery = () => {

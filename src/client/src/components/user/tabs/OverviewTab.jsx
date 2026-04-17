@@ -1,5 +1,5 @@
-import API, { getAuthHeaders } from "../../../services/api";
 import { useState } from "react";
+import { API, getAuthHeaders } from "../../../services/api";
 
 const OverviewTab = ({ user, hackathons, teams, navigate, onUpdate }) => {
   const activeHackathons = (hackathons || []).filter(

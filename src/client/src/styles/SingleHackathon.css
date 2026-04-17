@@ -141,19 +141,12 @@
   border-bottom: 2px solid #E2E8F0;
   padding: 20px 0 20px;
   position: sticky;
-<<<<<<< HEAD
   top: 72px;
   background: #F2F2F2; 
   z-index: 999;
   margin-bottom: 80px; /* INCREASED: More physical space below tabs */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
   min-height: 65px;
-=======
-  top: 80px; /* Proper spacing below navbar */
-  background: #F4F7F9;
-  z-index: 10;
-  padding-top: 15px;
->>>>>>> 1aaf7158a97c4cd0f3907c063abc4a46726cbc1a
 }
 
 .sh-tab {
@@ -185,7 +178,6 @@
   padding: 36px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   border: 1px solid #E2E8F0;
-<<<<<<< HEAD
   scroll-margin-top: 240px; /* INCREASED: navbar (72px) + tabs (65px) + margin (80px) + buffer (23px) */
   margin-top: 0;
   margin-bottom: 24px;
@@ -210,9 +202,6 @@ div[id="Rounds"] {
 /* Last content card */
 .sh-content-card:last-of-type {
   margin-bottom: 40px;
-=======
-  scroll-margin-top: 120px; /* Adjusted for proper navbar + tabs spacing */
->>>>>>> 1aaf7158a97c4cd0f3907c063abc4a46726cbc1a
 }
 
 .sh-card-title {
@@ -598,26 +587,6 @@ input:checked + .slider:before { transform: translateX(20px); }
   box-shadow: none !important; /* Removes the heavy antique depth */
 }
 
-<<<<<<< HEAD
-=======
-/* 3. The Navbar "Magic Fix" */
-.sh-content-card {
-  scroll-margin-top: 120px !important; /* Forces the browser to stop BEFORE the sticky nav */
-}
-
-.sh-tabs-container {
-  position: sticky !important;
-  top: 80px !important; 
-  z-index: 1000 !important;
-  background: #F4F7F9 !important;
-  padding-top: 10px !important;
-}
-
-#About, #Timeline, #Prizes, #Rules {
-  scroll-margin-top: 120px !important;
-}
-
->>>>>>> 1aaf7158a97c4cd0f3907c063abc4a46726cbc1a
 /* AI Recommendation Button */
 .ai-assistant-btn {
   position: fixed;

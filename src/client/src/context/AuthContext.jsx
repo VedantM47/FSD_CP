@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import API, { getMe } from "../services/api";
+import { API, getMe } from "../services/api";
 import {
     saveAuthToken,
     getAuthToken,

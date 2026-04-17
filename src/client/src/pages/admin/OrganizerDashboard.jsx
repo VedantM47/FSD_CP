@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/common/Navbar'; // CHANGED: Using universal Navbar
-import API, { getAuthHeaders } from "../../services/api";
-import { getOrganizerHackathons } from '../../services/api';
+import { API, getAuthHeaders, getOrganizerHackathons } from '../../services/api';
 import '../../styles/admin.css';
 
 /* ─── Status colour map ─────────────────────────────── */

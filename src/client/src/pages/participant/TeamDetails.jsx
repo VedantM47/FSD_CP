@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import API, { getAuthHeaders, requestJoinTeam, withdrawJoinRequest, getMe } from '../../services/api';
+import { API, getAuthHeaders, requestJoinTeam, withdrawJoinRequest, getMe } from '../../services/api';
 import Navbar from '../../components/common/Navbar';
 
 const TeamDetails = () => {

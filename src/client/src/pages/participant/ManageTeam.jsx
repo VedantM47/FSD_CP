@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import API, { getAuthHeaders } from '../../services/api';
+import { API, getAuthHeaders } from '../../services/api';
 import Navbar from '../../components/common/Navbar';
 
 const ManageTeam = () => {

@@ -27,14 +27,6 @@ if (credentialsPresent) {
         let user = await User.findOne({ 
           $or: [{ githubId: profile.id }, { email: email }] 
         });
-        console.log(`✅ New GitHub User Created: ${user.fullName}`);
-      } else if (!user.githubId) {
-        // 4. If user exists by email but GitHub isn't linked, link it now
-        user.githubId = profile.id;
-        user.authProvider = 'github'; 
-        await user.save();
-        console.log(`Linked GitHub to existing account: ${user.email}`);
-      }
 
         if (!user) {
           // 3. Create new user if not found
