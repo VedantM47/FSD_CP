@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import API, { getAuthHeaders, getHackathonById, getMe } from '../../services/api';
+import { API, getAuthHeaders, getHackathonById, getMe } from '../../services/api';
 import Footer from '../../components/judge/Footer';
 import '../../styles/SubmitProject.css';
 

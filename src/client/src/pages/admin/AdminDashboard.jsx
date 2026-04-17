@@ -138,13 +138,13 @@ function AdminDashboard() {
       <main className="admin-main">
         <div className="admin-container">
           {/* PAGE HEADER & CREATE BUTTON */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', background: 'linear-gradient(135deg, #1e3a8a 0%, #312e81 100%)', padding: '30px', borderRadius: '12px', color: 'white' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', background: '#F2F2F2', padding: '30px', borderRadius: '12px', color: '#0B3C6F', border: '1px solid #A9B7C6' }}>
             <div>
               <h1 style={{ fontSize: '2rem', margin: '0 0 10px 0', fontWeight: 'bold' }}>Welcome, Admin</h1>
               <p style={{ margin: 0, opacity: 0.8 }}>Manage hackathons, users, and platform settings.</p>
             </div>
             <button
-              style={{ background: '#10b981', color: 'white', padding: '15px 30px', borderRadius: '8px', border: 'none', fontSize: '1.2rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+              style={{ background: '#4A90E2', color: '#F2F2F2', padding: '15px 30px', borderRadius: '8px', border: 'none', fontSize: '1.2rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
               onClick={() => navigate('/admin/hackathons/create')}
             >
               + Create New Hackathon
@@ -160,9 +160,15 @@ function AdminDashboard() {
               <StatsCard
                 label="Active Hackathons"
                 value={stats?.activeHackathons ?? 0}
+                highlight="blue"
+                accent="yellow"
               />
               <StatsCard label="Teams" value={stats?.teams ?? 0} />
-              <StatsCard label="Submissions" value={stats?.submissions ?? 0} />
+              <StatsCard 
+                label="Submissions" 
+                value={stats?.submissions ?? 0} 
+                highlight="blue"
+              />
               <StatsCard label="Users" value={stats?.users ?? 0} />
             </div>
           </section>
@@ -177,11 +183,11 @@ function AdminDashboard() {
 
             {/* EMAIL QUEUE STATUS */}
             {queueStatus && (
-              <div style={{ marginTop: '15px', padding: '14px 20px', borderRadius: '10px', background: queueStatus.smtpConfigured ? '#ecfdf5' : '#fef3c7', border: `1px solid ${queueStatus.smtpConfigured ? '#6ee7b7' : '#fcd34d'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '600', color: queueStatus.smtpConfigured ? '#065f46' : '#92400e' }}>
+              <div style={{ marginTop: '15px', padding: '14px 20px', borderRadius: '10px', background: '#E8D28C', border: `1px solid #A9B7C6`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '600', color: '#0B3C6F' }}>
                   <span>Email {queueStatus.smtpConfigured ? 'SMTP Ready' : 'SMTP Not Configured — Add EMAIL_USER & EMAIL_PASS to .env'}</span>
                 </div>
-                <div style={{ display: 'flex', gap: '20px', fontSize: '0.85rem', color: '#4b5563' }}>
+                <div style={{ display: 'flex', gap: '20px', fontSize: '0.85rem', color: '#0B3C6F' }}>
                   <span>Queued: <strong>{queueStatus.queued}</strong></span>
                   <span>Processing: <strong>{queueStatus.isProcessing ? 'Yes' : 'No'}</strong></span>
                 </div>
@@ -192,15 +198,15 @@ function AdminDashboard() {
           {/* BROADCAST SECTION */}
           <section className="applications-section" style={{ marginTop: '40px' }}>
             <h2 className="section-title">Communication & Broadcasts</h2>
-            <div style={{ background: '#fff', padding: '25px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+            <div style={{ background: '#F2F2F2', padding: '25px', borderRadius: '12px', border: '1px solid #A9B7C6' }}>
               <form onSubmit={handleBroadcast}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                   <div>
-                    <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#374151' }}>Target Audience</label>
+                    <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#0B3C6F' }}>Target Audience</label>
                     <select
                       value={broadcastTarget}
                       onChange={(e) => setBroadcastTarget(e.target.value)}
-                      style={{ width: '100%', padding: '12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '1rem', background: '#f9fafb' }}
+                      style={{ width: '100%', padding: '12px', border: '1px solid #A9B7C6', borderRadius: '6px', fontSize: '1rem', background: '#F2F2F2', color: '#0B3C6F' }}
                     >
                       <option value="all_users">All Registered Users</option>
                       <option value="hackathon_participants">Participants of a Specific Hackathon</option>
@@ -208,11 +214,11 @@ function AdminDashboard() {
                   </div>
                   {broadcastTarget === 'hackathon_participants' && (
                     <div>
-                      <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#374151' }}>Select Hackathon</label>
+                      <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#0B3C6F' }}>Select Hackathon</label>
                       <select
                         value={targetHackathon}
                         onChange={(e) => setTargetHackathon(e.target.value)}
-                        style={{ width: '100%', padding: '12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '1rem', background: '#f9fafb' }}
+                        style={{ width: '100%', padding: '12px', border: '1px solid #A9B7C6', borderRadius: '6px', fontSize: '1rem', background: '#F2F2F2', color: '#0B3C6F' }}
                       >
                         <option value="">-- Choose Hackathon --</option>
                         {hackathons.map((h) => (
@@ -224,31 +230,31 @@ function AdminDashboard() {
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#374151' }}>Email Subject</label>
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#0B3C6F' }}>Email Subject</label>
                   <input
                     type="text"
                     value={broadcastSubject}
                     onChange={(e) => setBroadcastSubject(e.target.value)}
                     placeholder="Enter an engaging subject line..."
-                    style={{ width: '100%', padding: '12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '1rem' }}
+                    style={{ width: '100%', padding: '12px', border: '1px solid #A9B7C6', borderRadius: '6px', fontSize: '1rem', background: '#F2F2F2', color: '#0B3C6F' }}
                   />
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#374151' }}>Email Body (HTML supported)</label>
+                  <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#0B3C6F' }}>Email Body (HTML supported)</label>
                   <textarea
                     rows="6"
                     value={broadcastBody}
                     onChange={(e) => setBroadcastBody(e.target.value)}
                     placeholder="Type your email content here. You can use HTML tags like <b>bold</b> or <br>."
-                    style={{ width: '100%', padding: '12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '1rem', resize: 'vertical', fontFamily: 'monospace' }}
+                    style={{ width: '100%', padding: '12px', border: '1px solid #A9B7C6', borderRadius: '6px', fontSize: '1rem', resize: 'vertical', fontFamily: 'monospace', background: '#F2F2F2', color: '#0B3C6F' }}
                   ></textarea>
                 </div>
 
                 <button 
                   type="submit" 
                   disabled={isBroadcasting}
-                  style={{ background: isBroadcasting ? '#9ca3af' : '#2563eb', color: 'white', padding: '12px 24px', borderRadius: '6px', border: 'none', fontSize: '1rem', fontWeight: 'bold', cursor: isBroadcasting ? 'not-allowed' : 'pointer', width: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center', transition: 'background 0.2s' }}>
+                  style={{ background: isBroadcasting ? '#A9B7C6' : '#4A90E2', color: '#F2F2F2', padding: '12px 24px', borderRadius: '6px', border: 'none', fontSize: '1rem', fontWeight: 'bold', cursor: isBroadcasting ? 'not-allowed' : 'pointer', width: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center', transition: 'background 0.2s' }}>
                   {isBroadcasting ? 'Sending...' : 'Send Broadcast'}
                 </button>
               </form>

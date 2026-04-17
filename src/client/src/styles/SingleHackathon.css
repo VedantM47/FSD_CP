@@ -1,10 +1,12 @@
 /* --- Global Wrapper --- */
 .sh-wrapper {
-  background-color: #F4F7F9; /* Matches profile light background */
+  background-color: #F2F2F2; /* Standard background */
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   color: #1E293B;
-  padding-bottom: 60px;
 }
 
 /* Remove ugly black outline on click globally for this component */
@@ -18,8 +20,9 @@
 /* --- Top Bar & Back Button --- */
 .sh-topbar {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
-  padding: 24px 20px 0;
+  padding: 24px 24px 0;
   display: flex; /* Ensures alignment */
   align-items: center;
 }
@@ -46,8 +49,9 @@
 /* --- Hero Section --- */
 .sh-hero-container {
   max-width: 1200px;
-  margin: 16px auto 30px; /* Reduced margin to fix uneven top */
-  padding: 0 20px;
+  width: 100%;
+  margin: 20px auto; 
+  padding: 0 24px;
 }
 
 .sh-hero-card {
@@ -86,7 +90,7 @@
 .sh-title {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #0F172A;
+  color: #0B3C6F; /* Dark navy */
   margin: 0 0 10px 0;
   letter-spacing: -0.5px;
 }
@@ -100,12 +104,14 @@
 /* --- Layout --- */
 .sh-layout {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
   display: grid;
   grid-template-columns: 2.5fr 1fr;
   gap: 24px;
   align-items: start;
+  flex: 1; /* Pushes footer down naturally */
 }
 
 @media (max-width: 900px) {
@@ -118,20 +124,29 @@
 .sh-main {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 0; /* Remove gap, use margin on cards instead */
+  position: relative; /* Establish positioning context */
 }
 
-/* Profile-Style Tabs */
+/* Ensure content wrapper doesn't overlap with tabs */
+.sh-main > .sh-tabs-container ~ * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Profile-Style Tabs - FIXED TO PREVENT OVERLAP */
 .sh-tabs-container {
   display: flex;
   gap: 24px;
-  border-bottom: 1px solid #E2E8F0;
-  padding-bottom: 2px;
+  border-bottom: 2px solid #E2E8F0;
+  padding: 20px 0 20px;
   position: sticky;
-  top: 80px; /* Proper spacing below navbar */
-  background: #F4F7F9;
-  z-index: 10;
-  padding-top: 15px;
+  top: 72px;
+  background: #F2F2F2; 
+  z-index: 999;
+  margin-bottom: 80px; /* INCREASED: More physical space below tabs */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  min-height: 65px;
 }
 
 .sh-tab {
@@ -144,6 +159,7 @@
   cursor: pointer;
   border-bottom: 3px solid transparent;
   transition: all 0.2s ease-in-out;
+  white-space: nowrap;
 }
 
 .sh-tab:hover {
@@ -155,14 +171,37 @@
   border-bottom: 3px solid #2563EB;
 }
 
-/* Content Cards */
+/* Content Cards - CRITICAL: Prevent overlap with tabs */
 .sh-content-card {
   background: #FFFFFF;
   border-radius: 16px;
   padding: 36px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   border: 1px solid #E2E8F0;
-  scroll-margin-top: 120px; /* Adjusted for proper navbar + tabs spacing */
+  scroll-margin-top: 240px; /* INCREASED: navbar (72px) + tabs (65px) + margin (80px) + buffer (23px) */
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+/* Ensure all sections with IDs have proper scroll offset */
+#About,
+#Timeline,
+#Prizes,
+#Rules,
+#Teams,
+div[id="Problem Statements"],
+div[id="Rounds"] {
+  scroll-margin-top: 240px; /* Match content card offset */
+}
+
+/* First content card needs significant top spacing to clear tabs */
+.sh-content-card:first-of-type {
+  margin-top: 50px;
+}
+
+/* Last content card */
+.sh-content-card:last-of-type {
+  margin-bottom: 40px;
 }
 
 .sh-card-title {
@@ -319,7 +358,23 @@
   flex-direction: column;
   gap: 24px;
   position: sticky;
-  top: 80px; 
+  top: 140px; /* Below navbar (72px) + tabs (60px) + spacing (8px) */
+}
+
+/* Ensure judge button is visually prominent */
+.sh-judge-view .btn-primary {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  background-color: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4);
+}
+.sh-judge-view .btn-primary:hover {
+  background-color: #1d4ed8;
 }
 
 .sh-sidebar-card {
@@ -530,23 +585,6 @@ input:checked + .slider:before { transform: translateX(20px); }
 .sh-tabs-container button {
   outline: none !important;
   box-shadow: none !important; /* Removes the heavy antique depth */
-}
-
-/* 3. The Navbar "Magic Fix" */
-.sh-content-card {
-  scroll-margin-top: 120px !important; /* Forces the browser to stop BEFORE the sticky nav */
-}
-
-.sh-tabs-container {
-  position: sticky !important;
-  top: 80px !important; 
-  z-index: 1000 !important;
-  background: #F4F7F9 !important;
-  padding-top: 10px !important;
-}
-
-#About, #Timeline, #Prizes, #Rules {
-  scroll-margin-top: 120px !important;
 }
 
 /* AI Recommendation Button */

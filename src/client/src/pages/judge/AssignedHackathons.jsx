@@ -226,18 +226,21 @@ const AssignedHackathons = () => {
       <main className="page-main">
         <div className="page-container">
           <div className="page-header">
-            <button
-              onClick={() => navigate(-1)}
-              className="back-button"
-              style={{ marginBottom: "16px" }}
-            >
-              ← Back
-            </button>
-            <h1 className="page-title">Assigned Hackathons</h1>
-            <p className="page-subtitle">
-              Review and evaluate team submissions for hackathons you are
-              judging.
-            </p>
+            <div className="page-header-top">
+              <button
+                onClick={() => navigate(-1)}
+                className="back-button"
+              >
+                ← Back
+              </button>
+            </div>
+            <div className="page-header-content">
+              <h1 className="page-title">Assigned Hackathons</h1>
+              <p className="page-subtitle">
+                Review and evaluate team submissions for hackathons you are
+                judging.
+              </p>
+            </div>
           </div>
 
           {hackathons.length === 0 ? (

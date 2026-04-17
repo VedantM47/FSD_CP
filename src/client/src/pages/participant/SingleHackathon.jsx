@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Footer from '../../components/judge/Footer'; 
 import Navbar from "../../components/common/Navbar";
-import API, { getAuthHeaders, getHackathonById } from '../../services/api'; 
+import { API, getAuthHeaders, getHackathonById } from '../../services/api'; 
 import DiscussionLink from '../../components/common/DiscussionLink';
 import '../../styles/SingleHackathon.css';
 

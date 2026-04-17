@@ -5,12 +5,12 @@ import { getAdminUsers, updateAdminUserRole, getAdminHackathons } from '../../se
    Role colour mapping
    ──────────────────────────────────────────────── */
 const ROLE_COLOR = {
-  admin:     { bg: '#fef3c7', text: '#92400e', border: '#fcd34d' },
-  mentor:    { bg: '#ede9fe', text: '#5b21b6', border: '#c4b5fd' },
-  user:      { bg: '#f3f4f6', text: '#4b5563', border: '#e5e7eb' },
-  judge:     { bg: '#dbeafe', text: '#1e40af', border: '#93c5fd' },
-  organizer: { bg: '#d1fae5', text: '#065f46', border: '#6ee7b7' },
-  participant:{ bg: '#fce7f3', text: '#9d174d', border: '#fbcfe8' },
+  admin:     { bg: '#E8D28C', text: '#0B3C6F', border: '#E8D28C' },
+  mentor:    { bg: '#4A90E2', text: '#F2F2F2', border: '#4A90E2' },
+  user:      { bg: '#F2F2F2', text: '#A9B7C6', border: '#A9B7C6' },
+  judge:     { bg: '#0B3C6F', text: '#F2F2F2', border: '#0B3C6F' },
+  organizer: { bg: '#4A90E2', text: '#F2F2F2', border: '#4A90E2' },
+  participant:{ bg: '#F2F2F2', text: '#0B3C6F', border: '#A9B7C6' },
 };
 
 const Pill = ({ label }) => {
@@ -23,9 +23,9 @@ const Pill = ({ label }) => {
 };
 
 const SELECT_STYLE = {
-  padding: '9px 12px', borderRadius: '8px', border: '1.5px solid #e5e7eb',
-  fontSize: '0.88rem', outline: 'none', background: '#f9fafb', cursor: 'pointer',
-  color: '#374151',
+  padding: '9px 12px', borderRadius: '8px', border: '1.5px solid #A9B7C6',
+  fontSize: '0.88rem', outline: 'none', background: '#F2F2F2', cursor: 'pointer',
+  color: '#0B3C6F',
 };
 
 /* ────────────────────────────────────────────────
@@ -179,21 +179,21 @@ export default function RoleManagement() {
     <section style={{ marginTop: '40px', position: 'relative' }}>
       {/* Toast */}
       {toast && (
-        <div style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 9999, background: toast.type === 'error' ? '#ef4444' : '#10b981', color: 'white', padding: '14px 24px', borderRadius: '12px', fontWeight: 'bold', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', fontSize: '0.95rem' }}>
+        <div style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 9999, background: toast.type === 'error' ? '#E8D28C' : '#4A90E2', color: toast.type === 'error' ? '#0B3C6F' : '#F2F2F2', padding: '14px 24px', borderRadius: '12px', fontWeight: 'bold', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', fontSize: '0.95rem' }}>
           {toast.msg}
         </div>
       )}
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-        <h2 style={{ margin: 0, fontSize: '1.4rem', color: '#111827', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <h2 style={{ margin: 0, fontSize: '1.4rem', color: '#0B3C6F', display: 'flex', alignItems: 'center', gap: '8px' }}>
           Role Management
         </h2>
-        <span style={{ fontSize: '0.85rem', color: '#6b7280', background: '#f3f4f6', padding: '5px 12px', borderRadius: '99px' }}>{summaryText}</span>
+        <span style={{ fontSize: '0.85rem', color: '#A9B7C6', background: '#F2F2F2', padding: '5px 12px', borderRadius: '99px', border: '1px solid #A9B7C6' }}>{summaryText}</span>
       </div>
 
       {/* Search Bar */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', background: '#fff', padding: '16px 20px', borderRadius: '14px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', background: '#F2F2F2', padding: '16px 20px', borderRadius: '14px', border: '1px solid #A9B7C6' }}>
         <div style={{ position: 'relative', flex: '1' }}>
           <input
             value={searchInput}
@@ -205,16 +205,16 @@ export default function RoleManagement() {
         </div>
         <button
           onClick={handleSearch}
-          style={{ padding: '9px 24px', borderRadius: '8px', border: 'none', background: '#2563eb', color: 'white', fontWeight: '700', cursor: 'pointer', fontSize: '0.88rem', whiteSpace: 'nowrap', transition: 'background 0.15s' }}
-          onMouseOver={e => e.currentTarget.style.background = '#1d4ed8'}
-          onMouseOut={e => e.currentTarget.style.background = '#2563eb'}
+          style={{ padding: '9px 24px', borderRadius: '8px', border: 'none', background: '#4A90E2', color: '#F2F2F2', fontWeight: '700', cursor: 'pointer', fontSize: '0.88rem', whiteSpace: 'nowrap', transition: 'background 0.15s' }}
+          onMouseOver={e => e.currentTarget.style.background = '#0B3C6F'}
+          onMouseOut={e => e.currentTarget.style.background = '#4A90E2'}
         >
           Search
         </button>
         {searchQuery && (
           <button
             onClick={handleClearSearch}
-            style={{ padding: '9px 16px', borderRadius: '8px', border: '1.5px solid #fca5a5', background: '#fee2e2', color: '#b91c1c', fontWeight: '700', cursor: 'pointer', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+            style={{ padding: '9px 16px', borderRadius: '8px', border: '1.5px solid #E8D28C', background: '#E8D28C', color: '#0B3C6F', fontWeight: '700', cursor: 'pointer', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
           >
             Clear
           </button>
@@ -223,21 +223,21 @@ export default function RoleManagement() {
 
       {/* Table */}
       {loading ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: '#9ca3af', fontWeight: 'bold' }}>Loading users...</div>
+        <div style={{ padding: '60px', textAlign: 'center', color: '#A9B7C6', fontWeight: 'bold' }}>Loading users...</div>
       ) : (
         <>
-          <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', overflow: 'auto' }}>
+          <div style={{ background: '#F2F2F2', borderRadius: '16px', border: '1px solid #A9B7C6', overflow: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem', minWidth: '860px' }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e5e7eb' }}>
+                <tr style={{ background: '#F2F2F2', borderBottom: '2px solid #A9B7C6' }}>
                   {['User', 'Current Roles', 'Platform Role', 'Hackathon', 'Hackathon Role', 'Save'].map((h, i) => (
-                    <th key={i} style={{ padding: '13px 16px', textAlign: 'left', fontWeight: '700', color: '#6b7280', fontSize: '0.74rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
+                    <th key={i} style={{ padding: '13px 16px', textAlign: 'left', fontWeight: '700', color: '#A9B7C6', fontSize: '0.74rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {users.length === 0 && (
-                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '50px', color: '#9ca3af' }}>
+                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '50px', color: '#A9B7C6' }}>
                     {searchQuery ? `No users found matching "${searchQuery}"` : 'No users found.'}
                   </td></tr>
                 )}
@@ -245,19 +245,19 @@ export default function RoleManagement() {
                   const edit = getEdit(user._id);
                   return (
                     <tr key={user._id}
-                      style={{ borderBottom: '1px solid #f3f4f6', background: idx % 2 === 0 ? '#fff' : '#fafafa' }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#f0f9ff'}
-                      onMouseLeave={e => e.currentTarget.style.background = idx % 2 === 0 ? '#fff' : '#fafafa'}
+                      style={{ borderBottom: '1px solid #A9B7C6', background: '#F2F2F2' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#F2F2F2'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#F2F2F2'}
                     >
                       {/* User */}
                       <td style={{ padding: '13px 16px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0 }}>
+                          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#0B3C6F', color: '#F2F2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0 }}>
                             {user.fullName?.charAt(0).toUpperCase() || '?'}
                           </div>
                           <div>
-                            <div style={{ fontWeight: '600', color: '#1f2937' }}>{user.fullName}</div>
-                            <div style={{ color: '#9ca3af', fontSize: '0.78rem' }}>{user.email}</div>
+                            <div style={{ fontWeight: '600', color: '#0B3C6F' }}>{user.fullName}</div>
+                            <div style={{ color: '#A9B7C6', fontSize: '0.78rem' }}>{user.email}</div>
                           </div>
                         </div>
                       </td>
@@ -268,7 +268,7 @@ export default function RoleManagement() {
                           <Pill label={user.systemRole || 'user'} />
                           {(user.hackathonRoles || []).slice(0, 3).map((r, i) => <Pill key={i} label={r.role} />)}
                           {(user.hackathonRoles || []).length > 3 && (
-                            <span style={{ fontSize: '0.72rem', color: '#9ca3af', alignSelf: 'center' }}>+{user.hackathonRoles.length - 3} more</span>
+                            <span style={{ fontSize: '0.72rem', color: '#A9B7C6', alignSelf: 'center' }}>+{user.hackathonRoles.length - 3} more</span>
                           )}
                         </div>
                       </td>
@@ -306,9 +306,9 @@ export default function RoleManagement() {
                         <button
                           onClick={() => handleSave(user._id)}
                           disabled={saving === user._id}
-                          style={{ padding: '9px 18px', background: saving === user._id ? '#9ca3af' : '#2563eb', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: saving === user._id ? 'not-allowed' : 'pointer', fontSize: '0.83rem', whiteSpace: 'nowrap', transition: 'background 0.15s' }}
-                          onMouseOver={e => { if (saving !== user._id) e.currentTarget.style.background = '#1d4ed8'; }}
-                          onMouseOut={e => { if (saving !== user._id) e.currentTarget.style.background = '#2563eb'; }}
+                          style={{ padding: '9px 18px', background: saving === user._id ? '#A9B7C6' : '#4A90E2', color: '#F2F2F2', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: saving === user._id ? 'not-allowed' : 'pointer', fontSize: '0.83rem', whiteSpace: 'nowrap', transition: 'background 0.15s' }}
+                          onMouseOver={e => { if (saving !== user._id) e.currentTarget.style.background = '#0B3C6F'; }}
+                          onMouseOut={e => { if (saving !== user._id) e.currentTarget.style.background = '#4A90E2'; }}
                         >
                           {saving === user._id ? '...' : 'Save'}
                         </button>
@@ -322,8 +322,8 @@ export default function RoleManagement() {
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', padding: '16px 20px', background: '#fff', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-              <div style={{ fontSize: '0.88rem', color: '#6b7280' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', padding: '16px 20px', background: '#F2F2F2', borderRadius: '12px', border: '1px solid #A9B7C6' }}>
+              <div style={{ fontSize: '0.88rem', color: '#A9B7C6' }}>
                 Page {currentPage} of {totalPages}
               </div>
               
@@ -331,9 +331,9 @@ export default function RoleManagement() {
                 <button
                   onClick={handlePrevPage}
                   disabled={!hasPrevPage}
-                  style={{ padding: '8px 16px', borderRadius: '8px', border: '1.5px solid #e5e7eb', background: hasPrevPage ? '#fff' : '#f9fafb', color: hasPrevPage ? '#374151' : '#9ca3af', fontWeight: '600', cursor: hasPrevPage ? 'pointer' : 'not-allowed', fontSize: '0.85rem', transition: 'all 0.15s' }}
-                  onMouseOver={e => { if (hasPrevPage) e.currentTarget.style.background = '#f3f4f6'; }}
-                  onMouseOut={e => { if (hasPrevPage) e.currentTarget.style.background = '#fff'; }}
+                  style={{ padding: '8px 16px', borderRadius: '8px', border: '1.5px solid #A9B7C6', background: hasPrevPage ? '#F2F2F2' : '#F2F2F2', color: hasPrevPage ? '#0B3C6F' : '#A9B7C6', fontWeight: '600', cursor: hasPrevPage ? 'pointer' : 'not-allowed', fontSize: '0.85rem', transition: 'all 0.15s' }}
+                  onMouseOver={e => { if (hasPrevPage) e.currentTarget.style.background = '#A9B7C6'; }}
+                  onMouseOut={e => { if (hasPrevPage) e.currentTarget.style.background = '#F2F2F2'; }}
                 >
                   ← Previous
                 </button>
@@ -359,17 +359,17 @@ export default function RoleManagement() {
                         style={{ 
                           padding: '8px 12px', 
                           borderRadius: '8px', 
-                          border: pageNum === currentPage ? 'none' : '1.5px solid #e5e7eb', 
-                          background: pageNum === currentPage ? '#2563eb' : '#fff', 
-                          color: pageNum === currentPage ? '#fff' : '#374151', 
+                          border: pageNum === currentPage ? 'none' : '1.5px solid #A9B7C6', 
+                          background: pageNum === currentPage ? '#4A90E2' : '#F2F2F2', 
+                          color: pageNum === currentPage ? '#F2F2F2' : '#0B3C6F', 
                           fontWeight: '600', 
                           cursor: 'pointer', 
                           fontSize: '0.85rem',
                           minWidth: '36px',
                           transition: 'all 0.15s'
                         }}
-                        onMouseOver={e => { if (pageNum !== currentPage) e.currentTarget.style.background = '#f3f4f6'; }}
-                        onMouseOut={e => { if (pageNum !== currentPage) e.currentTarget.style.background = '#fff'; }}
+                        onMouseOver={e => { if (pageNum !== currentPage) e.currentTarget.style.background = '#A9B7C6'; }}
+                        onMouseOut={e => { if (pageNum !== currentPage) e.currentTarget.style.background = '#F2F2F2'; }}
                       >
                         {pageNum}
                       </button>
@@ -380,9 +380,9 @@ export default function RoleManagement() {
                 <button
                   onClick={handleNextPage}
                   disabled={!hasNextPage}
-                  style={{ padding: '8px 16px', borderRadius: '8px', border: '1.5px solid #e5e7eb', background: hasNextPage ? '#fff' : '#f9fafb', color: hasNextPage ? '#374151' : '#9ca3af', fontWeight: '600', cursor: hasNextPage ? 'pointer' : 'not-allowed', fontSize: '0.85rem', transition: 'all 0.15s' }}
-                  onMouseOver={e => { if (hasNextPage) e.currentTarget.style.background = '#f3f4f6'; }}
-                  onMouseOut={e => { if (hasNextPage) e.currentTarget.style.background = '#fff'; }}
+                  style={{ padding: '8px 16px', borderRadius: '8px', border: '1.5px solid #A9B7C6', background: hasNextPage ? '#F2F2F2' : '#F2F2F2', color: hasNextPage ? '#0B3C6F' : '#A9B7C6', fontWeight: '600', cursor: hasNextPage ? 'pointer' : 'not-allowed', fontSize: '0.85rem', transition: 'all 0.15s' }}
+                  onMouseOver={e => { if (hasNextPage) e.currentTarget.style.background = '#A9B7C6'; }}
+                  onMouseOut={e => { if (hasNextPage) e.currentTarget.style.background = '#F2F2F2'; }}
                 >
                   Next →
                 </button>

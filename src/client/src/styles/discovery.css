@@ -1,5 +1,5 @@
 .discovery-container {
-    background-color: #f8fafc;
+    background-color: #F2F2F2;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -82,7 +82,11 @@
     padding: 80px 20px;
     text-align: center;
     position: relative;
-    overflow: hidden;
+    min-height: 400px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .hero-content {
@@ -165,7 +169,7 @@
     padding: 15px 0;
     border-bottom: 1px solid #e2e8f0;
     position: sticky;
-    top: 0;
+    top: 70px; /* Sticks below Navbar */
     z-index: 50;
 }
 
@@ -387,6 +391,13 @@
     cursor: pointer;
 }
 
+.footer {
+    background-color: #002b5b;
+    color: white;
+    padding: 40px 20px;
+    text-align: center;
+    margin-top: auto; /* Ensures footer is always at bottom */
+}
 
 .btn-registered {
     flex: 1;

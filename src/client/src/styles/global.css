@@ -4,22 +4,34 @@
     box-sizing: border-box;
 }
 
-html,
+html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #F2F2F2;
+}
+
 body {
-    min-height: 100vh;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     overflow-x: hidden;
     overflow-y: auto;
-}
-
-body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     color: #1a202c;
-    background-color: #f8fafc;
+    background-color: #F2F2F2;
 }
 
 #root {
-    min-height: 100vh;
+    flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0; /* important for flex items containing scroll containers */
+}
+
+.footer {
+    margin-top: auto;
 }

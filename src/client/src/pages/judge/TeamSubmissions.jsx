@@ -314,28 +314,31 @@ const TeamSubmissions = () => {
 
       <main className="page-main">
         <div className="page-container">
-          <div className="submissions-header">
-            <button
-              onClick={() => navigate(-1)}
-              className="back-button"
-              style={{ marginBottom: "16px" }}
-            >
-              ← Back
-            </button>
-            <h1 className="page-title">Team Submissions & Evaluation</h1>
+          <div className="page-header">
+            <div className="page-header-top">
+              <button
+                onClick={() => navigate(-1)}
+                className="back-button"
+              >
+                ← Back
+              </button>
+            </div>
+            <div className="page-header-content">
+              <h1 className="page-title">Team Submissions & Evaluation</h1>
 
-            <div className="summary-pills">
-              <div className="summary-pill summary-total">
-                <span className="pill-label">Total Teams:</span>
-                <span className="pill-value">{totalTeams}</span>
-              </div>
-              <div className="summary-pill summary-evaluated">
-                <span className="pill-label">Evaluated:</span>
-                <span className="pill-value">{evaluatedCount}</span>
-              </div>
-              <div className="summary-pill summary-pending">
-                <span className="pill-label">Pending:</span>
-                <span className="pill-value">{pendingCount}</span>
+              <div className="summary-pills" style={{ justifyContent: "center" }}>
+                <div className="summary-pill summary-total">
+                  <span className="pill-label">Total Teams:</span>
+                  <span className="pill-value">{totalTeams}</span>
+                </div>
+                <div className="summary-pill summary-evaluated">
+                  <span className="pill-label">Evaluated:</span>
+                  <span className="pill-value">{evaluatedCount}</span>
+                </div>
+                <div className="summary-pill summary-pending">
+                  <span className="pill-label">Pending:</span>
+                  <span className="pill-value">{pendingCount}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -579,7 +582,9 @@ const TeamSubmissions = () => {
                         />
                       </td>
                       <td>
-                        <strong>{team.marks.toFixed(1)}</strong>
+                        <span className={team.marks > 0 ? "score-highlight" : ""}>
+                          {team.marks.toFixed(1)}
+                        </span>
                       </td>
                       <td>
                         <span

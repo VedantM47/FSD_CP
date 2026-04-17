@@ -158,5 +158,3 @@ export const handleApiError = (error) => {
     data: null,
   };
 };
-
-export default API;
