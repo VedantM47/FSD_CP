@@ -5,6 +5,77 @@
     min-height: 100vh;
 }
 
+.discovery-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 24px 20px;
+    position: sticky;
+    top: 56px;
+    z-index: 40;
+}
+
+.discovery-header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.discovery-search-wrapper {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 6px 6px 6px 16px;
+    flex: 1;
+    max-width: 600px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.discovery-search-wrapper:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-icon {
+    flex-shrink: 0;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.discovery-search-input {
+    border: none;
+    background: transparent;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    color: #334155;
+    flex: 1;
+    outline: none;
+}
+
+.discovery-search-btn {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.discovery-search-btn:hover {
+    background-color: #2563eb;
+}
+
 .hero-section {
     background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
     color: white;
@@ -127,12 +198,12 @@
 }
 
 .hackathon-grid {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 40px auto;
-    padding: 0 20px;
+    padding: 0 20;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
     flex: 1;
 }
 
@@ -144,6 +215,7 @@
     transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     flex-direction: column;
+    padding: 0 0 0 0;
 }
 
 .hackathon-card:hover {
@@ -153,7 +225,8 @@
 
 .card-image-container {
     position: relative;
-    height: 150px;
+    height: 200px;
+    flex-shrink: 0
 }
 
 .card-image {
@@ -166,17 +239,21 @@
     position: absolute;
     top: 12px;
     left: 12px;
-    background-color: #1e3a8a;
+    background-color: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     color: white;
-    padding: 4px 12px;
-    border-radius: 4px;
+    padding: 6px 14px;
+    border-radius: 6px;
     font-size: 0.75rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .card-content {
     padding: 12px;
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .card-title {
@@ -223,30 +300,25 @@
 .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 6px;
     margin-bottom: 8px;
 }
 
 .info-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.8rem;
+    gap: 4px;
+    font-size: 0.75rem;
     color: #64748b;
 }
 
-.card-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    padding: 10px 16px 14px;
-}
+
 
 .btn-primary {
     background-color: #3b82f6;
     color: white;
-    padding: 6px 14px;
-    border-radius: 5px;
+    padding: 6px 12px;
+    border-radius: 6px;
     font-weight: 600;
     text-align: center;
     border: none;
@@ -255,6 +327,10 @@
     transition: all 0.2s ease;
     white-space: nowrap;
     line-height: 1.2;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -271,8 +347,8 @@
 .btn-secondary {
     background-color: white;
     color: #3b82f6;
-    padding: 6px 14px;
-    border-radius: 5px;
+    padding: 6px 12px;
+    border-radius: 6px;
     font-weight: 600;
     text-align: center;
     border: 1.5px solid #3b82f6;
@@ -281,6 +357,10 @@
     transition: all 0.2s ease;
     white-space: nowrap;
     line-height: 1.2;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-secondary:hover {
@@ -307,90 +387,72 @@
     cursor: pointer;
 }
 
-.footer {
-    background-color: #002b5b;
-    color: white;
-    padding: 40px 20px;
-    text-align: center;
-}
 
-.footer-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.footer-nav {
-    display: flex;
-    gap: 24px;
-}
-
-.footer-link {
-    color: white;
-    opacity: 0.8;
-    font-size: 0.9rem;
-    text-decoration: none;
-}
-
-.footer-link:hover {
-    opacity: 1;
-}
-/* Premium Registered Button Style */
 .btn-registered {
-  flex: 1;
-  background: #ecfdf5;
-  color: #059669;
-  border: 1.5px solid #10b981;
-  padding: 6px 12px;
-  border-radius: 5px;
-  font-weight: 700;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  line-height: 1.2;
+    flex: 1;
+    background: #ecfdf5;
+    color: #059669;
+    border: 1.5px solid #10b981;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1.2;
 }
 
 .btn-registered:hover {
-  background: #d1fae5;
-  border-color: #059669;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+    background: #d1fae5;
+    border-color: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
 }
 
 /* Sleek Tick Icon Animation */
 .tick-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  background: #10b981;
-  color: white;
-  border-radius: 50%;
-  font-size: 12px;
-  font-weight: 900;
-  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: #10b981;
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 900;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
 /* Disabled/Ongoing Style */
 .btn-disabled {
-  background: #f1f5f9 !important;
-  color: #94a3b8 !important;
-  border: 1px solid #e2e8f0 !important;
-  cursor: not-allowed !important;
-  opacity: 0.8;
+    background: #f1f5f9 !important;
+    color: #94a3b8 !important;
+    border: 1px solid #e2e8f0 !important;
+    cursor: not-allowed !important;
+    opacity: 0.8;
 }
 
 /* Ensure consistent action bar layout */
 .card-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: auto;
-  padding: 20px;
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+    padding: 8px 12px 12px;
+}
+
+/* Ensure buttons themselves stretch identically */
+.btn-primary,
+.btn-secondary,
+.btn-registered,
+.btn-disabled {
+    flex: 1;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
