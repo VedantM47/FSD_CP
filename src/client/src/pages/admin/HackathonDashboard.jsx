@@ -328,7 +328,7 @@ function HackathonDashboard() {
                 </div>
               </div>
             ) : (
-              <p style={{ color: '#334155', fontWeight: '600', fontSize: '1.2rem', color: '#059669' }}>{hackathon.prizePool}</p>
+              <p style={{fontWeight: '600', fontSize: '1.2rem', color: '#059669' }}>{hackathon.prizePool}</p>
             )}
           </section>
         </div>

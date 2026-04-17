@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
 import { useAuth } from "../../context/AuthContext";
+import CountUp from 'react-countup';
+import * as THREE from 'three';
+import NET from 'vanta/dist/vanta.net.min';
 import "../../styles/home.css";
 
 /* =============== GATEWAY CARD DATA =============== */
@@ -73,15 +76,43 @@ const steps = [
 
 /* =============== STATS DATA =============== */
 const stats = [
-    { value: "50+", label: "Hackathons Hosted" },
-    { value: "1,200+", label: "Teams Formed" },
-    { value: "3,500+", label: "Projects Submitted" },
-    { value: "10,000+", label: "Participants" },
+    { value: 50, label: "Hackathons Hosted", suffix: "+" },
+    { value: 1200, label: "Teams Formed", suffix: "+" },
+    { value: 3500, label: "Projects Submitted", suffix: "+" },
+    { value: 10000, label: "Participants", suffix: "+" },
 ];
 
 const Home = () => {
     const navigate = useNavigate();
     const { isAuthenticated, user } = useAuth();
+    
+    // Vanta.js integration
+    const [vantaEffect, setVantaEffect] = useState(null);
+    const vantaRef = useRef(null);
+
+    useEffect(() => {
+        if (!vantaEffect && vantaRef.current) {
+            setVantaEffect(NET({
+                el: vantaRef.current,
+                THREE: THREE,
+                mouseControls: true,
+                touchControls: true,
+                gyroControls: false,
+                minHeight: 200.00,
+                minWidth: 200.00,
+                scale: 1.00,
+                scaleMobile: 1.00,
+                points: Math.floor(Math.random() * (22 - 18 + 1)) + 18, 
+                maxDistance: Math.floor(Math.random() * (25 - 20 + 1)) + 20,
+                spacing: Math.floor(Math.random() * (20 - 15 + 1)) + 15,
+                color: 0x60a5fa,
+                backgroundColor: 0x1e3a8a 
+            }));
+        }
+        return () => {
+            if (vantaEffect) vantaEffect.destroy();
+        };
+    }, [vantaEffect]);
 
     const handleCardClick = (e, g) => {
         e.preventDefault();
@@ -106,7 +137,7 @@ const Home = () => {
             <Navbar />
 
             {/* ===== HERO ===== */}
-            <section className="home-hero">
+            <section className="home-hero" ref={vantaRef}>
                 <div className="hero-content">
                     <div className="hero-badge">
                         <span>The Hackathon Hosting Platform</span>
@@ -199,30 +230,13 @@ const Home = () => {
                 <div className="stats-row">
                     {stats.map((s, i) => (
                         <div key={i} className="stat-item">
-                            <div className="stat-number">{s.value}</div>
+                            <div className="stat-number">
+                                <CountUp end={s.value} duration={2.5} separator="," enableScrollSpy scrollSpyOnce />
+                                {s.suffix}
+                            </div>
                             <div className="stat-label">{s.label}</div>
                         </div>
                     ))}
-                </div>
-            </section>
-
-            {/* ===== CTA ===== */}
-            <section className="cta-section">
-                <div className="cta-box">
-                    <h2 className="cta-title">Ready to Hack?</h2>
-                    <p className="cta-subtitle">
-                        Join thousands of developers, designers, and innovators building the
-                        future — one hackathon at a time.
-                    </p>
-                    {isAuthenticated ? (
-                        <Link to="/discovery" className="btn-cta">
-                            Go to Discovery →
-                        </Link>
-                    ) : (
-                        <Link to="/signup" className="btn-cta">
-                            Create Your Account →
-                        </Link>
-                    )}
                 </div>
             </section>
 

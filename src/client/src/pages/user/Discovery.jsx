@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
-import Hero from "../../components/user/Hero";
 import FilterBar from "../../components/user/FilterBar";
 import HackathonCard from "../../components/user/cards/HackathonCard";
 import Footer from "../../components/common/Footer";
-import { API, getAuthHeaders } from "../../services/api";
+import API, { getAuthHeaders } from "../../services/api";
+import { Search } from 'lucide-react';
 import "../../styles/discovery.css";
 
 const Discovery = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
 
   // --- STATE ---
@@ -21,6 +21,7 @@ const Discovery = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [visibleCount, setVisibleCount] = useState(6);
+  const [searchInput, setSearchInput] = useState(query);
 
   /**
    * ── Map backend hackathon → shape HackathonCard expects ──
@@ -128,7 +129,7 @@ const Discovery = () => {
       }
     };
     loadDiscoveryData();
-  }, []);
+  }, [query]);
 
   /* ── Memoized Filtering and Mapping ── */
   const filteredHackathons = useMemo(() => {
@@ -149,16 +150,44 @@ const Discovery = () => {
     setVisibleCount(6); 
   };
 
+  const handleSearchClick = () => {
+    if (searchInput.trim()) {
+      setSearchParams({ q: searchInput.trim() });
+    } else {
+      setSearchParams({});
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleSearchClick();
+  };
+
   return (
     <div className="discovery-container">
       <Navbar />
-      <FilterBar
-        activeFilter={activeFilter}
-        onFilterChange={handleFilterChange}
-      />
-      <Hero />
 
-      <main className="hackathon-grid">
+      <div className="discovery-header">
+        <div className="discovery-header-content">
+          <div className="discovery-search-wrapper">
+             <Search size={20} color="#64748b" className="search-icon" />
+             <input 
+               type="text"
+               value={searchInput}
+               onChange={(e) => setSearchInput(e.target.value)}
+               onKeyDown={handleKeyDown}
+               placeholder="Search hackathons, themes, or tech stacks..."
+               className="discovery-search-input"
+             />
+             <button onClick={handleSearchClick} className="discovery-search-btn">Search</button>
+          </div>
+          <FilterBar
+            activeFilter={activeFilter}
+            onFilterChange={handleFilterChange}
+          />
+        </div>
+      </div>
+
+      <main className="hackathon-grid" style={{ maxWidth: '1400px' }}>
         {loading && (
           <div className="empty-state-message">
             <p>Scanning for hackathons…</p>
@@ -194,9 +223,13 @@ const Discovery = () => {
 
         {!loading && !error && filteredHackathons.length === 0 && (
           <div className="empty-state-message">
-            <p>No hackathons match "{activeFilter}".</p>
-            <button className="btn-secondary" onClick={() => setActiveFilter("All")}>
-              Show All
+            <p>No hackathons match "{query || activeFilter}".</p>
+            <button className="btn-secondary" onClick={() => {
+              setActiveFilter("All");
+              setSearchInput("");
+              setSearchParams({});
+            }}>
+              Clear Filters
             </button>
           </div>
         )}

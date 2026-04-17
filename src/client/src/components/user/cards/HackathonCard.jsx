@@ -1,4 +1,5 @@
 import React from "react";
+import { Users, Globe, CalendarDays, Trophy, CheckCircle2 } from "lucide-react";
 
 const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
   // --- BUTTON LOGIC HELPERS ---
@@ -13,36 +14,10 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
     if (isRegistered) {
       return (
         <button
-          className="btn-success"
+          className="btn-registered"
           onClick={onViewDetails}
-          style={{
-            flex: 1,
-            background: "#10b981",
-            color: "white",
-            border: "none",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "8px",
-            cursor: "pointer"
-          }}
         >
-          <span
-            style={{
-              background: "white",
-              color: "#10b981",
-              borderRadius: "50%",
-              width: "18px",
-              height: "18px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "12px",
-              fontWeight: "700",
-            }}
-          >
-            ✓
-          </span>
+          <span className="tick-icon">✓</span>
           Registered
         </button>
       );
@@ -51,17 +26,7 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
     // Case 2: If hackathon is in DRAFT
     if (isDraft) {
       return (
-        <button
-          className="btn-primary"
-          disabled
-          style={{
-            flex: 1,
-            background: "#f1f5f9",
-            color: "#94a3b8",
-            border: "1px solid #e2e8f0",
-            cursor: "not-allowed",
-          }}
-        >
+        <button className="btn-primary btn-disabled" disabled>
           Coming Soon
         </button>
       );
@@ -70,17 +35,7 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
     // Case 3: If registration is closed (Date passed or Admin closed it)
     if (isOngoing || isClosed || isRegistrationClosed) {
       return (
-        <button
-          className="btn-primary"
-          disabled
-          style={{
-            flex: 1,
-            background: "#f1f5f9",
-            color: "#94a3b8",
-            border: "1px solid #e2e8f0",
-            cursor: "not-allowed",
-          }}
-        >
+        <button className="btn-primary btn-disabled" disabled>
           {isOngoing ? "Ongoing" : "Registration Closed"}
         </button>
       );
@@ -102,7 +57,7 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
           alt={hackathon.name}
           className="card-image"
         />
-        <span className={`status-badge status-${hackathon.status}`}>
+        <span className={`status-badge status-${hackathon.status}`} style={{ textTransform: 'capitalize' }}>
           {hackathon.status}
         </span>
       </div>
@@ -112,10 +67,10 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
         <p className="card-org">by {hackathon.organization}</p>
         <p className="card-description">{hackathon.description}</p>
 
-        <div className="tag-container">
+        <div className="tag-container" style={{ margin: '4px 0 8px 0' }}>
           {hackathon.tags &&
             hackathon.tags.map((tag) => (
-              <span key={tag} className={`tag tag-${tag}`}>
+              <span key={tag} className={`tag tag-${tag}`} style={{ textTransform: 'capitalize' }}>
                 {tag}
               </span>
             ))}
@@ -123,17 +78,18 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
 
         <div className="info-grid">
           <div className="info-item">
-            <span>•</span> Team Size: {hackathon.teamSize}
+            <Users size={10} color="#64748b" /> <span>{hackathon.teamSize}</span>
           </div>
           <div className="info-item">
-            <span>•</span> Mode: {hackathon.mode}
+            <Globe size={10} color="#64748b" /> <span>{hackathon.mode}</span>
           </div>
           <div className="info-item">
-            <span>•</span> Deadline: {hackathon.deadline}
+            <CalendarDays size={10} color="#64748b" /> <span>{hackathon.deadline}</span>
           </div>
           <div className="info-item">
-            <span>•</span> Prize Pool: {hackathon.prizePool}
+            <Trophy size={10} color="#64748b" /> <span>{hackathon.prizePool}</span>
           </div>
+          <div className="info-item"></div>
         </div>
       </div>
 
@@ -145,7 +101,7 @@ const HackathonCard = ({ hackathon, onRegister, onViewDetails }) => {
             onClick={onViewDetails}
             style={{ flex: 1 }}
           >
-            View Details
+            Details
           </button>
         )}
       </div>

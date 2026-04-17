@@ -6,20 +6,20 @@
 }
 
 .calendar-container {
-    max-width: 1400px;
-    width: 95%;
+    max-width: 1600px;
+    width: 98%;
     margin: 20px auto 20px;
     padding: 0 20px;
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 280px 1fr;
     gap: 40px;
     flex: 1;
 }
 
 /* Top Bar Toggles */
 .calendar-top-bar {
-    max-width: 1400px;
-    width: 95%;
+    max-width: 1600px;
+    width: 98%;
     margin: 30px auto 0;
     padding: 0 20px;
     display: flex;
@@ -247,7 +247,7 @@
 }
 
 .day-cell {
-    min-height: 160px;
+    min-height: 130px;
     height: auto;
     padding: 16px;
     border-right: 1px solid #e2e8f0;
