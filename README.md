@@ -455,3 +455,34 @@ No
 Notes / Dependencies:
 NA
 
+
+### LOG 10
+Changes in project log:
+
+Date: 2026-04-17
+Contributor: Sanika
+
+🔧 Type of Change: Bug Fix in the judge dashboard
+Files Modified:
+src/client/src/styles/layout.css
+src/client/src/styles/dashboard.css
+src/client/src/pages/judge/JudgeDashboard.jsx
+src/client/src/components/common/Navbar.jsx
+src/client/src/components/common/Footer.jsx
+src/client/src/components/dashboard/TabsNavigation.jsx
+
+Description:
+1. Fixed navbar positioning and removed unwanted top spacing
+2. Resolved tab (About, Timeline, etc.) overlap issue during scroll
+3. Corrected sticky offsets and z-index layering
+4. Improved alignment of back button, header, and content sections
+5. Standardized layout using flexbox (Navbar → Content → Footer)
+6. Fixed scrolling issues by removing nested scroll conflicts
+7. Resolved footer positioning across all judge dashboard pages
+8. Ensured consistent spacing and visual hierarchy throughout UI
+
+Database / Schema Changes:
+No
+
+Notes / Dependencies:
+NA
