@@ -42,7 +42,7 @@ const SingleHackathon = () => {
       try {
         setLoading(true);
 
-        // Fetch hackathon details
+        // Fetch hackathon details (now includes minTeamSize and maxTeamSize)
         const response = await getHackathonById(id);
         const hackData = response.data?.data || response.data;
         setHackathon(hackData);
@@ -85,20 +85,25 @@ const SingleHackathon = () => {
             );
             const memberStatus = currentMember?.status;
 
-            // Handle registration status flags
+            // Only 'pending' join requests block registration, not invites
+            setIsPendingRegistration(memberStatus === "pending");
+
+            // If user has 'invited' status, they are NOT a full accepted member
+            // Leader check: if user is the leader of the team, they are accepted
             const isLeaderOfTeam =
               teamDetails &&
               String(teamDetails.leader?._id || teamDetails.leader) ===
                 String(userData._id);
-            
             const isAccepted = isLeaderOfTeam || memberStatus === "accepted";
 
+            // Store unaccepted status for blocking dashboard
             setIsInvitedPending(memberStatus === "invited");
             setIsPendingRegistration(
               memberStatus === "pending" || memberStatus === "invited",
             );
 
             if (!isAccepted && !memberStatus) {
+              // Not actually in a team — reset teamDetails
               teamDetails = null;
             }
           } catch (teamErr) {
@@ -237,6 +242,7 @@ const SingleHackathon = () => {
       new Date() <= new Date(hackathon.registrationDeadline));
   const isSubmissionClosed = new Date() > new Date(hackathon.endDate);
 
+  // Dynamic Team Size Logic
   const minRequired = hackathon.minTeamSize || 1;
   const maxAllowed = hackathon.maxTeamSize || 4;
   const acceptedMembers =
@@ -245,11 +251,11 @@ const SingleHackathon = () => {
 
   return (
     <div className="sh-wrapper">
-      <Navbar />
         
       <div className="sh-topbar">
         <button className="sh-back-btn" onClick={() => navigate(-1)}>
-          &larr; Back
+          {" "}
+          &larr; Back{" "}
         </button>
       </div>
 
@@ -282,7 +288,7 @@ const SingleHackathon = () => {
                 >
                   {tab}
                 </button>
-              )
+              ),
             )}
           </div>
 
@@ -446,6 +452,7 @@ const SingleHackathon = () => {
             
             {hackathon.prizes && hackathon.prizes.length > 0 ? (
               <div>
+                {/* Prize Distribution List */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
                   {hackathon.prizes.map((prize, index) => (
                     <div 
@@ -478,6 +485,7 @@ const SingleHackathon = () => {
                   ))}
                 </div>
 
+                {/* Total Prize Pool Banner */}
                 <div className="prize-banner">
                   <div className="prize-icon">PRIZE</div>
                   <div className="prize-details">
@@ -669,19 +677,17 @@ const SingleHackathon = () => {
                 </div>
 
                 {!isPendingRegistration && (
-                  <>
-                    <button 
-                      className="btn-primary" 
-                      style={{ width: '100%', marginBottom: '1rem', backgroundColor: '#0f172a' }}
-                      onClick={() => navigate(`/user/hackathon/${id}/dashboard`)}
-                    >
-                      🚀 Go To Full Dashboard
-                    </button>
-                    
-                    <div style={{ display: 'flex', width: '100%', marginBottom: '1rem' }}>
-                      <DiscussionLink hackathonId={id} className="btn-secondary" />
-                    </div>
-                  </>
+                  <button
+                    className="btn-primary"
+                    style={{
+                      width: "100%",
+                      marginBottom: "1rem",
+                      backgroundColor: "#0f172a",
+                    }}
+                    onClick={() => navigate(`/user/hackathon/${id}/dashboard`)}
+                  >
+                    Go To Full Dashboard
+                  </button>
                 )}
 
                 <div className="countdown-section">
@@ -716,6 +722,7 @@ const SingleHackathon = () => {
                       </div>
                     </>
                   ) : !meetsCriteria && !isSubmissionClosed ? (
+                    /* DYNAMIC WARNING BOX */
                     <div
                       className="sh-warning-box"
                       style={{
@@ -818,6 +825,7 @@ const SingleHackathon = () => {
             <h3 className="sidebar-title">Requirements</h3>
             <div className="detail-row">
               <span className="detail-label">Team Size</span>
+              {/* DISPLAY DYNAMIC RANGE */}
               <span className="detail-value">
                 {minRequired} - {maxAllowed} Members
               </span>
@@ -863,6 +871,7 @@ const SingleHackathon = () => {
               <button className="ai-modal-close" onClick={closeAIModal}>&times;</button>
             </div>
 
+            {/* Tip Note */}
             <div style={{
               background: '#eff6ff',
               border: '1px solid #bfdbfe',
@@ -879,7 +888,7 @@ const SingleHackathon = () => {
                 color: '#1e40af',
                 lineHeight: '1.5'
               }}>
-                <strong>Tip:</strong> Add skills, interests, and bio for each team member in their profile to get the most accurate recommendations!
+                <strong>Tip:</strong> Add skills, interests, and bio for each team member in their profile to get the most accurate and efficient recommendations!
               </p>
             </div>
 

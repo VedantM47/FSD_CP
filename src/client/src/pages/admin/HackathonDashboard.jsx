@@ -14,6 +14,9 @@ function HackathonDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // ─── ROLE-BASED NAVIGATION LOGIC ───
+  // If systemRole is 'admin', they get the full Admin Navbar.
+  // If systemRole is 'user', they get the restricted Organizer Navbar.
   const navMode = user?.systemRole === "admin" ? "admin" : "organizer";
 
   useEffect(() => {
@@ -58,10 +61,16 @@ function HackathonDashboard() {
 
   return (
     <div className="admin-layout">
+      {/* The Navbar now automatically adapts. 
+          Organizer sees: "Organizer Portal" | Logout
+          Admin sees: "Admin Dashboard" | Dashboard | Create Hackathon | Logout
+      */}
       <Navbar navigationMode={navMode} title="Manage Event" />
 
       <main className="admin-main">
+        {/* ─── ACTION HEADER ─── */}
         <div className="admin-container" style={{ marginTop: '20px' }}>
+          {/* Back Button */}
           <button
             onClick={() => navigate('/admin/dashboard')}
             style={{
@@ -78,6 +87,8 @@ function HackathonDashboard() {
               gap: '6px',
               transition: 'color 0.2s ease'
             }}
+            onMouseEnter={(e) => e.target.style.color = '#4f9cf9'}
+            onMouseLeave={(e) => e.target.style.color = '#043873'}
           >
             ← Back to Dashboard
           </button>
@@ -118,6 +129,7 @@ function HackathonDashboard() {
           </div>
         </div>
 
+        {/* ─── VISUAL HERO ─── */}
         <div className="hackathon-hero" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', padding: '50px 0', color: 'white', textAlign: 'center', marginTop: '20px' }}>
           <div className="hero-content">
             <h1 style={{ fontSize: '2.5rem', marginBottom: '10px' }}>{hackathon.title}</h1>
@@ -127,6 +139,7 @@ function HackathonDashboard() {
           </div>
         </div>
 
+        {/* ─── STATS OVERVIEW ─── */}
         <div className="admin-container" style={{ marginTop: '30px' }}>
           <section className="overview-section">
             <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', color: '#475569' }}>Management Overview</h2>
@@ -151,13 +164,14 @@ function HackathonDashboard() {
           </section>
         </div>
 
+        {/* ─── CONTENT DETAILS ─── */}
         <div className="admin-container view-container" style={{ marginTop: '40px', display: 'grid', gap: '30px', paddingBottom: '60px' }}>
           <section className="view-section">
             <h2 style={{ fontSize: '1.1rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', marginBottom: '15px' }}>Description</h2>
             <p style={{ color: '#334155', lineHeight: '1.6' }}>{hackathon.description}</p>
           </section>
 
-          {/* Problem Statements */}
+          {/* PROBLEM STATEMENTS */}
           {hackathon.problemStatements && hackathon.problemStatements.length > 0 && (
             <section className="view-section">
               <h2 style={{ fontSize: '1.1rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', marginBottom: '15px' }}>Problem Statements</h2>
@@ -172,10 +186,21 @@ function HackathonDashboard() {
                       border: '1px solid #e2e8f0'
                     }}
                   >
-                    <h3 style={{ margin: '0 0 12px 0', fontSize: '1.05rem', fontWeight: '600', color: '#0f172a' }}>
+                    <h3 style={{ 
+                      margin: '0 0 12px 0', 
+                      fontSize: '1.05rem', 
+                      fontWeight: '600', 
+                      color: '#0f172a' 
+                    }}>
                       {index + 1}. {ps.title}
                     </h3>
-                    <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.6', color: '#475569', whiteSpace: 'pre-wrap' }}>
+                    <p style={{ 
+                      margin: 0, 
+                      fontSize: '0.95rem', 
+                      lineHeight: '1.6', 
+                      color: '#475569',
+                      whiteSpace: 'pre-wrap'
+                    }}>
                       {ps.description}
                     </p>
                   </div>
@@ -184,19 +209,79 @@ function HackathonDashboard() {
             </section>
           )}
 
-          {/* Rounds */}
+          {/* ROUNDS */}
           {hackathon.rounds && hackathon.rounds.length > 0 && (
             <section className="view-section">
               <h2 style={{ fontSize: '1.1rem', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', marginBottom: '15px' }}>Rounds</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {hackathon.rounds.map((round, index) => (
-                  <div key={index} style={{ padding: '20px', backgroundColor: '#fef3c7', borderRadius: '12px', border: '1px solid #fbbf24' }}>
-                    <h3 style={{ margin: '0 0 12px 0', fontSize: '1.05rem', fontWeight: '600', color: '#92400e' }}>
+                  <div 
+                    key={index} 
+                    style={{ 
+                      padding: '20px', 
+                      backgroundColor: '#fef3c7', 
+                      borderRadius: '12px',
+                      border: '1px solid #fbbf24'
+                    }}
+                  >
+                    <h3 style={{ 
+                      margin: '0 0 12px 0', 
+                      fontSize: '1.05rem', 
+                      fontWeight: '600', 
+                      color: '#92400e' 
+                    }}>
                       Round {index + 1}: {round.name}
                     </h3>
-                    <p style={{ margin: '0 0 12px 0', fontSize: '0.95rem', lineHeight: '1.6', color: '#78350f', whiteSpace: 'pre-wrap' }}>
+                    <p style={{ 
+                      margin: '0 0 12px 0', 
+                      fontSize: '0.95rem', 
+                      lineHeight: '1.6', 
+                      color: '#78350f',
+                      whiteSpace: 'pre-wrap'
+                    }}>
                       {round.description}
                     </p>
+                    
+                    {(round.startDate || round.endDate) && (
+                      <div style={{ 
+                        display: 'flex', 
+                        gap: '20px', 
+                        marginBottom: '12px',
+                        fontSize: '0.85rem',
+                        color: '#92400e'
+                      }}>
+                        {round.startDate && (
+                          <div>
+                            <strong>Start:</strong> {new Date(round.startDate).toLocaleString()}
+                          </div>
+                        )}
+                        {round.endDate && (
+                          <div>
+                            <strong>End:</strong> {new Date(round.endDate).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {round.submissionRequirements && (
+                      <div style={{ 
+                        marginTop: '12px',
+                        padding: '12px',
+                        backgroundColor: '#fffbeb',
+                        borderRadius: '8px',
+                        border: '1px solid #fcd34d'
+                      }}>
+                        <strong style={{ color: '#92400e', fontSize: '0.9rem' }}>Submission Requirements:</strong>
+                        <p style={{ 
+                          margin: '8px 0 0 0', 
+                          fontSize: '0.9rem', 
+                          color: '#78350f',
+                          whiteSpace: 'pre-wrap'
+                        }}>
+                          {round.submissionRequirements}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -213,14 +298,29 @@ function HackathonDashboard() {
             {hackathon.prizes && hackathon.prizes.length > 0 ? (
               <div>
                 {hackathon.prizes.map((prize, index) => (
-                  <div key={index} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 15px', background: '#f8fafc', borderRadius: '8px', marginBottom: '10px', border: '1px solid #e2e8f0' }}>
+                  <div key={index} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    padding: '10px 15px', 
+                    background: '#f8fafc', 
+                    borderRadius: '8px', 
+                    marginBottom: '10px',
+                    border: '1px solid #e2e8f0'
+                  }}>
                     <span style={{ fontWeight: '600', color: '#334155' }}>{prize.position}</span>
                     <span style={{ fontWeight: '700', color: '#059669', fontSize: '1.1rem' }}>
                       ₹{prize.amount.toLocaleString('en-IN')}
                     </span>
                   </div>
                 ))}
-                <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '2px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ 
+                  marginTop: '15px', 
+                  paddingTop: '15px', 
+                  borderTop: '2px solid #e2e8f0',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
                   <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0f172a' }}>Total Prize Pool:</span>
                   <span style={{ fontSize: '1.4rem', fontWeight: '800', color: '#059669' }}>
                     ₹{hackathon.prizes.reduce((sum, prize) => sum + prize.amount, 0).toLocaleString('en-IN')}
@@ -228,7 +328,7 @@ function HackathonDashboard() {
                 </div>
               </div>
             ) : (
-              <p style={{ color: '#059669', fontWeight: '600', fontSize: '1.2rem' }}>{hackathon.prizePool}</p>
+              <p style={{ color: '#334155', fontWeight: '600', fontSize: '1.2rem', color: '#059669' }}>{hackathon.prizePool}</p>
             )}
           </section>
         </div>

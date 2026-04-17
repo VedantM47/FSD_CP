@@ -1,13 +1,16 @@
-<<<<<<< HEAD
 # Hackathon AI Recommendation System
 
 AI-Driven Problem Statement Recommendation System for Hackathon Platform. This service provides intelligent problem statement recommendations to teams based on their skills, experience, and expertise.
+
+*Part of the larger Hackathon Platform that includes real-time discussions, teammate search, and comprehensive hackathon management features.*
 
 ## Features
 
 - **NLP-based Skill Extraction**: Automatically extracts skills, domains, and tools from team member profiles
 - **Semantic Similarity Matching**: Uses embeddings to find semantically similar problem statements
 - **Intelligent Recommendations**: Combines rule-based filtering with AI ranking for scalable recommendations
+- **Real-time Discussion System**: Socket.IO-powered chat for hackathon participants with role-based messaging
+- **Tag-based Teammate Search**: Simple and efficient teammate discovery using skill tags
 - **RESTful API**: Easy integration with existing web backend
 - **MongoDB Integration**: Compatible with existing Mongoose schemas
 
@@ -17,6 +20,24 @@ AI-Driven Problem Statement Recommendation System for Hackathon Platform. This s
 - **MongoDB** with Mongoose
 - **Natural Language Processing**: `natural`, `compromise`
 - **Embedding Generation**: Custom TF-IDF based embeddings
+- **Real-time Communication**: Socket.IO for live discussions
+- **Authentication**: JWT with OAuth (GitHub, Google)
+
+## Additional Features
+
+### Real-time Discussion System
+- **Socket.IO Integration**: Real-time messaging within hackathon rooms
+- **Role-based Messaging**: Different colors and badges for Admin, Judge, Mentor, and User roles
+- **Message History**: Persistent chat history with timestamps and date grouping
+- **Threaded Conversations**: Support for nested replies and discussions
+- **Authentication**: JWT-based socket authentication for secure connections
+
+### Teammate Search
+- **Tag-based Matching**: Simple skill tag matching for teammate discovery
+- **Profile-based Search**: Searches across user skills, interests, bio, and department
+- **Match Scoring**: Returns results sorted by skill match count
+- **Performance Optimized**: Direct database queries without complex AI processing
+- **User-friendly Results**: Clear indication of matching skills for each result
 
 ## Project Structure
 
@@ -130,6 +151,20 @@ The server will start on `http://localhost:3001` (or the port specified in `.env
   - Query params: `limit`
 
 - **GET** `/api/recommendations/teams/:teamId/stats` - Get recommendation statistics
+
+### Discussion System
+
+- **GET** `/api/hackathons/:hackathonId/discussion` - Get discussion history for a hackathon
+- **Socket.IO Events**:
+  - `join_hackathon` - Join a hackathon discussion room
+  - `send_message` - Send a message (with optional parentId for replies)
+  - `receive_message` - Listen for new messages in real-time
+
+### Teammate Search
+
+- **POST** `/api/ai/embed` - Prepare user profile for search (profile readiness check)
+- **GET** `/api/ai/search?tags=skill1,skill2` - Search for teammates by skill tags
+  - Returns users with matching skills, sorted by match count
 
 ## Workflow
 
@@ -247,6 +282,27 @@ recommendation_results
 - [ ] Support for custom skill dictionaries
 - [ ] Real-time recommendation updates
 
+## Recent Changes
+
+### Discussion Feature Implementation
+- **Real-time Chat System**: Added Socket.IO-based discussion system for hackathon participants
+- **Role-based UI**: Implemented different message colors and badges for Admin (Red), Judge (Purple), Mentor (Green), and User (Blue) roles
+- **Message Persistence**: Added MongoDB schema for storing discussion messages with support for threaded conversations
+- **Authentication**: Integrated JWT-based socket authentication for secure real-time connections
+- **Frontend Components**: Created reusable DiscussionPanel and Discussion page components with responsive design
+
+### Teammate Search Simplification
+- **Tag-based Search**: Converted from complex AI vector embeddings to simple skill tag matching
+- **Performance Improvement**: Removed heavy @xenova/transformers dependency, reducing memory usage and query time
+- **Simplified API**: Changed from natural language queries (`?q=looking for python expert`) to tag-based (`?tags=javascript,react`)
+- **User Experience**: Results now show exact matching skills, making search results more transparent
+- **Maintenance**: Eliminated complex AI model management while maintaining search functionality
+
+### Branding and Navigation Updates
+- **Consistent Branding**: Standardized all references to "HackHub" across the platform
+- **React Router Integration**: Converted all navigation links from `<a href>` to `<Link to>` for proper SPA behavior
+- **Footer Consistency**: Updated all footers to use consistent styling and navigation links
+
 ## Troubleshooting
 
 ### MongoDB Connection Issues
@@ -271,7 +327,3 @@ ISC
 ## Support
 
 For issues or questions, please contact the AI team.
-
-=======
-# Hackathon_Project_2025-26
->>>>>>> fba25e15239b7fada200d30d7149a8b1b74d5deb

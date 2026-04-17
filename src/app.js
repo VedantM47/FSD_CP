@@ -37,6 +37,7 @@ import adminRoutes from './routes/admin.routes.js';
 import profileRoutes from './routes/profile.routes.js';
 import organizerRoutes from './routes/organizer.routes.js';
 import participantRoutes from './routes/participant.routes.js';
+import recommendationRoutes from './routes/recommendation.routes.js';
 
 // Resolve paths for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -101,6 +102,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/organizer', organizerRoutes);
 app.use('/api/participant', participantRoutes);
+app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/oauth', oauthRoutes);
 
 /* ================= HEALTH CHECK ================= */
 app.get('/test', (req, res) => {
