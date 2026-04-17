@@ -12,13 +12,12 @@
 
 /* CHANGE #1: Remove overflow: hidden, add height: 100% */
 html, body {
-  height: 100%;
-  overflow: hidden; /* Prevent body scroll */
+  min-height: 100%;
 }
 
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #f8f9fa;
+  background-color: #F2F2F2;
   color: #333;
 }
 /* ============================================ */
@@ -121,16 +120,14 @@ body {
 
 /* CHANGE #2: Add height: 100% and keep flex column */
 .admin-layout {
-  height: 100%; /* Changed from min-height: 100vh */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 /* CHANGE #3: Add overflow-y: auto to enable scrolling */
 .admin-main {
-  flex: 1;
-  overflow-y: auto; /* THIS ENABLES SCROLLING */
-  overflow-x: hidden;
+  flex: 1; /* Pushes the footer down */
   padding: 32px 0;
 }
 
@@ -530,6 +527,7 @@ body {
   background-color: #043873;
   padding: 24px 0;
   flex-shrink: 0; /* Prevent footer from shrinking */
+  margin-top: auto; /* Stays at bottom */
 }
 
 .footer-content {

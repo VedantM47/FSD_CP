@@ -36,14 +36,19 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  min-height: 100vh;
+  color-scheme: light;
+  color: #213547;
+  background-color: #F2F2F2;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  height: 100%;
+  margin: 0;
 }
 
 a {
@@ -58,7 +63,24 @@ a:hover {
 
 body {
   margin: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #F2F2F2;
+}
+
+#root {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main, .sh-wrapper {
+  flex: 1;
+}
+
+footer, .footer, .judge-footer {
+  margin-top: auto;
 }
 
 h1 {
@@ -88,17 +110,15 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* Light-mode overrides — background kept consistent (#F2F2F2) to
+   avoid white bleed on :root during overscroll or uncovered gaps. */
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    background-color: #ffffff;
+    background-color: #F2F2F2;
   }
 
   a:hover {
     color: #747bff;
-  }
-
-  button {
-    background-color: #f9f9f9;
   }
 }

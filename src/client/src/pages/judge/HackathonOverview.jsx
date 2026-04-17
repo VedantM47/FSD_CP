@@ -156,6 +156,7 @@ const HackathonOverview = () => {
               >
                 Back to Hackathons
               </button>
+
             </div>
           </div>
         </main>
@@ -169,60 +170,64 @@ const HackathonOverview = () => {
       <Navbar />
 
       <main className="page-main">
-        <div className="page-container overview-container">
-          <button
-            onClick={() => navigate(-1)}
-            className="back-button"
-            style={{ marginBottom: "16px" }}
-          >
-            ← Back
-          </button>
-          <div className="overview-card">
-            <div className="overview-header">
-              <h1 className="overview-title">{hackathon.title}</h1>
-              <span
-                className={`status-badge ${getStatusBadgeClass(hackathon.status)}`}
+        <div className="page-container">
+          <div className="page-header">
+            <div className="page-header-top">
+              <button
+                onClick={() => navigate(-1)}
+                className="back-button"
               >
-                {getStatusText(hackathon.status)}
-              </span>
+                ← Back
+              </button>
             </div>
+            <div className="page-header-content">
+              <h1 className="page-title">{hackathon.title}</h1>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", flexWrap: "wrap", marginBottom: "8px" }}>
+                <span
+                  className={`status-badge ${getStatusBadgeClass(hackathon.status)}`}
+                >
+                  {getStatusText(hackathon.status)}
+                </span>
+                <span className="page-subtitle" style={{ fontSize: "14px" }}>Final Round</span>
+              </div>
+            </div>
+          </div>
 
-            <p className="overview-round">Final Round</p>
-
+          <div className="overview-card">
             <p className="overview-description">
               {hackathon.description || "No description available"}
             </p>
 
             {/* Problem Statements Section */}
             {hackathon.problemStatements && hackathon.problemStatements.length > 0 && (
-              <div style={{ marginTop: '24px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>
+              <div style={{ marginTop: '28px' }}>
+                <h3 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--jdg-secondary)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                   Problem Statements
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {hackathon.problemStatements.map((ps, index) => (
                     <div 
                       key={index} 
                       style={{ 
-                        padding: '16px', 
-                        backgroundColor: '#f8fafc', 
+                        padding: '16px 20px', 
+                        backgroundColor: 'var(--jdg-bg)', 
                         borderRadius: '10px',
-                        border: '1px solid #e2e8f0'
+                        border: '1px solid var(--jdg-border)'
                       }}
                     >
                       <h4 style={{ 
                         margin: '0 0 8px 0', 
-                        fontSize: '1rem', 
-                        fontWeight: '600', 
-                        color: '#0f172a' 
+                        fontSize: '0.95rem', 
+                        fontWeight: '700', 
+                        color: 'var(--jdg-contrast)' 
                       }}>
                         {index + 1}. {ps.title}
                       </h4>
                       <p style={{ 
                         margin: 0, 
-                        fontSize: '0.9rem', 
-                        lineHeight: '1.5', 
-                        color: '#475569',
+                        fontSize: '0.875rem', 
+                        lineHeight: '1.65', 
+                        color: 'var(--jdg-secondary)',
                         whiteSpace: 'pre-wrap'
                       }}>
                         {ps.description}
@@ -235,34 +240,35 @@ const HackathonOverview = () => {
 
             {/* Rounds Section */}
             {hackathon.rounds && hackathon.rounds.length > 0 && (
-              <div style={{ marginTop: '24px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>
+              <div style={{ marginTop: '28px' }}>
+                <h3 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--jdg-secondary)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                   Rounds
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {hackathon.rounds.map((round, index) => (
                     <div 
                       key={index} 
                       style={{ 
-                        padding: '16px', 
-                        backgroundColor: '#fef3c7', 
+                        padding: '16px 20px', 
+                        backgroundColor: 'rgba(232, 210, 140, 0.1)', 
                         borderRadius: '10px',
-                        border: '1px solid #fbbf24'
+                        border: '1px solid rgba(232, 210, 140, 0.45)',
+                        borderLeft: '4px solid var(--jdg-accent)'
                       }}
                     >
                       <h4 style={{ 
                         margin: '0 0 8px 0', 
-                        fontSize: '1rem', 
-                        fontWeight: '600', 
-                        color: '#92400e' 
+                        fontSize: '0.95rem', 
+                        fontWeight: '700', 
+                        color: 'var(--jdg-contrast)' 
                       }}>
                         Round {index + 1}: {round.name}
                       </h4>
                       <p style={{ 
                         margin: '0 0 8px 0', 
-                        fontSize: '0.9rem', 
-                        lineHeight: '1.5', 
-                        color: '#78350f',
+                        fontSize: '0.875rem', 
+                        lineHeight: '1.65', 
+                        color: 'var(--jdg-secondary)',
                         whiteSpace: 'pre-wrap'
                       }}>
                         {round.description}
@@ -271,19 +277,19 @@ const HackathonOverview = () => {
                       {(round.startDate || round.endDate) && (
                         <div style={{ 
                           display: 'flex', 
-                          gap: '16px', 
+                          gap: '20px', 
                           marginBottom: '8px',
-                          fontSize: '0.85rem',
-                          color: '#92400e'
+                          fontSize: '0.825rem',
+                          color: 'var(--jdg-secondary)'
                         }}>
                           {round.startDate && (
                             <div>
-                              <strong>Start:</strong> {new Date(round.startDate).toLocaleString()}
+                              <strong style={{ color: 'var(--jdg-contrast)' }}>Start:</strong> {new Date(round.startDate).toLocaleString()}
                             </div>
                           )}
                           {round.endDate && (
                             <div>
-                              <strong>End:</strong> {new Date(round.endDate).toLocaleString()}
+                              <strong style={{ color: 'var(--jdg-contrast)' }}>End:</strong> {new Date(round.endDate).toLocaleString()}
                             </div>
                           )}
                         </div>
@@ -291,17 +297,17 @@ const HackathonOverview = () => {
                       
                       {round.submissionRequirements && (
                         <div style={{ 
-                          marginTop: '8px',
-                          padding: '10px',
-                          backgroundColor: '#fffbeb',
+                          marginTop: '10px',
+                          padding: '12px 14px',
+                          backgroundColor: 'var(--jdg-white)',
                           borderRadius: '8px',
-                          border: '1px solid #fcd34d'
+                          border: '1px solid var(--jdg-border)'
                         }}>
-                          <strong style={{ color: '#92400e', fontSize: '0.85rem' }}>Submission Requirements:</strong>
+                          <strong style={{ color: 'var(--jdg-contrast)', fontSize: '0.825rem' }}>Submission Requirements:</strong>
                           <p style={{ 
                             margin: '6px 0 0 0', 
-                            fontSize: '0.85rem', 
-                            color: '#78350f',
+                            fontSize: '0.825rem', 
+                            color: 'var(--jdg-secondary)',
                             whiteSpace: 'pre-wrap'
                           }}>
                             {round.submissionRequirements}
@@ -316,11 +322,11 @@ const HackathonOverview = () => {
 
             {/* Prize Distribution Section */}
             {hackathon.prizes && hackathon.prizes.length > 0 && (
-              <div style={{ marginTop: '24px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#111827', marginBottom: '16px' }}>
+              <div style={{ marginTop: '28px' }}>
+                <h3 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--jdg-secondary)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                   Prize Distribution
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {hackathon.prizes.map((prize, index) => (
                     <div 
                       key={index}
@@ -328,23 +334,23 @@ const HackathonOverview = () => {
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        padding: '14px 18px',
-                        background: '#f8fafc',
-                        border: '1px solid #e2e8f0',
+                        padding: '13px 18px',
+                        background: 'var(--jdg-bg)',
+                        border: '1px solid var(--jdg-border)',
                         borderRadius: '10px'
                       }}
                     >
                       <span style={{ 
-                        fontSize: '0.95rem', 
+                        fontSize: '0.9rem', 
                         fontWeight: '600', 
-                        color: '#0f172a' 
+                        color: 'var(--jdg-secondary)' 
                       }}>
                         {prize.position}
                       </span>
                       <span style={{ 
-                        fontSize: '1.1rem', 
+                        fontSize: '1.05rem', 
                         fontWeight: '800', 
-                        color: '#059669' 
+                        color: 'var(--jdg-contrast)' 
                       }}>
                         ₹{prize.amount.toLocaleString('en-IN')}
                       </span>
@@ -353,19 +359,19 @@ const HackathonOverview = () => {
                   
                   {/* Total Prize Pool */}
                   <div style={{
-                    marginTop: '8px',
-                    padding: '16px 18px',
-                    background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-                    border: '2px solid #3b82f6',
+                    marginTop: '6px',
+                    padding: '14px 18px',
+                    background: 'var(--jdg-primary-light)',
+                    border: '1.5px solid rgba(74, 144, 226, 0.35)',
                     borderRadius: '10px',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
                   }}>
-                    <span style={{ fontSize: '1rem', fontWeight: '700', color: '#1e40af' }}>
-                      Total Prize Pool:
+                    <span style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--jdg-contrast)' }}>
+                      Total Prize Pool
                     </span>
-                    <span style={{ fontSize: '1.3rem', fontWeight: '800', color: '#1e3a8a' }}>
+                    <span style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--jdg-primary)' }}>
                       ₹{hackathon.prizes.reduce((sum, prize) => sum + prize.amount, 0).toLocaleString('en-IN')}
                     </span>
                   </div>
