@@ -1,0 +1,197 @@
+import User from '../models/user.model.js';
+import Team from '../models/team.model.js';
+import Submission from '../models/submission.model.js';
+import Hackathon from '../models/hackathon.model.js';
+import Evaluation from '../models/evaluation.model.js';
+import log from '../utils/logger.js';
+
+/**
+ * @desc    Get aggregated profile for the currently logged-in user
+ * @route   GET /api/profile/me
+ * @access  Private
+ */
+export const getMyProfile = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    log.info('PROFILE', `Aggregating profile for: ${req.user?.email}`);
+
+    // 1. Full user document (with populated teams)
+    const user = await User.findById(userId)
+      .populate('teams')
+      .lean();
+
+    if (!user) {
+      return next({ statusCode: 404, message: 'User not found' });
+    }
+
+    // 2. Teams where user is a member/leader
+    const teams = await Team.find({
+      $or: [
+        { leader: userId },
+        { 'members.userId': userId, 'members.status': 'accepted' },
+      ],
+    })
+      .populate('hackathonId', 'title status startDate endDate')
+      .populate('leader', 'fullName email')
+      .populate('members.userId', 'fullName email')
+      .lean();
+
+    // 3. Submissions by this user
+    const submissions = await Submission.find({ submittedBy: userId })
+      .populate('hackathonId', 'title status')
+      .populate('teamId', 'name')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // ─── FIX START: SECTION 4 (THE CRASH FIX) ──────────────────────────
+    // We check for both 'hackathonId' AND 'hId' to prevent undefined.toString() crashes
+    const hackathonRoleIds = (user.hackathonRoles || [])
+      .map(r => r.hackathonId || r.hId) 
+      .filter(Boolean); // Remove null/undefined values
+
+    const hackathonsFromTeams = teams.map(t => t.hackathonId?._id).filter(Boolean);
+    
+    // Convert all to strings safely before creating the Set
+    const allHackathonIds = [...new Set([
+      ...hackathonRoleIds.map(id => id.toString()),
+      ...hackathonsFromTeams.map(id => id.toString()),
+    ])];
+    // ─── FIX END ──────────────────────────────────────────────────────
+
+    const hackathons = await Hackathon.find({ _id: { $in: allHackathonIds } })
+      .sort({ startDate: -1 })
+      .lean();
+
+    // 5. Evaluations for user's teams
+    const teamIds = teams.map(t => t._id);
+    const evaluations = await Evaluation.find({ teamId: { $in: teamIds } })
+      .populate('hackathonId', 'title')
+      .lean();
+
+    // 6. Compute stats
+    const activeHackathons = hackathons.filter(h =>
+      h.status === 'open' || h.status === 'ongoing'
+    );
+
+    // Determine user's role in each hackathon
+    const hackathonDetails = hackathons.map(h => {
+      const team = teams.find(t =>
+        t.hackathonId?._id?.toString() === h._id.toString()
+      );
+      const isLeader = team?.leader?._id?.toString() === userId.toString();
+      const role = isLeader
+        ? 'Team Leader'
+        : team
+          ? 'Team Member'
+          : 'Solo';
+
+      let status = 'Registered';
+      if (h.status === 'ongoing') status = 'In Progress';
+      else if (h.status === 'closed') status = 'Completed';
+
+      const sub = submissions.find(s =>
+        s.hackathonId?._id?.toString() === h._id.toString()
+      );
+      const result = sub?.finalRank || (sub?.qualified ? 'Qualified' : '-');
+
+      return {
+        _id: h._id,
+        title: h.title,
+        status,
+        role,
+        result,
+        startDate: h.startDate,
+        endDate: h.endDate,
+        teamName: team?.name || null,
+        teamId: team?._id || null,
+      };
+    });
+
+    // 7. Format teams for frontend
+    const teamsFormatted = teams.map(t => {
+      const hackathon = t.hackathonId;
+      const isLeader = t.leader?._id?.toString() === userId.toString();
+      const acceptedMembers = (t.members || []).filter(m => m.status === 'accepted');
+
+      return {
+        _id: t._id,
+        name: t.name,
+        hackathonName: hackathon?.title || 'Unknown',
+        hackathonId: hackathon?._id,
+        isLeader,
+        membersCount: acceptedMembers.length,
+        status: hackathon?.status === 'ongoing' || hackathon?.status === 'open'
+          ? 'Active'
+          : 'Completed',
+        isOpenToJoin: t.isOpenToJoin,
+        members: (t.members || []).map(m => ({
+          name: m.userId?.fullName || 'Unknown',
+          role: t.leader?._id?.toString() === m.userId?._id?.toString() ? 'Leader' : 'Member',
+          status: m.status,
+        })),
+      };
+    });
+
+    // 8. Format submissions for frontend
+    const submissionsFormatted = submissions.map(s => {
+      const teamEvals = evaluations.filter(e =>
+        e.teamId?.toString() === s.teamId?._id?.toString() &&
+        e.hackathonId?._id?.toString() === s.hackathonId?._id?.toString()
+      );
+      const avgScore = teamEvals.length > 0
+        ? Math.round(teamEvals.reduce((sum, e) => sum + (e.totalScore || 0), 0) / teamEvals.length)
+        : null;
+
+      return {
+        _id: s._id,
+        hackathonName: s.hackathonId?.title || 'Unknown',
+        hackathonId: s.hackathonId?._id,
+        teamName: s.teamId?.name || 'Unknown',
+        round: s.round || 'Round 1',
+        link: s.projectDetails?.repoLink || s.projectDetails?.demoLink || s.projectDetails?.pptLink || '',
+        score: avgScore !== null ? `${avgScore}/100` : '-',
+        feedbackStatus: teamEvals.length > 0 ? 'available' : 'pending',
+        status: s.status,
+      };
+    });
+
+    // 8.5 Invitations — teams where user has status 'invited'
+    const invitedTeams = await Team.find({
+      members: { $elemMatch: { userId, status: 'invited' } }
+    })
+      .populate('hackathonId', 'title')
+      .populate('leader', 'fullName email')
+      .lean();
+
+    const invitations = invitedTeams.map(t => ({
+      teamId: t._id,
+      teamName: t.name,
+      hackathonName: t.hackathonId?.title || 'Unknown',
+      hackathonId: t.hackathonId?._id,
+      leaderName: t.leader?.fullName || 'Unknown',
+    }));
+
+    // 9. Build response
+    const profile = {
+      user: {
+        ...user,
+        password: undefined,
+      },
+      stats: {
+        hackathonsParticipated: hackathons.length,
+        wins: submissions.filter(s => s.finalRank && s.finalRank <= 3).length,
+        activeHackathons: activeHackathons.length,
+      },
+      hackathons: hackathonDetails,
+      teams: teamsFormatted,
+      submissions: submissionsFormatted,
+      invitations,
+    };
+
+    log.success('PROFILE', `Profile aggregated: ${hackathons.length} hackathons`);
+    res.status(200).json({ success: true, data: profile });
+  } catch (err) {
+    log.error('PROFILE', 'Failed to aggregate profile', err);
+    next({ statusCode: 500, message: 'Failed to load profile' });
+  }
+};

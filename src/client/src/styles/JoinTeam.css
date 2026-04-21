@@ -1,0 +1,164 @@
+.jt-wrapper {
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #1E293B;
+  padding-bottom: 80px;
+}
+
+.jt-intake-bg { background-color: #F8FAFC; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.jt-browse-bg { background-color: #F4F7F9; }
+
+/* Intake Card */
+.jt-intake-card {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  text-align: center;
+  border: 1px solid #E2E8F0;
+}
+
+.jt-intake-icon { font-size: 3rem; margin-bottom: 20px; }
+.jt-intake-title { font-size: 1.8rem; font-weight: 800; color: #0F172A; margin-bottom: 10px; }
+.jt-intake-subtitle { color: #64748B; margin-bottom: 30px; font-size: 0.95rem; }
+
+.jt-form-group { text-align: left; margin-bottom: 20px; }
+.jt-form-group label { display: block; font-weight: 700; font-size: 0.85rem; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.jt-input, .jt-select, .jt-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  background-color: #F8FAFC;
+}
+
+.jt-input:focus, .jt-textarea:focus { border-color: #2563EB; outline: none; background-color: white; }
+
+.jt-btn-primary {
+  width: 100%;
+  background: #2563EB;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+}
+.jt-btn-primary:hover { background: #1D4ED8; }
+.jt-btn-ghost { background: none; border: none; color: #94A3B8; margin-top: 15px; cursor: pointer; font-size: 0.9rem; }
+
+/* Browse Header */
+.jt-browse-header {
+  background: white;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.jt-header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.jt-back-nav { display: flex; align-items: center; gap: 15px; }
+.jt-icon-btn { background: #F1F5F9; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; color: #475569; }
+
+.jt-browse-title { font-size: 1.4rem; font-weight: 800; color: #0F172A; margin: 0; }
+.jt-browse-subtitle { margin: 0; font-size: 0.9rem; color: #64748B; }
+
+.jt-search-wrapper { position: relative; width: 350px; }
+.jt-search-icon { position: absolute; left: 14px; top: 11px; color: #94A3B8; }
+.jt-search-input { width: 100%; padding: 10px 15px 10px 40px; border-radius: 20px; border: 1px solid #E2E8F0; background: #F8FAFC; }
+
+/* Teams Grid */
+.jt-teams-grid {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+}
+
+.jt-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #E2E8F0;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+.jt-card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px rgba(0,0,0,0.04); }
+
+.jt-card-top { margin-bottom: 16px; }
+.jt-team-info { display: flex; justify-content: space-between; align-items: flex-start; }
+.jt-team-name { font-size: 1.25rem; font-weight: 800; color: #0F172A; margin: 0; }
+
+.jt-status-tag { padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; }
+.jt-status-tag.open { background: #ECFDF5; color: #047857; }
+.jt-status-tag.full { background: #FEF2F2; color: #B91C1C; }
+
+.jt-team-desc { color: #475569; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; flex-grow: 1; }
+
+.jt-progress-section { margin-bottom: 24px; }
+.jt-progress-meta { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: #64748B; margin-bottom: 8px; }
+.jt-progress-bar { height: 8px; background: #F1F5F9; border-radius: 4px; overflow: hidden; }
+.jt-progress-fill { height: 100%; background: #2563EB; border-radius: 4px; transition: width 0.3s ease; }
+
+.jt-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.jt-leader-info { display: flex; align-items: center; gap: 10px; }
+.jt-leader-avatar { width: 36px; height: 36px; background: #DBEAFE; color: #2563EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; }
+.jt-leader-label { display: block; font-size: 0.7rem; color: #94A3B8; font-weight: 600; text-transform: uppercase; }
+.jt-leader-name { font-size: 0.9rem; font-weight: 700; color: #1E293B; }
+
+.jt-btn-join {
+  background: #2563EB;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.jt-btn-join:hover:not(.disabled) { background: #1D4ED8; }
+.jt-btn-join.disabled { background: #F1F5F9; color: #94A3B8; cursor: not-allowed; }
+
+.jt-state-msg { grid-column: 1/-1; text-align: center; padding: 60px; color: #94A3B8; font-weight: 500; }
+
+@media (max-width: 768px) {
+  .jt-header-content { flex-direction: column; align-items: flex-start; }
+  .jt-search-wrapper { width: 100%; }
+}
+.team-skill-tag {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+}

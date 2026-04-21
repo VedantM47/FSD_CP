@@ -1,0 +1,80 @@
+export const discoveryHackathons = [
+    {
+        id: 1,
+        name: "AI Innovation Challenge 2026",
+        organization: "Tech University",
+        description: "Build next-generation AI solutions for real-world...",
+        tags: ["AI", "Machine Learning", "Open Innovation"],
+        teamSize: "2-4",
+        mode: "Online",
+        deadline: "Jan 9, 2026",
+        prizePool: "₹50,000",
+        status: "Ongoing",
+        image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=800"
+    },
+    {
+        id: 2,
+        name: "Web3 Builder Hackathon",
+        organization: "Blockchain Innovators",
+        description: "Create decentralized applications on blockchain",
+        tags: ["Web3", "Blockchain", "DeFi"],
+        teamSize: "1-5",
+        mode: "Hybrid",
+        deadline: "Jan 12, 2026",
+        prizePool: "₹75,000",
+        status: "Ongoing",
+        image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=800"
+    },
+    {
+        id: 3,
+        name: "IoT Smart Cities Hackathon",
+        organization: "Innovation Labs",
+        description: "Design IoT solutions for sustainable urban living",
+        tags: ["IoT", "Smart Cities", "Sustainability"],
+        teamSize: "2-5",
+        mode: "Offline",
+        deadline: "Jan 8, 2026",
+        prizePool: "₹30,000",
+        status: "Ongoing",
+        image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800"
+    },
+    {
+        id: 4,
+        name: "AI Innovation Challenge 2026",
+        organization: "Tech University",
+        description: "Build next-generation AI solutions for real-world...",
+        tags: ["AI", "Machine Learning", "Open Innovation"],
+        teamSize: "2-4",
+        mode: "Online",
+        deadline: "Jan 9, 2026",
+        prizePool: "₹50,000",
+        status: "Ongoing",
+        image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=800"
+    },
+    {
+        id: 5,
+        name: "Web3 Builder Hackathon",
+        organization: "Blockchain Innovators",
+        description: "Create decentralized applications on blockchain",
+        tags: ["Web3", "Blockchain", "DeFi"],
+        teamSize: "1-5",
+        mode: "Hybrid",
+        deadline: "Jan 12, 2026",
+        prizePool: "₹75,000",
+        status: "Ongoing",
+        image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=800"
+    },
+    {
+        id: 6,
+        name: "IoT Smart Cities Hackathon",
+        organization: "Innovation Labs",
+        description: "Design IoT solutions for sustainable urban living",
+        tags: ["IoT", "Smart Cities", "Sustainability"],
+        teamSize: "2-5",
+        mode: "Offline",
+        deadline: "Jan 8, 2026",
+        prizePool: "₹30,000",
+        status: "Ongoing",
+        image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800"
+    }
+];

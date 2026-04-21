@@ -1,0 +1,855 @@
+/* --- Global Wrapper --- */
+.sh-wrapper {
+  background-color: #F2F2F2; /* Standard background */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1E293B;
+}
+
+/* Remove ugly black outline on click globally for this component */
+.sh-wrapper button:focus, 
+.sh-wrapper a:focus,
+.sh-wrapper input:focus,
+.sh-wrapper .switch input:focus {
+  outline: none !important;
+}
+
+/* --- Top Bar & Back Button --- */
+.sh-topbar {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 24px 0;
+  display: flex; /* Ensures alignment */
+  align-items: center;
+}
+
+.sh-back-btn {
+  background: none;
+  border: none;
+  color: #64748B;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease, transform 0.2s ease;
+  padding: 0;
+}
+
+.sh-back-btn:hover {
+  color: #1E293B;
+  transform: translateX(-4px); 
+}
+
+/* --- Hero Section --- */
+.sh-hero-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 20px auto; 
+  padding: 0 24px;
+}
+
+.sh-hero-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #E2E8F0;
+}
+
+.sh-badges {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sh-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}
+
+.sh-badge.status-open, .sh-badge.status-ongoing {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.sh-badge.mode {
+  background: #F1F5F9;
+  color: #475569;
+}
+
+.sh-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #0B3C6F; /* Dark navy */
+  margin: 0 0 10px 0;
+  letter-spacing: -0.5px;
+}
+
+.sh-subtitle {
+  font-size: 1.1rem;
+  color: #64748B;
+  margin: 0;
+}
+
+/* --- Layout --- */
+.sh-layout {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 2.5fr 1fr;
+  gap: 24px;
+  align-items: start;
+  flex: 1; /* Pushes footer down naturally */
+}
+
+@media (max-width: 900px) {
+  .sh-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Main Content (Left) --- */
+.sh-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* Remove gap, use margin on cards instead */
+  position: relative; /* Establish positioning context */
+}
+
+/* Ensure content wrapper doesn't overlap with tabs */
+.sh-main > .sh-tabs-container ~ * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Profile-Style Tabs - FIXED TO PREVENT OVERLAP */
+.sh-tabs-container {
+  display: flex;
+  gap: 24px;
+  border-bottom: 2px solid #E2E8F0;
+  padding: 20px 0 20px;
+  position: sticky;
+  top: 72px;
+  background: #F2F2F2; 
+  z-index: 999;
+  margin-bottom: 80px; /* INCREASED: More physical space below tabs */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  min-height: 65px;
+}
+
+.sh-tab {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #64748B;
+  padding: 10px 4px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.sh-tab:hover {
+  color: #1E293B;
+}
+
+.sh-tab.active {
+  color: #2563EB;
+  border-bottom: 3px solid #2563EB;
+}
+
+/* Content Cards - CRITICAL: Prevent overlap with tabs */
+.sh-content-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E2E8F0;
+  scroll-margin-top: 240px; /* INCREASED: navbar (72px) + tabs (65px) + margin (80px) + buffer (23px) */
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+/* Ensure all sections with IDs have proper scroll offset */
+#About,
+#Timeline,
+#Prizes,
+#Rules,
+#Teams,
+div[id="Problem Statements"],
+div[id="Rounds"] {
+  scroll-margin-top: 240px; /* Match content card offset */
+}
+
+/* First content card needs significant top spacing to clear tabs */
+.sh-content-card:first-of-type {
+  margin-top: 50px;
+}
+
+/* Last content card */
+.sh-content-card:last-of-type {
+  margin-bottom: 40px;
+}
+
+.sh-card-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 24px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.about-text {
+  color: #475569;
+  line-height: 1.8;
+  font-size: 1.05rem;
+  white-space: pre-line;
+}
+
+/* --- NEW MODERN TIMELINE (Vertical Stepper) --- */
+.modern-timeline {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-left: 32px; 
+  margin-top: 10px;
+}
+
+.modern-timeline::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 10px;
+  left: 9px;
+  width: 2px;
+  background: #E2E8F0;
+}
+
+.timeline-step {
+  position: relative;
+  padding-bottom: 32px;
+}
+
+.timeline-step:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-indicator {
+  position: absolute;
+  left: -32px;
+  top: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 4px solid #CBD5E1;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.timeline-step.active .timeline-indicator {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 4px #DBEAFE; 
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.timeline-date {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.timeline-event {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.timeline-step.active .timeline-date,
+.timeline-step.active .timeline-event {
+  color: #2563EB;
+}
+
+/* --- Prizes --- */
+.prize-banner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: #EFF6FF;
+  padding: 24px 30px;
+  border-radius: 12px;
+  border: 1px solid #BFDBFE;
+}
+
+.prize-icon {
+  font-size: 3rem;
+}
+
+.prize-label {
+  display: block;
+  font-size: 0.95rem;
+  color: #1E40AF;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.prize-amount {
+  display: block;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #1E3A8A;
+  line-height: 1;
+}
+
+/* --- Rules --- */
+.sh-rules-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sh-rules-list li {
+  position: relative;
+  padding-left: 24px;
+  color: #475569;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.sh-rules-list li::before {
+  content: '•';
+  color: #2563EB;
+  font-weight: bold;
+  font-size: 1.5rem;
+  position: absolute;
+  left: 0;
+  top: -6px;
+}
+
+/* --- Sidebar (Right) --- */
+.sh-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 140px; /* Below navbar (72px) + tabs (60px) + spacing (8px) */
+}
+
+/* Ensure judge button is visually prominent */
+.sh-judge-view .btn-primary {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  background-color: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4);
+}
+.sh-judge-view .btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.sh-sidebar-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E2E8F0;
+}
+
+/* Exact Match Registered Badge */
+.dashboard-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.registered-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #ECFDF5;
+  color: #047857; 
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.registered-badge-pill .dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10B981; 
+  border-radius: 50%;
+}
+
+.dashboard-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+
+/* Countdown Blocks */
+.countdown-section {
+  margin-bottom: 24px;
+}
+
+.countdown-text {
+  font-size: 0.95rem;
+  color: #64748B;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.time-blocks {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.time-block {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 14px 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.time-block span {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.time-block small {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* Modernized Buttons (Fixes the "Antique" look) */
+.btn-primary {
+  width: 100%;
+  background: #2563EB; 
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: none; /* Removed heavy shadowing */
+}
+
+.btn-primary:hover {
+  background: #1D4ED8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.btn-secondary {
+  width: 100%;
+  background: transparent;
+  color: #2563EB;
+  border: 2px solid #E2E8F0; /* Clean border instead of thick shadow */
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.btn-secondary:hover {
+  border-color: #2563EB;
+  background: #EFF6FF;
+}
+
+.btn-disabled {
+  width: 100%;
+  background: #F1F5F9;
+  color: #94A3B8;
+  border: none;
+  padding: 16px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: not-allowed;
+}
+
+/* Join View */
+.sidebar-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.team-toggle-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.toggle-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* Toggle Switch (Modern Flat Style) */
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #E2E8F0; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+input:checked + .slider { background-color: #2563EB; }
+input:checked + .slider:before { transform: translateX(20px); }
+.slider.round { border-radius: 24px; }
+.slider.round:before { border-radius: 50%; }
+
+/* Sidebar Details */
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #F8FAFC;
+}
+.detail-row:last-child { border-bottom: none; }
+
+.detail-label { color: #64748B; font-weight: 500; font-size: 0.95rem; }
+.detail-value { color: #0F172A; font-weight: 700; font-size: 0.95rem; text-align: right;}
+
+/* Loading/Error states */
+.sh-loading, .sh-error {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F4F7F9;
+  color: #1E293B;
+}
+/* 1. Fix the Uneven Top Alignment */
+.sh-topbar {
+  display: flex !important;
+  align-items: center !important;
+  padding: 20px !important;
+  margin-bottom: 0 !important; /* Removes the gap before hero */
+}
+
+/* 2. Fix the Navbar "Antique" Buttons & Outlines */
+.sh-wrapper button, 
+.sh-tabs-container button {
+  outline: none !important;
+  box-shadow: none !important; /* Removes the heavy antique depth */
+}
+
+/* AI Recommendation Button */
+.ai-assistant-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  animation: pulse 2s infinite;
+}
+
+.ai-assistant-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+}
+
+.ai-assistant-btn svg {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.7);
+  }
+}
+
+/* AI Modal */
+.ai-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ai-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+  position: relative;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.ai-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.ai-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.ai-modal-title svg {
+  width: 32px;
+  height: 32px;
+  color: #667eea;
+}
+
+.ai-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.ai-modal-close:hover {
+  color: #0f172a;
+}
+
+.ai-loading {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.ai-loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f1f5f9;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.ai-loading-text {
+  color: #64748b;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ai-recommendation {
+  animation: fadeIn 0.4s ease;
+}
+
+.ai-match-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.ai-problem-card {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.ai-problem-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 12px 0;
+}
+
+.ai-problem-description {
+  color: #475569;
+  line-height: 1.7;
+  font-size: 1rem;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.ai-insights {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.ai-insight-item {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.ai-insight-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.ai-insight-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #667eea;
+}
+
+.ai-error {
+  text-align: center;
+  padding: 20px;
+}
+
+.ai-error-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.ai-error-text {
+  color: #64748b;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.ai-tooltip {
+  position: absolute;
+  bottom: 75px;
+  right: 0;
+  background: #0f172a;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.ai-assistant-btn:hover .ai-tooltip {
+  opacity: 1;
+}
+
+.ai-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  right: 20px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #0f172a;
+}
