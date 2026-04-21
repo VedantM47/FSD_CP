@@ -4,7 +4,7 @@ import Navbar from "../../components/common/Navbar";
 import FilterBar from "../../components/user/FilterBar";
 import HackathonCard from "../../components/user/cards/HackathonCard";
 import Footer from "../../components/common/Footer";
-import API, { getAuthHeaders } from "../../services/api";
+import { API, getAuthHeaders } from "../../services/api";
 import { Search } from 'lucide-react';
 import "../../styles/discovery.css";
 
